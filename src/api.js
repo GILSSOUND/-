@@ -22,10 +22,16 @@ export const uploadImage = async (file) => {
   const formData = new FormData();
   formData.append('image', file);
   
-  const res = await axios.post(`${API_URL}/upload`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    }
-  });
-  return res.data;
+  try {
+    const res = await axios.post(`${API_URL}/upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    });
+    return res.data;
+  } catch (error) {
+    // 백엔드에서 보낸 에러 메시지를 프론트엔드로 전달
+    const message = error.response?.data?.error || error.message;
+    throw new Error(message);
+  }
 };

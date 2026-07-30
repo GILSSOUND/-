@@ -18,13 +18,13 @@ const bannerData = [
   },
   {
     id: 2,
-    title: "✨ 신선함이 그대로, 갓 수확한 채소",
+    title: "신선함이 그대로, 갓 수확한 채소",
     subtitle: "산지직송 기획전 최대 30% 할인",
     imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200"
   },
   {
     id: 3,
-    title: "🥩 프리미엄 홈파티 스테이크 세트",
+    title: "프리미엄 홈파티 스테이크 세트",
     subtitle: "이번 주말엔 내가 요리사! 한정수량 특가",
     imageUrl: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=1200"
   }
@@ -66,7 +66,7 @@ function Home({ handleAddToCart, products }) {
 
       {/* Products Section */}
       <main className="section">
-        <h2 className="section-title">✨ 이주의 추천상품</h2>
+        <h2 className="section-title">이주의 추천상품</h2>
         <div className="product-grid">
           {products.map(product => (
             <div key={product._id || product.id} className="product-card" onClick={() => navigate(`/product/${product._id || product.id}`)}>
