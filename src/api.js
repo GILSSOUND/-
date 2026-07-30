@@ -23,15 +23,17 @@ export const uploadImage = async (file) => {
   formData.append('image', file);
   
   try {
-    const res = await axios.post(`${API_URL}/upload`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      }
-    });
-    return res.data;
+    // 렌더 서버(IP 차단)를 거치지 않고, 사용자 브라우저에서 직접 ImgBB로 쏩니다! (차단 확률 0%)
+    const imgbbKey = '272a28545c8744b89bb8bfacae772d6d'; // 확인된 정상 키
+    const res = await axios.post(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, formData);
+    
+    return {
+      success: true,
+      imageUrl: res.data.data.url
+    };
   } catch (error) {
-    // 백엔드에서 보낸 에러 메시지를 프론트엔드로 전달
-    const message = error.response?.data?.error || error.message;
+    // 프론트엔드에서 바로 잡은 에러
+    const message = error.response?.data?.error?.message || error.message;
     throw new Error(message);
   }
 };
