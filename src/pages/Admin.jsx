@@ -14,6 +14,7 @@ function Admin() {
     isBest: false
   });
   const [imageFile, setImageFile] = useState(null);
+  const [detailImageFile, setDetailImageFile] = useState(null);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -43,6 +44,12 @@ function Admin() {
     }
   };
 
+  const handleDetailFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setDetailImageFile(e.target.files[0]);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!imageFile) {
@@ -56,12 +63,19 @@ function Admin() {
       const uploadRes = await uploadImage(imageFile);
       const imageUrl = uploadRes.imageUrl;
 
+      let detailImageUrl = null;
+      if (detailImageFile) {
+        const detailUploadRes = await uploadImage(detailImageFile);
+        detailImageUrl = detailUploadRes.imageUrl;
+      }
+
       // 2. 상품 데이터 저장 (MongoDB)
       const newProduct = {
         ...formData,
         originalPrice: formData.originalPrice ? Number(formData.originalPrice) : null,
         price: Number(formData.price),
-        imageUrl
+        imageUrl,
+        detailImageUrl
       };
 
       await createProduct(newProduct);
@@ -72,6 +86,7 @@ function Admin() {
         name: '', category: 'mealkit', originalPrice: '', price: '', discount: '', isNewProduct: false, isBest: false
       });
       setImageFile(null);
+      setDetailImageFile(null);
       e.target.reset();
       loadProducts();
     } catch (error) {
@@ -149,9 +164,14 @@ function Admin() {
             </div>
 
             <div>
-              <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>상품 사진 (내 컴퓨터에서 선택)</label>
+              <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>상품 메인 사진 (필수)</label>
               <input type="file" accept="image/*" onChange={handleFileChange} required style={{width: '100%', padding: '0.5rem', border: '1px dashed #ccc', borderRadius: '8px'}} />
-              <p style={{fontSize: '0.85rem', color: '#888', marginTop: '0.5rem'}}>사진은 서버를 거쳐 클라우드(ImgBB)에 안전하게 영구 저장됩니다.</p>
+            </div>
+
+            <div>
+              <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>상품 상세 페이지용 긴 사진 (옵션)</label>
+              <input type="file" accept="image/*" onChange={handleDetailFileChange} style={{width: '100%', padding: '0.5rem', border: '1px dashed #ccc', borderRadius: '8px'}} />
+              <p style={{fontSize: '0.85rem', color: '#888', marginTop: '0.5rem'}}>메인 사진과 상세 사진 모두 클라우드(ImgBB)에 영구 저장됩니다.</p>
             </div>
 
             <button type="submit" className="primary-btn" disabled={uploading} style={{marginTop: '1rem'}}>

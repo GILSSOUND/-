@@ -98,11 +98,19 @@ function ProductDetail({ handleAddToCart, products }) {
           <div className="desc-tab">상품문의 (0)</div>
         </div>
         <div className="desc-content">
-          <h3>상세 정보</h3>
-          <p>이곳에 상품의 자세한 설명이나 조리 방법, 영양 정보 등의 이미지가 들어갑니다.</p>
-          <div style={{width: '100%', height: '500px', backgroundColor: '#f1f2f6', marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#747d8c'}}>
-            [상세 설명 이미지 영역]
-          </div>
+          {product.detailImageUrl ? (
+            <div style={{width: '100%', marginTop: '2rem', textAlign: 'center'}}>
+              <img src={product.detailImageUrl} alt="상품 상세 설명" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}} />
+            </div>
+          ) : (
+            <>
+              <h3>상세 정보</h3>
+              <p>이곳에 상품의 자세한 설명이나 조리 방법, 영양 정보 등의 이미지가 들어갑니다.</p>
+              <div style={{width: '100%', height: '500px', backgroundColor: '#f1f2f6', marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#747d8c', borderRadius: '8px'}}>
+                [판매자가 상세 설명 이미지를 등록하지 않았습니다]
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
