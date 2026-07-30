@@ -851,13 +851,27 @@ footer {
   .hero-slide-title { font-size: 1.8rem; margin-bottom: 0.5rem; }
   .hero-slide-subtitle { font-size: 0.95rem; }
 
+  .product-info {
+    padding: 0.8rem 0.5rem; /* 흰색 바탕 여백 줄이기 */
+    gap: 0.3rem;
+  }
+
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
 
   .product-name {
-    font-size: 0.95rem; /* 모바일 2열에서는 폰트를 조금 줄임 */
+    font-size: 0.95rem;
+    margin-bottom: 0;
+  }
+
+  .price-container {
+    flex-direction: row; /* 금액을 한 줄로 표시 */
+    justify-content: center;
+    align-items: baseline;
+    gap: 0.4rem;
+    flex-wrap: wrap;
   }
 
   .price {
@@ -865,11 +879,12 @@ footer {
   }
 
   .original-price {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 
   .discount {
-    font-size: 1.1rem;
+    font-size: 1.3rem; /* 할인율 크게 확대 */
+    font-weight: 900;
   }
 
   /* 상품 상세 페이지 모바일 2열 배치 (컴퓨터와 비슷하게) */
