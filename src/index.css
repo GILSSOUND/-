@@ -802,10 +802,12 @@ footer {
   }
   
   .logo {
+    order: 1;
     font-size: 1.5rem;
   }
   
   .nav-actions {
+    order: 2;
     gap: 0.8rem;
     /* 우측으로 조금 더 땡기기 */
     transform: translateX(5px);
@@ -825,6 +827,7 @@ footer {
   }
 
   .nav-links {
+    order: 3;
     display: flex;
     width: 100%;
     justify-content: space-between;
@@ -847,6 +850,27 @@ footer {
   
   .hero-slide-title { font-size: 1.8rem; margin-bottom: 0.5rem; }
   .hero-slide-subtitle { font-size: 0.95rem; }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .product-name {
+    font-size: 0.95rem; /* 모바일 2열에서는 폰트를 조금 줄임 */
+  }
+
+  .price {
+    font-size: 1.1rem;
+  }
+
+  .original-price {
+    font-size: 0.9rem;
+  }
+
+  .discount {
+    font-size: 1.1rem;
+  }
 
   .product-detail-layout { grid-template-columns: 1fr; gap: 2rem; }
   .cart-content { grid-template-columns: 1fr; }
