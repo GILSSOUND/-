@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Heart, ShoppingCart, User, X } from 'lucide-react';
+import { Search, Heart, ShoppingCart, User, X, Utensils, Sparkles, MapPin, Truck, Percent } from 'lucide-react';
 import { storeConfig } from '../data/products';
 
 function Layout({ cartCount, products }) {
@@ -40,11 +40,11 @@ function Layout({ cartCount, products }) {
       <nav className="navbar">
         <Link to="/" className="logo">{storeConfig.storeName}</Link>
         <div className="nav-links">
-          <Link to="/category/mealkit">1.밀키트</Link>
-          <Link to="/category/new">2.신상품</Link>
-          <Link to="/category/local">3.산지직송</Link>
-          <Link to="/category/direct">4.업체직송</Link>
-          <Link to="/category/sale">5.특가할인</Link>
+          <Link to="/category/mealkit" style={{display: 'flex', alignItems: 'center', gap: '0.3rem'}}><Utensils size={18} />밀키트</Link>
+          <Link to="/category/new" style={{display: 'flex', alignItems: 'center', gap: '0.3rem'}}><Sparkles size={18} />신상품</Link>
+          <Link to="/category/local" style={{display: 'flex', alignItems: 'center', gap: '0.3rem'}}><MapPin size={18} />산지직송</Link>
+          <Link to="/category/direct" style={{display: 'flex', alignItems: 'center', gap: '0.3rem'}}><Truck size={18} />업체직송</Link>
+          <Link to="/category/sale" style={{display: 'flex', alignItems: 'center', gap: '0.3rem'}}><Percent size={18} />특가할인</Link>
         </div>
         <div className="nav-actions">
           <button className="icon-btn" onClick={() => setIsSearchOpen(true)}>

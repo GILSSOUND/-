@@ -340,7 +340,11 @@ body {
 .card-hover-actions {
   position: absolute;
   bottom: 1rem;
-  right: 1rem;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
   opacity: 0;
   transform: translateY(10px);
   transition: all 0.3s ease;
@@ -374,14 +378,15 @@ body {
   transform: scale(1.1);
 }
 
-.card-info {
+.product-info {
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  text-align: center;
 }
 
-.card-title {
+.product-name {
   font-size: 1.05rem;
   font-weight: 500;
   color: var(--text-main);
@@ -394,28 +399,28 @@ body {
 
 .price-container {
   display: flex;
-  align-items: center;
+  align-items: baseline;
+  justify-content: center;
   gap: 0.5rem;
   margin-top: 0.25rem;
 }
 
 .discount {
   color: var(--primary-color);
-  font-size: 1.15rem;
-  font-weight: 800;
+  font-size: 1.35rem;
+  font-weight: 900;
 }
 
 .price {
-  font-size: 1.15rem;
-  font-weight: 800;
+  font-size: 1.35rem;
+  font-weight: 900;
   color: var(--text-main);
 }
 
 .original-price {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: var(--text-light);
   text-decoration: line-through;
-  margin-left: auto;
 }
 
 /* ==========================================================================
