@@ -50,11 +50,14 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
     // ImgBB requires base64 string
     const base64Image = req.file.buffer.toString('base64');
     
-    const formData = new FormData();
-    formData.append('image', base64Image);
+    // form-data 패키지 대신 네이티브 URLSearchParams 사용 (안정성 강화)
+    const params = new URLSearchParams();
+    params.append('image', base64Image);
 
-    const response = await axios.post(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, formData, {
-      headers: formData.getHeaders()
+    const response = await axios.post(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, params, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
     });
 
     res.json({
@@ -62,8 +65,9 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
       imageUrl: response.data.data.url
     });
   } catch (error) {
-    console.error('Image Upload Error:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Image upload failed' });
+    const errorDetails = error.response?.data?.error?.message || error.message;
+    console.error('Image Upload Error:', errorDetails);
+    res.status(500).json({ error: `ImgBB 에러: ${errorDetails}` });
   }
 });
 

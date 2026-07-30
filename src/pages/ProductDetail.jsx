@@ -54,6 +54,7 @@ function ProductDetail({ handleAddToCart, products }) {
             {product.isNew && <span className="badge badge-new">NEW</span>}
           </div>
           <h2 className="detail-title">{product.name}</h2>
+          {product.subtitle && <p style={{fontSize: '1.1rem', color: '#888', marginBottom: '1.5rem', marginTop: '-0.5rem'}}>{product.subtitle}</p>}
           
           <div className="detail-price-box">
             {product.discount && <span className="detail-discount">{product.discount}</span>}

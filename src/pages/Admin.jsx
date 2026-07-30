@@ -9,17 +9,17 @@ function Admin() {
   
   // 폼 상태
   const [formData, setFormData] = useState({
-    name: '맛있는 한우 스테이크',
+    name: '',
+    subtitle: '',
     category: 'mealkit',
-    originalPrice: '35000',
-    price: '29900',
-    discount: '15%',
-    isNewProduct: true,
-    isBest: true
+    originalPrice: '',
+    price: '',
+    isNewProduct: false,
+    isBest: false
   });
   
   const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=400');
+  const [imagePreview, setImagePreview] = useState(null);
   
   const [detailImageFile, setDetailImageFile] = useState(null);
   const [detailImagePreview, setDetailImagePreview] = useState(null);
@@ -65,7 +65,7 @@ function Admin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!imageFile && !imagePreview.includes('unsplash')) {
+    if (!imageFile) {
       alert("이미지를 먼저 선택해주세요.");
       return;
     }
@@ -73,11 +73,8 @@ function Admin() {
     try {
       setUploading(true);
       
-      let imageUrl = imagePreview; // 기본값 (unsplash)
-      if (imageFile) {
-        const uploadRes = await uploadImage(imageFile);
-        imageUrl = uploadRes.imageUrl;
-      }
+      const uploadRes = await uploadImage(imageFile);
+      const imageUrl = uploadRes.imageUrl;
 
       let detailImageUrl = null;
       if (detailImageFile) {
@@ -85,10 +82,20 @@ function Admin() {
         detailImageUrl = detailUploadRes.imageUrl;
       }
 
+      let calculatedDiscount = '';
+      if (formData.originalPrice && formData.price) {
+        const orig = Number(formData.originalPrice);
+        const curr = Number(formData.price);
+        if (orig > curr) {
+          calculatedDiscount = Math.round(((orig - curr) / orig) * 100) + '%';
+        }
+      }
+
       const newProduct = {
         ...formData,
         originalPrice: formData.originalPrice ? Number(formData.originalPrice) : null,
         price: Number(formData.price),
+        discount: calculatedDiscount,
         imageUrl,
         detailImageUrl
       };
@@ -97,7 +104,7 @@ function Admin() {
       alert("상품이 성공적으로 등록되었습니다!");
       
       // 초기화
-      setFormData({ name: '', category: 'mealkit', originalPrice: '', price: '', discount: '', isNewProduct: false, isBest: false });
+      setFormData({ name: '', subtitle: '', category: 'mealkit', originalPrice: '', price: '', isNewProduct: false, isBest: false });
       setImageFile(null);
       setImagePreview(null);
       setDetailImageFile(null);
@@ -183,6 +190,11 @@ function Admin() {
                     <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>상품명</label>
                     <input type="text" name="name" value={formData.name} onChange={handleChange} required style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd'}} />
                   </div>
+
+                  <div>
+                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>상품 한 줄 설명 (서브타이틀)</label>
+                    <input type="text" name="subtitle" value={formData.subtitle} onChange={handleChange} placeholder="예: 바다의 신선함을 그대로 담은" style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd'}} />
+                  </div>
                   
                   <div style={{display: 'flex', gap: '1rem'}}>
                     <div style={{flex: 1}}>
@@ -203,12 +215,9 @@ function Admin() {
 
                   <div style={{display: 'flex', gap: '1rem'}}>
                     <div style={{flex: 1}}>
-                      <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>원래 가격 (원, 옵션)</label>
-                      <input type="number" name="originalPrice" value={formData.originalPrice} onChange={handleChange} style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd'}} />
-                    </div>
-                    <div style={{flex: 1}}>
-                      <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>할인 문구 (예: 15%)</label>
-                      <input type="text" name="discount" value={formData.discount} onChange={handleChange} style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd'}} />
+                      <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>원래 가격 (원)</label>
+                      <input type="number" name="originalPrice" value={formData.originalPrice} onChange={handleChange} placeholder="예: 30000" style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd'}} />
+                      <p style={{fontSize: '0.8rem', color: '#888', marginTop: '0.5rem'}}>원래 가격을 적으면 할인율은 자동 계산됩니다.</p>
                     </div>
                   </div>
 
@@ -264,10 +273,15 @@ function Admin() {
                         {formData.isBest && <span style={{padding: '0.3rem 0.6rem', background: 'var(--primary-color)', color: 'white', fontSize: '0.8rem', fontWeight: 'bold', borderRadius: '4px'}}>BEST</span>}
                         {formData.isNewProduct && <span style={{padding: '0.3rem 0.6rem', background: '#2ed573', color: 'white', fontSize: '0.8rem', fontWeight: 'bold', borderRadius: '4px'}}>NEW</span>}
                       </div>
-                      <h2 style={{fontSize: '1.8rem', fontWeight: '800', marginBottom: '1rem', lineHeight: '1.3'}}>{formData.name || '상품명을 입력하세요'}</h2>
+                      <h2 style={{fontSize: '1.8rem', fontWeight: '800', marginBottom: '0.5rem', lineHeight: '1.3'}}>{formData.name || '상품명을 입력하세요'}</h2>
+                      <p style={{fontSize: '1rem', color: '#888', marginBottom: '1.5rem'}}>{formData.subtitle || '한 줄 설명이 여기에 표시됩니다.'}</p>
                       
                       <div style={{display: 'flex', alignItems: 'baseline', gap: '0.8rem', paddingBottom: '1.5rem', borderBottom: '1px solid #eee'}}>
-                        {formData.discount && <span style={{fontSize: '1.5rem', fontWeight: '800', color: 'var(--primary-color)'}}>{formData.discount}</span>}
+                        {formData.originalPrice && formData.price && Number(formData.originalPrice) > Number(formData.price) && (
+                          <span style={{fontSize: '1.5rem', fontWeight: '800', color: 'var(--primary-color)'}}>
+                            {Math.round(((Number(formData.originalPrice) - Number(formData.price)) / Number(formData.originalPrice)) * 100)}%
+                          </span>
+                        )}
                         <span style={{fontSize: '1.8rem', fontWeight: '800'}}>{formatPrice(formData.price)}원</span>
                         {formData.originalPrice && <span style={{fontSize: '1rem', color: '#999', textDecoration: 'line-through'}}>{formatPrice(formData.originalPrice)}원</span>}
                       </div>

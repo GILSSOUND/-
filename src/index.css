@@ -73,7 +73,7 @@ body {
   font-family: 'Playfair Display', 'Noto Serif KR', serif;
   font-size: 2rem;
   font-weight: 900;
-  color: var(--primary-color);
+  color: #ff6b00;
   text-decoration: none;
   letter-spacing: -1px;
 }

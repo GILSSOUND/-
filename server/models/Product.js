@@ -11,6 +11,10 @@ const productSchema = new mongoose.Schema({
     enum: ['mealkit', 'new', 'local', 'direct', 'sale', 'etc'],
     default: 'mealkit'
   },
+  subtitle: {
+    type: String,
+    required: false,
+  },
   originalPrice: {
     type: Number,
     required: false,

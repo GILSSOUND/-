@@ -87,10 +87,11 @@ function Home({ handleAddToCart, products }) {
                   </button>
                 </div>
               </div>
-              <div className="card-info">
-                <h3 className="card-title">{product.name}</h3>
-                <div className="price-container">
-                  {product.discount && <span className="discount">{product.discount}</span>}
+                <div className="product-info">
+                  <h3 className="product-name">{product.name}</h3>
+                  {product.subtitle && <p style={{fontSize: '0.85rem', color: '#888', marginTop: '-0.3rem', marginBottom: '0.5rem'}}>{product.subtitle}</p>}
+                  <div className="price-container">
+                    {product.discount && <span className="discount">{product.discount}</span>}
                   <span className="price">{formatPrice(product.price)}원</span>
                   {product.originalPrice && <span className="original-price">{formatPrice(product.originalPrice)}원</span>}
                 </div>
