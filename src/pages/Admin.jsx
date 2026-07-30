@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchProducts, createProduct, deleteProduct, uploadImage } from '../api';
 import { LayoutDashboard, PackagePlus, List, Image as ImageIcon, Bell } from 'lucide-react';
 
-function Admin() {
+function Admin({ loadProducts }) {
   const [activeTab, setActiveTab] = useState('register'); // register, list, banner, notice
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -103,7 +103,15 @@ function Admin() {
       await createProduct(newProduct);
       alert("상품이 성공적으로 등록되었습니다!");
       
-      // 초기화
+      // 앱 전체 상품 목록(App.jsx) 새로고침
+      if (loadProducts) {
+        loadProducts();
+      }
+      
+      // Admin 내부 상품 목록 탭도 새로고침
+      fetchProducts().then(data => setProducts(data));
+      
+      // 폼 초기화
       setFormData({ name: '', subtitle: '', category: 'mealkit', originalPrice: '', price: '', isNewProduct: false, isBest: false });
       setImageFile(null);
       setImagePreview(null);
