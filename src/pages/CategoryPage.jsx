@@ -22,7 +22,7 @@ function CategoryPage({ handleAddToCart, products }) {
       categoryIcon = <Utensils size={32} style={{marginRight: '0.5rem', color: 'var(--primary-color)'}} />;
       break;
     case 'new':
-      filteredProducts = products.filter(p => p.isNew);
+      filteredProducts = products.filter(p => p.isNewProduct);
       categoryName = "신상품";
       categoryIcon = <Sparkles size={32} style={{marginRight: '0.5rem', color: 'var(--primary-color)'}} />;
       break;
@@ -65,7 +65,7 @@ function CategoryPage({ handleAddToCart, products }) {
                 <img src={product.imageUrl} alt={product.name} className="card-img" />
                 <div className="badges">
                   {product.isBest && <span className="badge badge-best">BEST</span>}
-                  {product.isNew && <span className="badge badge-new">NEW</span>}
+                  {product.isNewProduct && <span className="badge badge-new">NEW</span>}
                 </div>
                 {/* 둥근 장바구니/찜/구매 버튼 (마우스 호버 시 등장) */}
                 <div className="card-hover-actions">
@@ -94,11 +94,15 @@ function CategoryPage({ handleAddToCart, products }) {
               </div>
               <div className="product-info">
                 <h3 className="product-name">{product.name}</h3>
-                {product.subtitle && <p style={{fontSize: '0.85rem', color: '#888', marginTop: '-0.3rem', marginBottom: '0.5rem'}}>{product.subtitle}</p>}
+                {product.subtitle && <p style={{fontSize: '0.9rem', color: '#888', marginTop: '-0.3rem', marginBottom: '0.5rem'}}>{product.subtitle}</p>}
                 <div className="price-container">
+                  {(product.originalPrice || product.discount) && (
+                    <div className="price-top-row">
+                      {product.originalPrice && <span className="original-price">{formatPrice(product.originalPrice)}원</span>}
+                      {product.discount && <span className="discount">{product.discount}</span>}
+                    </div>
+                  )}
                   <span className="price">{formatPrice(product.price)}원</span>
-                  {product.discount && <span className="discount">{product.discount}</span>}
-                  {product.originalPrice && <span className="original-price">{formatPrice(product.originalPrice)}원</span>}
                 </div>
               </div>
             </div>

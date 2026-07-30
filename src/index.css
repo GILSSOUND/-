@@ -387,8 +387,8 @@ body {
 }
 
 .product-name {
-  font-size: 1.05rem;
-  font-weight: 500;
+  font-size: 1.15rem;
+  font-weight: 700;
   color: var(--text-main);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -399,26 +399,33 @@ body {
 
 .price-container {
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  margin-top: 0.25rem;
+}
+
+.price-top-row {
+  display: flex;
+  align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  margin-top: 0.25rem;
 }
 
 .discount {
   color: var(--primary-color);
-  font-size: 1.35rem;
-  font-weight: 900;
+  font-size: 1.25rem;
+  font-weight: 800;
 }
 
 .price {
-  font-size: 1.35rem;
+  font-size: 1.4rem;
   font-weight: 900;
   color: var(--text-main);
 }
 
 .original-price {
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   color: var(--text-light);
   text-decoration: line-through;
 }
@@ -617,11 +624,37 @@ body {
 
 .detail-price-box {
   display: flex;
-  align-items: baseline;
-  gap: 1rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
   padding-bottom: 2rem;
   border-bottom: 1px solid var(--border-color);
   margin-bottom: 2rem;
+}
+
+.detail-price-top-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.detail-discount {
+  color: var(--primary-color);
+  font-size: 1.8rem;
+  font-weight: 900;
+}
+
+.detail-price {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.detail-original-price {
+  font-size: 1.3rem;
+  color: var(--text-light);
+  text-decoration: line-through;
 }
 
 .quantity-selector {
