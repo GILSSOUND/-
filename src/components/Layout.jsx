@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Search, Heart, ShoppingCart, User, X } from 'lucide-react';
 import { storeConfig } from '../data/products';
 
 function Layout({ cartCount, products }) {
@@ -46,21 +47,23 @@ function Layout({ cartCount, products }) {
           <Link to="/category/sale">5.특가할인</Link>
         </div>
         <div className="nav-actions">
-          <button className="icon-btn" onClick={() => setIsSearchOpen(true)}>🔍</button>
-          <button className="icon-btn">❤️</button>
-          <Link to="/cart" className="icon-btn" style={{position: 'relative', textDecoration: 'none', color: 'inherit'}}>
-            🛒
+          <button className="icon-btn" onClick={() => setIsSearchOpen(true)}>
+            <Search size={24} />
+          </button>
+          <button className="icon-btn">
+            <Heart size={24} />
+          </button>
+          <Link to="/cart" className="icon-btn" style={{position: 'relative'}}>
+            <ShoppingCart size={24} />
             {cartCount > 0 && (
-              <span style={{
-                position: 'absolute', top: '-5px', right: '-10px', 
-                background: 'var(--primary-color)', color: 'white', 
-                borderRadius: '50%', padding: '2px 6px', fontSize: '10px', fontWeight: 'bold'
-              }}>
+              <span className="cart-badge">
                 {cartCount}
               </span>
             )}
           </Link>
-          <Link to="/mypage" className="icon-btn" style={{textDecoration: 'none', color: 'inherit'}}>👤</Link>
+          <Link to="/mypage" className="icon-btn">
+            <User size={24} />
+          </Link>
         </div>
       </nav>
 
@@ -77,7 +80,9 @@ function Layout({ cartCount, products }) {
                 autoFocus
                 className="search-input"
               />
-              <button className="close-search-btn" onClick={closeSearch}>✖</button>
+              <button className="close-search-btn" onClick={closeSearch}>
+                <X size={28} />
+              </button>
             </div>
             <div className="search-results">
               {searchQuery && searchResults.length === 0 && (

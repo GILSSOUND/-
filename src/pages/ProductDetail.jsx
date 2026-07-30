@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ShoppingCart, Heart } from 'lucide-react';
 
 function ProductDetail({ handleAddToCart, products }) {
   const { id } = useParams();
@@ -81,8 +82,8 @@ function ProductDetail({ handleAddToCart, products }) {
           </div>
 
           <div className="detail-actions">
-            <button className="action-btn wish" style={{flex: 1}}>❤️ 찜하기</button>
-            <button className="primary-btn" style={{flex: 2}} onClick={onAddToCartClick}>🛒 장바구니 담기</button>
+            <button className="outline-btn wish" style={{flex: 1}}><Heart size={20} /> 찜하기</button>
+            <button className="primary-btn" style={{flex: 2}} onClick={onAddToCartClick}><ShoppingCart size={20} /> 장바구니 담기</button>
           </div>
         </div>
 

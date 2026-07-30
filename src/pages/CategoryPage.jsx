@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ShoppingCart } from 'lucide-react';
 
 function CategoryPage({ handleAddToCart, products }) {
   const { categoryId } = useParams();
@@ -57,6 +58,16 @@ function CategoryPage({ handleAddToCart, products }) {
                   {product.isBest && <span className="badge badge-best">BEST</span>}
                   {product.isNew && <span className="badge badge-new">NEW</span>}
                 </div>
+                {/* 둥근 장바구니 버튼 (마우스 호버 시 등장) */}
+                <div className="card-hover-actions">
+                  <button 
+                    className="cart-circle-btn" 
+                    onClick={(e) => handleAddToCart(product, e)}
+                    title="장바구니 담기"
+                  >
+                    <ShoppingCart size={20} />
+                  </button>
+                </div>
               </div>
               <div className="card-info">
                 <h3 className="card-title">{product.name}</h3>
@@ -64,10 +75,6 @@ function CategoryPage({ handleAddToCart, products }) {
                   {product.discount && <span className="discount">{product.discount}</span>}
                   <span className="price">{formatPrice(product.price)}원</span>
                   {product.originalPrice && <span className="original-price">{formatPrice(product.originalPrice)}원</span>}
-                </div>
-                <div className="card-actions">
-                  <button className="action-btn wish" onClick={(e) => e.stopPropagation()}>❤️ 찜하기</button>
-                  <button className="action-btn cart" onClick={(e) => handleAddToCart(product, e)}>🛒 담기</button>
                 </div>
               </div>
             </div>
