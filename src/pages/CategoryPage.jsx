@@ -96,13 +96,15 @@ function CategoryPage({ handleAddToCart, products }) {
                 <h3 className="product-name">{product.name}</h3>
                 {product.subtitle && <p style={{fontSize: '0.9rem', color: '#888', marginTop: '-0.3rem', marginBottom: '0.5rem'}}>{product.subtitle}</p>}
                 <div className="price-container">
-                  {(product.originalPrice || product.discount) && (
+                  {product.originalPrice && (
                     <div className="price-top-row">
-                      {product.originalPrice && <span className="original-price">{formatPrice(product.originalPrice)}원</span>}
-                      {product.discount && <span className="discount">{product.discount}</span>}
+                      <span className="original-price">{formatPrice(product.originalPrice)}원</span>
                     </div>
                   )}
-                  <span className="price">{formatPrice(product.price)}원</span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                    <span className="price">{formatPrice(product.price)}원</span>
+                    {product.discount && <span className="discount">{product.discount}</span>}
+                  </div>
                 </div>
               </div>
             </div>

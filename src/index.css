@@ -405,6 +405,65 @@ body {
   margin-top: 0.25rem;
 }
 
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+.quantity-label {
+  font-weight: 600;
+  color: #666;
+  min-width: 60px;
+}
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.quantity-controls button {
+  background: #f8f9fa;
+  border: none;
+  width: 45px;
+  height: 45px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  color: #333;
+}
+.quantity-controls button:hover {
+  background: #e9ecef;
+}
+.quantity-controls span {
+  width: 50px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.option-selector-container {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+.option-selector {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  font-size: 1.1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+}
+.option-selector:focus {
+  border-color: var(--primary-color);
+}
+
 .price-top-row {
   display: flex;
   align-items: center;
@@ -657,21 +716,21 @@ body {
   text-decoration: line-through;
 }
 
-.quantity-selector {
+.detail-total {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.5rem;
-  border: 1px solid var(--border-color);
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--secondary-color);
   border-radius: var(--radius-sm);
-  margin-bottom: 2rem;
+  font-size: 1.2rem;
+  font-weight: 700;
 }
-
-.total-price-box {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
+.detail-total .total-price {
+  font-size: 2rem;
+  color: var(--primary-color);
+  font-weight: 900;
 }
 
 .detail-actions {
@@ -732,8 +791,63 @@ footer {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .nav-links { display: none; }
-  .hero-slide-title { font-size: 2.2rem; }
+  :root {
+    --nav-height: 110px;
+  }
+  
+  .navbar {
+    padding: 10px 15px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+  }
+  
+  .nav-actions {
+    gap: 0.8rem;
+    /* 우측으로 조금 더 땡기기 */
+    transform: translateX(5px);
+  }
+  
+  .icon-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .cart-badge {
+    min-width: 16px;
+    height: 16px;
+    font-size: 0.65rem;
+    top: -5px;
+    right: -6px;
+  }
+
+  .nav-links {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 15px;
+    gap: 0;
+  }
+  
+  .nav-links a {
+    font-size: 0.85rem;
+  }
+  
+  .nav-links a svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .hero-slider-container, .hero-slide {
+    height: 250px;
+  }
+  
+  .hero-slide-title { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .hero-slide-subtitle { font-size: 0.95rem; }
+
   .product-detail-layout { grid-template-columns: 1fr; gap: 2rem; }
   .cart-content { grid-template-columns: 1fr; }
 }

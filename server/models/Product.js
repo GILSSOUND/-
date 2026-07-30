@@ -42,7 +42,11 @@ const productSchema = new mongoose.Schema({
   isBest: {
     type: Boolean,
     default: false,
-  }
+  },
+  options: [{
+    name: { type: String, required: true },
+    additionalPrice: { type: Number, default: 0 }
+  }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);

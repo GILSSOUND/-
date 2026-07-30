@@ -7,6 +7,7 @@ function ProductDetail({ handleAddToCart, products }) {
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('detail');
+  const [selectedOption, setSelectedOption] = useState('');
 
   const product = products.find(p => p._id === id || p.id === parseInt(id));
 
@@ -18,6 +19,15 @@ function ProductDetail({ handleAddToCart, products }) {
       </div>
     );
   }
+
+  // 선택된 옵션 객체 찾기
+  const currentOption = product.options?.find(opt => opt.name === selectedOption) || null;
+  // 옵션 추가금액 계산
+  const additionalPrice = currentOption ? currentOption.additionalPrice : 0;
+  // 최종 단가 (기본가 + 옵션가)
+  const finalUnitPrice = product.price + additionalPrice;
+  // 총 결제 금액
+  const totalPrice = finalUnitPrice * quantity;
 
   const formatPrice = (price) => {
     return price.toLocaleString('ko-KR');
@@ -31,11 +41,22 @@ function ProductDetail({ handleAddToCart, products }) {
     setQuantity(quantity + 1);
   };
 
-  const onAddToCartClick = () => {
-    // 상품 객체에 수량을 추가해서 장바구니로 보낼 수도 있지만, 현재는 기본 상품만 넘깁니다.
-    // 여러 개 담기를 처리하려면 App.jsx의 handleAddToCart 수정 필요. (현재는 간소화)
+  const onAddToCartClick = (e) => {
+    e.stopPropagation();
+    if (product.options && product.options.length > 0 && !selectedOption) {
+      alert("상품 옵션을 선택해주세요.");
+      return;
+    }
+
+    const productWithOption = {
+      ...product,
+      name: currentOption ? `${product.name} [옵션: ${currentOption.name}]` : product.name,
+      price: finalUnitPrice,
+      _originalId: product._id || product.id // 장바구니에서 원본 아이디 참조용
+    };
+
     for(let i=0; i<quantity; i++) {
-      handleAddToCart(product, { stopPropagation: () => {} });
+      handleAddToCart(productWithOption, { stopPropagation: () => {} });
     }
   };
 
@@ -58,19 +79,40 @@ function ProductDetail({ handleAddToCart, products }) {
           {product.subtitle && <p style={{fontSize: '1.1rem', color: '#888', marginBottom: '1.5rem', marginTop: '-0.5rem'}}>{product.subtitle}</p>}
           
           <div className="detail-price-box">
-            {(product.originalPrice || product.discount) && (
+            {product.originalPrice && (
               <div className="detail-price-top-row">
-                {product.originalPrice && <span className="detail-original-price">{formatPrice(product.originalPrice)}원</span>}
-                {product.discount && <span className="detail-discount">{product.discount}</span>}
+                <span className="detail-original-price">{formatPrice(product.originalPrice)}원</span>
               </div>
             )}
-            <span className="detail-price">{formatPrice(product.price)}원</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+              <span className="detail-price">{formatPrice(finalUnitPrice)}원</span>
+              {product.discount && <span className="detail-discount">{product.discount}</span>}
+            </div>
           </div>
 
           <div className="detail-desc">
-            신선한 재료로 정성을 다해 준비했습니다. <br/>
-            집에서도 간편하게 맛있는 한 끼를 즐겨보세요!
+            <p>배송비: 3,000원 (50,000원 이상 구매 시 무료)</p>
+            <p>배송안내: 오후 1시 이전 결제 시 당일 발송</p>
           </div>
+
+          {/* 옵션 선택 */}
+          {product.options && product.options.length > 0 && (
+            <div className="option-selector-container">
+              <span className="quantity-label">옵션</span>
+              <select 
+                className="option-selector"
+                value={selectedOption}
+                onChange={(e) => setSelectedOption(e.target.value)}
+              >
+                <option value="">옵션을 선택하세요</option>
+                {product.options.map((opt, idx) => (
+                  <option key={idx} value={opt.name}>
+                    {opt.name} {opt.additionalPrice > 0 ? `(+${formatPrice(opt.additionalPrice)}원)` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* 수량 선택 */}
           <div className="quantity-selector">
@@ -82,9 +124,9 @@ function ProductDetail({ handleAddToCart, products }) {
             </div>
           </div>
 
-          <div className="total-price-box">
-            <span>총 상품 금액</span>
-            <span className="total-price-val">{formatPrice(product.price * quantity)}원</span>
+          <div className="detail-total">
+            <span>총 결제금액</span>
+            <span className="total-price">{formatPrice(totalPrice)}원</span>
           </div>
 
           <div className="detail-actions">

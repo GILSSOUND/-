@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Heart, CreditCard } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -30,8 +30,16 @@ const bannerData = [
   }
 ];
 
-function Home({ handleAddToCart, products }) {
+function Home({ handleAddToCart, products, refreshGlobalProducts }) {
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    // 렌더 서버가 슬립 상태일 때 App.jsx의 초기 fetch가 실패해서 products가 비어있을 수 있음.
+    // 홈 화면 진입 시 products가 없으면 다시 한 번 불러오기 시도.
+    if (products.length === 0 && refreshGlobalProducts) {
+      refreshGlobalProducts();
+    }
+  }, [products.length, refreshGlobalProducts]);
   
   const formatPrice = (price) => {
     return price.toLocaleString('ko-KR');
@@ -105,13 +113,15 @@ function Home({ handleAddToCart, products }) {
                 <h3 className="product-name">{product.name}</h3>
                 {product.subtitle && <p style={{fontSize: '0.9rem', color: '#888', marginTop: '-0.3rem', marginBottom: '0.5rem'}}>{product.subtitle}</p>}
                 <div className="price-container">
-                  {(product.originalPrice || product.discount) && (
+                  {product.originalPrice && (
                     <div className="price-top-row">
-                      {product.originalPrice && <span className="original-price">{formatPrice(product.originalPrice)}원</span>}
-                      {product.discount && <span className="discount">{product.discount}</span>}
+                      <span className="original-price">{formatPrice(product.originalPrice)}원</span>
                     </div>
                   )}
-                  <span className="price">{formatPrice(product.price)}원</span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                    <span className="price">{formatPrice(product.price)}원</span>
+                    {product.discount && <span className="discount">{product.discount}</span>}
+                  </div>
                 </div>
               </div>
             </div>

@@ -24,7 +24,24 @@ function Admin({ refreshGlobalProducts }) {
   const [detailImageFile, setDetailImageFile] = useState(null);
   const [detailImagePreview, setDetailImagePreview] = useState(null);
   
+  const [options, setOptions] = useState([]);
+  
   const [uploading, setUploading] = useState(false);
+
+  const handleAddOption = () => {
+    setOptions([...options, { name: '', additionalPrice: 0 }]);
+  };
+
+  const handleOptionChange = (index, field, value) => {
+    const newOptions = [...options];
+    newOptions[index][field] = value;
+    setOptions(newOptions);
+  };
+
+  const handleRemoveOption = (index) => {
+    const newOptions = options.filter((_, i) => i !== index);
+    setOptions(newOptions);
+  };
 
   useEffect(() => {
     loadProducts();
@@ -96,6 +113,7 @@ function Admin({ refreshGlobalProducts }) {
         originalPrice: formData.originalPrice ? Number(formData.originalPrice) : null,
         price: Number(formData.price),
         discount: calculatedDiscount,
+        options: options.filter(o => o.name.trim() !== '').map(o => ({ name: o.name, additionalPrice: Number(o.additionalPrice) })),
         imageUrl,
         detailImageUrl
       };
@@ -117,6 +135,7 @@ function Admin({ refreshGlobalProducts }) {
       setImagePreview(null);
       setDetailImageFile(null);
       setDetailImagePreview(null);
+      setOptions([]);
       e.target.reset();
       loadProducts();
       setActiveTab('list'); // 등록 완료 후 리스트로 이동
@@ -135,6 +154,9 @@ function Admin({ refreshGlobalProducts }) {
         await deleteProduct(id);
         alert("삭제되었습니다.");
         loadProducts();
+        if (refreshGlobalProducts) {
+          refreshGlobalProducts();
+        }
       } catch (error) {
         alert("삭제 실패");
       }
@@ -240,6 +262,30 @@ function Admin({ refreshGlobalProducts }) {
                     </label>
                   </div>
 
+                  <div style={{background: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', border: '1px solid #eee'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
+                      <label style={{fontWeight: 'bold'}}>✨ 상품 옵션 설정 (선택사항)</label>
+                      <button type="button" onClick={handleAddOption} style={{padding: '0.5rem 1rem', background: 'var(--text-main)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.9rem'}}>+ 옵션 추가</button>
+                    </div>
+                    {options.length === 0 ? (
+                      <p style={{fontSize: '0.9rem', color: '#999'}}>추가된 옵션이 없습니다. (예: 곱빼기 추가, 매운맛 변경 등)</p>
+                    ) : (
+                      <div style={{display: 'flex', flexDirection: 'column', gap: '0.8rem'}}>
+                        {options.map((opt, idx) => (
+                          <div key={idx} style={{display: 'flex', gap: '0.5rem', alignItems: 'center'}}>
+                            <input type="text" placeholder="옵션명 (예: 사이즈업)" value={opt.name} onChange={(e) => handleOptionChange(idx, 'name', e.target.value)} style={{flex: 2, padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd'}} />
+                            <div style={{flex: 1, display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                              <span style={{color: '#666'}}>+</span>
+                              <input type="number" placeholder="추가금액" value={opt.additionalPrice} onChange={(e) => handleOptionChange(idx, 'additionalPrice', e.target.value)} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd'}} />
+                              <span style={{color: '#666'}}>원</span>
+                            </div>
+                            <button type="button" onClick={() => handleRemoveOption(idx)} style={{padding: '0.5rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>X</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   <div style={{background: '#f8f9fa', padding: '1rem', borderRadius: '8px'}}>
                     <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>📸 상품 메인 사진 (정사각형 권장)</label>
                     <input type="file" accept="image/*" onChange={handleFileChange} style={{width: '100%', padding: '0.5rem', background: 'white', border: '1px dashed #ccc', borderRadius: '8px'}} />
@@ -293,6 +339,21 @@ function Admin({ refreshGlobalProducts }) {
                         <span style={{fontSize: '1.8rem', fontWeight: '800'}}>{formatPrice(formData.price)}원</span>
                         {formData.originalPrice && <span style={{fontSize: '1rem', color: '#999', textDecoration: 'line-through'}}>{formatPrice(formData.originalPrice)}원</span>}
                       </div>
+                      
+                      {options.length > 0 && (
+                        <div style={{marginTop: '1.5rem'}}>
+                          <select style={{width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', color: '#333'}}>
+                            <option>옵션을 선택하세요</option>
+                            {options.map((opt, idx) => (
+                              opt.name.trim() !== '' && (
+                                <option key={idx}>
+                                  {opt.name} {opt.additionalPrice > 0 ? `(+${formatPrice(opt.additionalPrice)}원)` : ''}
+                                </option>
+                              )
+                            ))}
+                          </select>
+                        </div>
+                      )}
                       
                       <div style={{marginTop: '2rem', display: 'flex', gap: '1rem'}}>
                         <div style={{flex: 1, padding: '1rem', textAlign: 'center', border: '1px solid #ddd', borderRadius: '8px', color: '#666'}}>찜하기</div>
