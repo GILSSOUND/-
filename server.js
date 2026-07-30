@@ -18,9 +18,18 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../dist')));
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log('MongoDB Connected'))
-.catch(err => console.log('MongoDB Connection Error:', err));
+const mongoUri = process.env.MONGO_URI;
+if (!mongoUri) {
+  console.error("==========================================");
+  console.error("🚨 치명적 에러: MONGO_URI 환경 변수가 없습니다!");
+  console.error("렌더(Render) 대시보드의 Environment Variables에 MONGO_URI를 꼭 추가해주세요.");
+  console.error("==========================================");
+  // process.exit(1); 대신 서버는 살려두고 안내 메시지 출력
+} else {
+  mongoose.connect(mongoUri)
+  .then(() => console.log('MongoDB Connected'))
+  .catch(err => console.log('MongoDB Connection Error:', err));
+}
 
 // Multer Setup (Memory Storage for ImgBB upload)
 const storage = multer.memoryStorage();
