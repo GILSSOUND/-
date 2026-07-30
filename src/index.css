@@ -872,6 +872,21 @@ footer {
     font-size: 1.1rem;
   }
 
-  .product-detail-layout { grid-template-columns: 1fr; gap: 2rem; }
+  /* 상품 상세 페이지 모바일 2열 배치 (컴퓨터와 비슷하게) */
+  .product-detail-layout { 
+    grid-template-columns: 1fr 1fr; 
+    gap: 1.5rem; 
+  }
+  
+  .detail-title { font-size: 1.3rem; margin: 0.5rem 0; }
+  .detail-price { font-size: 1.4rem; }
+  .detail-discount { font-size: 1.3rem; }
+  .detail-original-price { font-size: 1rem; }
+  .quantity-selector { flex-direction: column; gap: 0.5rem; padding: 0.8rem; align-items: flex-start; }
+  .detail-total { padding: 1rem; font-size: 1rem; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .detail-total .total-price { font-size: 1.4rem; }
+  .detail-actions { flex-direction: column; }
+  .detail-actions button { padding: 0.8rem 1rem; font-size: 0.9rem; }
+
   .cart-content { grid-template-columns: 1fr; }
 }
