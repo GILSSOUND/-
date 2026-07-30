@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchProducts, createProduct, deleteProduct, uploadImage } from '../api';
 import { LayoutDashboard, PackagePlus, List, Image as ImageIcon, Bell } from 'lucide-react';
 
-function Admin({ loadProducts }) {
+function Admin({ refreshGlobalProducts }) {
   const [activeTab, setActiveTab] = useState('register'); // register, list, banner, notice
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -104,8 +104,8 @@ function Admin({ loadProducts }) {
       alert("상품이 성공적으로 등록되었습니다!");
       
       // 앱 전체 상품 목록(App.jsx) 새로고침
-      if (loadProducts) {
-        loadProducts();
+      if (refreshGlobalProducts) {
+        refreshGlobalProducts();
       }
       
       // Admin 내부 상품 목록 탭도 새로고침

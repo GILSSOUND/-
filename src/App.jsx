@@ -42,7 +42,7 @@ function App() {
           <Route path="product/:id" element={<ProductDetail handleAddToCart={handleAddToCart} products={products} />} />
           <Route path="cart" element={<Cart cartItems={cartItems} />} />
           <Route path="mypage" element={<MyPage />} />
-          <Route path="admin" element={<Admin loadProducts={loadProducts} />} />
+          <Route path="admin" element={<Admin refreshGlobalProducts={loadProducts} />} />
         </Route>
       </Routes>
     </BrowserRouter>
