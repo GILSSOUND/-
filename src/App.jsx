@@ -14,7 +14,7 @@ import './index.css';
 function App() {
   const [cartItems, setCartItems] = useState([]);
   const [wishlistItems, setWishlistItems] = useState([]);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(window.__INITIAL_PRODUCTS__ || []);
   const [toastMessage, setToastMessage] = useState('');
 
   const showToast = (msg) => {

@@ -14,8 +14,9 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// 프론트엔드 빌드 폴더를 정적 파일로 서빙
-app.use(express.static(path.join(__dirname, '../dist')));
+// 프론트엔드 빌드 폴더를 정적 파일로 서빙 (index.html은 동적 제공을 위해 제외)
+const fs = require('fs');
+app.use(express.static(path.join(__dirname, '../dist'), { index: false }));
 
 // MongoDB Connection
 const mongoUri = process.env.MONGO_URI;
@@ -74,10 +75,26 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
 
 // --- Product CRUD Routes ---
 
+// --- Product Cache Setup ---
+let cachedProducts = null;
+let lastCacheTime = 0;
+
+async function getProductsCached() {
+  if (!cachedProducts || Date.now() - lastCacheTime > 5000) { // 5초 캐시
+    try {
+      cachedProducts = await Product.find().sort({ createdAt: -1 });
+      lastCacheTime = Date.now();
+    } catch (e) {
+      if (!cachedProducts) cachedProducts = [];
+    }
+  }
+  return cachedProducts;
+}
+
 // Get all products
 app.get('/api/products', async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    const products = await getProductsCached();
     res.json(products);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch products' });
@@ -89,6 +106,7 @@ app.post('/api/products', async (req, res) => {
   try {
     const newProduct = new Product(req.body);
     const savedProduct = await newProduct.save();
+    cachedProducts = null; // 캐시 초기화
     res.json(savedProduct);
   } catch (error) {
     res.status(500).json({ error: 'Failed to create product', details: error.message });
@@ -99,6 +117,7 @@ app.post('/api/products', async (req, res) => {
 app.put('/api/products/:id', async (req, res) => {
   try {
     const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    cachedProducts = null; // 캐시 초기화
     res.json(updatedProduct);
   } catch (error) {
     res.status(500).json({ error: 'Failed to update product' });
@@ -109,16 +128,27 @@ app.put('/api/products/:id', async (req, res) => {
 app.delete('/api/products/:id', async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
+    cachedProducts = null; // 캐시 초기화
     res.json({ message: 'Product deleted' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete product' });
   }
 });
 
-// React Router 대응: API 외의 모든 요청은 index.html로 전송
-app.use((req, res, next) => {
+// React Router 대응 및 초기 데이터 인젝션
+app.use(async (req, res, next) => {
   if (req.path.startsWith('/api')) return next();
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
+  try {
+    let html = fs.readFileSync(path.join(__dirname, '../dist/index.html'), 'utf8');
+    const products = await getProductsCached();
+    // 안전하게 스크립트 태그로 데이터 주입
+    const scriptTag = `<script>window.__INITIAL_PRODUCTS__ = ${JSON.stringify(products).replace(/</g, '\\u003c')};</script>`;
+    html = html.replace('</head>', `${scriptTag}</head>`);
+    res.send(html);
+  } catch (err) {
+    console.error("HTML Injection failed, serving raw file", err);
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
+  }
 });
 
 // Start server
