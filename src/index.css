@@ -379,11 +379,11 @@ body {
 }
 
 .product-info {
-  padding: 1.25rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  text-align: center;
+  gap: 0.2rem;
+  text-align: left;
 }
 
 .product-name {
@@ -399,10 +399,12 @@ body {
 
 .price-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  margin-top: 0.25rem;
+  flex-direction: row; /* 한 줄 표시 */
+  align-items: baseline;
+  justify-content: flex-start; /* 좌측 정렬 */
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0;
 }
 
 .quantity-selector {
@@ -467,14 +469,14 @@ body {
 .price-top-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  justify-content: flex-start; /* 좌측 정렬 */
+  gap: 0.3rem;
 }
 
 .discount {
   color: var(--primary-color);
-  font-size: 1.25rem;
-  font-weight: 800;
+  font-size: 1.4rem;
+  font-weight: 900;
 }
 
 .price {
@@ -852,8 +854,8 @@ footer {
   .hero-slide-subtitle { font-size: 0.95rem; }
 
   .product-info {
-    padding: 0.8rem 0.5rem; /* 흰색 바탕 여백 줄이기 */
-    gap: 0.3rem;
+    padding: 0.6rem 0.5rem; /* 여백 쫌 줄이기 */
+    gap: 0.1rem;
   }
 
   .product-grid {
@@ -868,7 +870,7 @@ footer {
 
   .price-container {
     flex-direction: row; /* 금액을 한 줄로 표시 */
-    justify-content: center;
+    justify-content: flex-start; /* 왼쪽으로 바짝 땡기기 */
     align-items: baseline;
     gap: 0.4rem;
     flex-wrap: wrap;
@@ -883,7 +885,7 @@ footer {
   }
 
   .discount {
-    font-size: 1.3rem; /* 할인율 크게 확대 */
+    font-size: 1.45rem; /* 할인율 쫌만 더 키우고 */
     font-weight: 900;
   }
 
