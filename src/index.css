@@ -1126,16 +1126,28 @@ footer {
   .product-detail-img-wrapper {
     border-radius: 0;
     box-shadow: none;
-  }
-
-  .product-detail-info,
-  .product-description-section {
-    padding: 0 5%;
+    aspect-ratio: 1 / 1;
+    position: relative;
+    z-index: 1;
   }
 
   .product-detail-layout {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 0;
+  }
+
+  .product-detail-info {
+    padding: 2rem 5%;
+    background: white;
+    border-radius: 30px 30px 0 0;
+    margin-top: -40px;
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 -10px 25px rgba(0,0,0,0.08);
+  }
+
+  .product-description-section {
+    padding: 0 5%;
   }
   
   /* 모바일에서는 하단바 패딩을 화면 꽉 차게 */
