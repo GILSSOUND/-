@@ -46,6 +46,21 @@ function App() {
     alert(`${product.name}이(가) 장바구니에 담겼습니다!`);
   };
 
+  const handleRemoveFromCart = (index) => {
+    setCartItems(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleUpdateQuantity = (index, delta) => {
+    setCartItems(prev => {
+      const newCart = [...prev];
+      const newQuantity = (newCart[index].quantity || 1) + delta;
+      if (newQuantity >= 1) {
+        newCart[index].quantity = newQuantity;
+      }
+      return newCart;
+    });
+  };
+
   const handleToggleWishlist = (product, e) => {
     if (e && e.stopPropagation) e.stopPropagation();
     setWishlistItems(prev => {
@@ -74,7 +89,7 @@ function App() {
           <Route index element={<Home handleAddToCart={handleAddToCart} handleToggleWishlist={handleToggleWishlist} products={products} refreshGlobalProducts={loadProducts} />} />
           <Route path="category/:categoryId" element={<CategoryPage handleAddToCart={handleAddToCart} handleToggleWishlist={handleToggleWishlist} products={products} />} />
           <Route path="product/:id" element={<ProductDetail handleAddToCart={handleAddToCart} handleToggleWishlist={handleToggleWishlist} products={products} />} />
-          <Route path="cart" element={<Cart cartItems={cartItems} />} />
+          <Route path="cart" element={<Cart cartItems={cartItems} handleRemoveFromCart={handleRemoveFromCart} handleUpdateQuantity={handleUpdateQuantity} />} />
           <Route path="wishlist" element={<Wishlist wishlistItems={wishlistItems} handleAddToCart={handleAddToCart} handleToggleWishlist={handleToggleWishlist} />} />
           <Route path="mypage" element={<MyPage />} />
           <Route path="admin" element={<Admin refreshGlobalProducts={loadProducts} />} />

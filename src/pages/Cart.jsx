@@ -1,6 +1,7 @@
 import React from 'react';
+import { Trash2 } from 'lucide-react';
 
-function Cart({ cartItems }) {
+function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity }) {
   const formatPrice = (price) => {
     return price.toLocaleString('ko-KR');
   };
@@ -24,13 +25,29 @@ function Cart({ cartItems }) {
                 <img src={item.imageUrl} alt={item.name} className="cart-item-img" />
                 <div className="cart-item-info">
                   <h4>{item.name}</h4>
-                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'baseline', marginTop: '0.5rem' }}>
-                    <div className="cart-item-price">{formatPrice(item.price)}원</div>
-                    <div style={{ color: 'var(--text-muted)' }}>{item.quantity || 1}개</div>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginTop: '0.5rem' }}>
+                    <div className="cart-item-price" style={{margin: 0}}>{formatPrice(item.price)}원</div>
+                    
+                    {/* 수량 조절 컨트롤러 */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#f1f2f6', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
+                      <button onClick={() => handleUpdateQuantity(index, -1)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
+                      <span style={{ minWidth: '20px', textAlign: 'center', fontSize: '0.9rem', fontWeight: '600' }}>{item.quantity || 1}</span>
+                      <button onClick={() => handleUpdateQuantity(index, 1)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
+                    </div>
                   </div>
                 </div>
-                <div style={{ fontWeight: '800', fontSize: '1.2rem', color: 'var(--primary-color)' }}>
-                  {formatPrice(item.price * (item.quantity || 1))}원
+                
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                  <button 
+                    onClick={() => handleRemoveFromCart(index)}
+                    style={{ background: 'transparent', border: 'none', color: '#ff4757', cursor: 'pointer' }}
+                    title="삭제"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                  <div style={{ fontWeight: '800', fontSize: '1.2rem', color: 'var(--primary-color)' }}>
+                    {formatPrice(item.price * (item.quantity || 1))}원
+                  </div>
                 </div>
               </div>
             ))}
