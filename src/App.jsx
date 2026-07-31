@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Cart from './pages/Cart';
@@ -10,6 +10,14 @@ import Admin from './pages/Admin';
 import Wishlist from './pages/Wishlist';
 import { fetchProducts } from './api';
 import './index.css';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
@@ -113,6 +121,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Layout cartCount={cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0)} products={products} wishlistCount={wishlistItems.length} />}>
           <Route index element={<Home handleAddToCart={handleAddToCart} handleToggleWishlist={handleToggleWishlist} products={products} refreshGlobalProducts={loadProducts} />} />

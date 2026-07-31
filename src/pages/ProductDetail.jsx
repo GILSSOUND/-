@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Heart, CreditCard } from 'lucide-react';
 
@@ -8,6 +8,11 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('detail');
   const [selectedOption, setSelectedOption] = useState('');
+
+  // 페이지 진입 시 스크롤을 항상 맨 위로 이동 (다른 상품 클릭 시에도 적용)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
 
   const product = products.find(p => p._id === id || p.id === parseInt(id));
 
