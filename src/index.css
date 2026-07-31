@@ -850,12 +850,39 @@ body {
   font-weight: 900;
 }
 
-.detail-actions {
+/* Sticky Bottom Bar */
+.sticky-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: white;
   display: flex;
-  gap: 1rem;
+  padding: 1rem 5%;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+  z-index: 1000;
+  gap: 0.8rem;
+  border-top: 1px solid #eee;
 }
-.detail-actions button {
+
+.sticky-bottom-bar .wish {
+  flex: 0 0 60px;
+  padding: 0;
+  justify-content: center;
+  background: white;
+}
+
+.sticky-bottom-bar .cart {
   flex: 1;
+}
+
+.sticky-bottom-bar .buy {
+  flex: 1;
+}
+
+/* 하단바에 가려지지 않도록 패딩 추가 */
+body {
+  padding-bottom: 80px;
 }
 
 /* ==========================================================================
@@ -1029,9 +1056,22 @@ footer {
   }
 
   .product-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
   }
+
+  .product-detail-layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  /* 모바일에서는 하단바 패딩을 화면 꽉 차게 */
+  .sticky-bottom-bar {
+    padding: 1rem;
+  }
+  
+  .detail-title { font-size: 1.8rem; }
+  .detail-price { font-size: 1.8rem; }
 
   .product-name {
     font-size: 0.95rem;
@@ -1092,6 +1132,35 @@ footer {
   .detail-actions button { padding: 0.6rem; font-size: 0.85rem; }
 
   .cart-content { grid-template-columns: 1fr; }
+
+  /* 모바일 상품 카드 호버 버튼을 우측 하단에 작게 고정 */
+  .card-hover-actions {
+    position: absolute;
+    bottom: 0.5rem;
+    left: auto;
+    right: 0.5rem;
+    width: auto;
+    opacity: 1; /* 항상 보이게 */
+    transform: none; /* 호버 이동 효과 제거 */
+    gap: 0.4rem;
+  }
+  
+  .product-card:hover .card-hover-actions {
+    transform: none;
+  }
+
+  .cart-circle-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  
+  .cart-circle-btn svg {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 /* Toast Notification */

@@ -89,6 +89,15 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             </div>
           </div>
 
+          {/* 추가 혜택 박스 */}
+          <div className="detail-benefits-box" style={{ background: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', border: '1px solid #eee', marginBottom: '2rem' }}>
+            <h4 style={{ color: 'var(--primary-color)', marginBottom: '0.5rem', fontSize: '1.1rem' }}>추가 혜택</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, color: '#555', lineHeight: '1.6' }}>
+              <li>• 일반 후기 작성 시 100포인트 지급</li>
+              <li>• 포토 후기 작성 시 150포인트 지급</li>
+            </ul>
+          </div>
+
           <div className="detail-desc">
             <p>배송비: {product.shippingFee === 0 ? '무료' : `${formatPrice(product.shippingFee !== undefined ? product.shippingFee : 3000)}원`} (50,000원 이상 구매 시 무료)</p>
             <p>배송안내: 오후 1시 이전 결제 시 당일 발송</p>
@@ -126,12 +135,6 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           <div className="detail-total">
             <span>총 결제금액</span>
             <span className="total-price">{formatPrice(totalPrice)}원</span>
-          </div>
-
-          <div className="detail-actions">
-            <button className="outline-btn wish" style={{flex: 1}} onClick={(e) => handleToggleWishlist(product, e)}><Heart size={20} /> 찜하기</button>
-            <button className="outline-btn cart" style={{flex: 1}} onClick={onAddToCartClick}><ShoppingCart size={20} /> 장바구니</button>
-            <button className="primary-btn" style={{flex: 2}}><CreditCard size={20} /> 바로 구매하기</button>
           </div>
         </div>
 
@@ -201,6 +204,16 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           )}
         </div>
       </div>
+
+      {/* 하단 고정 바 (Sticky Bottom Bar) */}
+      <div className="sticky-bottom-bar">
+        <button className="outline-btn wish" onClick={(e) => handleToggleWishlist(product, e)}>
+          <Heart size={24} />
+        </button>
+        <button className="outline-btn cart" onClick={onAddToCartClick}>장바구니 담기</button>
+        <button className="primary-btn buy" onClick={(e) => { onAddToCartClick(e); navigate('/cart'); }}>구매하기</button>
+      </div>
+
     </div>
   );
 }
