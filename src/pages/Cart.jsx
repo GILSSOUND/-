@@ -5,7 +5,7 @@ function Cart({ cartItems }) {
     return price.toLocaleString('ko-KR');
   };
 
-  const totalPrice = cartItems.reduce((acc, item) => acc + item.price, 0);
+  const totalPrice = cartItems.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
 
   return (
     <div className="page-container">
@@ -24,7 +24,13 @@ function Cart({ cartItems }) {
                 <img src={item.imageUrl} alt={item.name} className="cart-item-img" />
                 <div className="cart-item-info">
                   <h4>{item.name}</h4>
-                  <div className="cart-item-price">{formatPrice(item.price)}원</div>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'baseline', marginTop: '0.5rem' }}>
+                    <div className="cart-item-price">{formatPrice(item.price)}원</div>
+                    <div style={{ color: 'var(--text-muted)' }}>{item.quantity || 1}개</div>
+                  </div>
+                </div>
+                <div style={{ fontWeight: '800', fontSize: '1.2rem', color: 'var(--primary-color)' }}>
+                  {formatPrice(item.price * (item.quantity || 1))}원
                 </div>
               </div>
             ))}

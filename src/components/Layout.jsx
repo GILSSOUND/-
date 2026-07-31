@@ -3,7 +3,7 @@ import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Search, Heart, ShoppingCart, User, X, Utensils, Sparkles, MapPin, Truck, Percent } from 'lucide-react';
 import { storeConfig } from '../data/products';
 
-function Layout({ cartCount, products }) {
+function Layout({ cartCount, products, wishlistCount }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -50,9 +50,14 @@ function Layout({ cartCount, products }) {
           <button className="icon-btn" onClick={() => setIsSearchOpen(true)}>
             <Search size={24} />
           </button>
-          <button className="icon-btn">
+          <Link to="/wishlist" className="icon-btn" style={{position: 'relative'}}>
             <Heart size={24} />
-          </button>
+            {wishlistCount > 0 && (
+              <span className="cart-badge" style={{ backgroundColor: '#ff4757' }}>
+                {wishlistCount}
+              </span>
+            )}
+          </Link>
           <Link to="/cart" className="icon-btn" style={{position: 'relative'}}>
             <ShoppingCart size={24} />
             {cartCount > 0 && (

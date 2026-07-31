@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Heart, CreditCard } from 'lucide-react';
 
-function ProductDetail({ handleAddToCart, products }) {
+function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
@@ -55,9 +55,7 @@ function ProductDetail({ handleAddToCart, products }) {
       _originalId: product._id || product.id // 장바구니에서 원본 아이디 참조용
     };
 
-    for(let i=0; i<quantity; i++) {
-      handleAddToCart(productWithOption, { stopPropagation: () => {} });
-    }
+    handleAddToCart(productWithOption, { stopPropagation: () => {} }, quantity);
   };
 
   return (
@@ -130,7 +128,7 @@ function ProductDetail({ handleAddToCart, products }) {
           </div>
 
           <div className="detail-actions">
-            <button className="outline-btn wish" style={{flex: 1}}><Heart size={20} /> 찜하기</button>
+            <button className="outline-btn wish" style={{flex: 1}} onClick={(e) => handleToggleWishlist(product, e)}><Heart size={20} /> 찜하기</button>
             <button className="outline-btn cart" style={{flex: 1}} onClick={onAddToCartClick}><ShoppingCart size={20} /> 장바구니</button>
             <button className="primary-btn" style={{flex: 2}}><CreditCard size={20} /> 바로 구매하기</button>
           </div>
@@ -147,19 +145,42 @@ function ProductDetail({ handleAddToCart, products }) {
         </div>
         <div className="desc-content">
           {activeTab === 'detail' && (
-            product.detailImageUrl ? (
-              <div style={{width: '100%', marginTop: '2rem', textAlign: 'center'}}>
-                <img src={product.detailImageUrl} alt="상품 상세 설명" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}} />
-              </div>
-            ) : (
-              <>
-                <h3>상세 정보</h3>
-                <p>이곳에 상품의 자세한 설명이나 조리 방법, 영양 정보 등의 이미지가 들어갑니다.</p>
-                <div style={{width: '100%', height: '500px', backgroundColor: '#f1f2f6', marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#747d8c', borderRadius: '8px'}}>
-                  [판매자가 상세 설명 이미지를 등록하지 않았습니다]
+            <div style={{width: '100%', marginTop: '2rem'}}>
+              {/* 구버전 단일 이미지 지원 */}
+              {product.detailImageUrl && (
+                <div style={{textAlign: 'center', marginBottom: '2rem'}}>
+                  <img src={product.detailImageUrl} alt="상품 상세 설명" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}} />
                 </div>
-              </>
-            )
+              )}
+              
+              {/* 신규 다중 블록 지원 */}
+              {product.detailBlocks && product.detailBlocks.length > 0 ? (
+                <div style={{display: 'flex', flexDirection: 'column', gap: '2rem', alignItems: 'center'}}>
+                  {product.detailBlocks.map((block, idx) => (
+                    <div key={idx} style={{width: '100%', maxWidth: '800px', margin: '0 auto'}}>
+                      {block.type === 'image' && (
+                        <img src={block.content} alt={`상세 이미지 ${idx}`} style={{width: '100%', height: 'auto', display: 'block'}} />
+                      )}
+                      {block.type === 'text' && (
+                        <p style={{whiteSpace: 'pre-wrap', lineHeight: '1.8', fontSize: '1.1rem', color: '#333', textAlign: 'left', padding: '0 1rem'}}>
+                          {block.content}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                !product.detailImageUrl && (
+                  <>
+                    <h3>상세 정보</h3>
+                    <p>이곳에 상품의 자세한 설명이나 조리 방법, 영양 정보 등의 이미지가 들어갑니다.</p>
+                    <div style={{width: '100%', height: '500px', backgroundColor: '#f1f2f6', marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#747d8c', borderRadius: '8px'}}>
+                      [판매자가 상세 설명을 등록하지 않았습니다]
+                    </div>
+                  </>
+                )
+              )}
+            </div>
           )}
           {activeTab === 'info' && (
             <div style={{ padding: '2rem', background: '#f9f9f9', borderRadius: '8px' }}>

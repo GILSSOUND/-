@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Heart, CreditCard, Utensils, Sparkles, MapPin, Truck, Percent, LayoutGrid, ChevronLeft, ChevronRight } from 'lucide-react';
 
-function CategoryPage({ handleAddToCart, products }) {
+function CategoryPage({ handleAddToCart, handleToggleWishlist, products }) {
   const { categoryId } = useParams();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
@@ -87,7 +87,7 @@ function CategoryPage({ handleAddToCart, products }) {
                 <div className="card-hover-actions">
                   <button 
                     className="cart-circle-btn" 
-                    onClick={(e) => { e.stopPropagation(); alert('찜 목록에 추가되었습니다!'); }}
+                    onClick={(e) => handleToggleWishlist(product, e)}
                     title="찜하기"
                   >
                     <Heart size={20} />

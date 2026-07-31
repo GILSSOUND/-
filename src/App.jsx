@@ -7,11 +7,13 @@ import MyPage from './pages/MyPage';
 import CategoryPage from './pages/CategoryPage';
 import ProductDetail from './pages/ProductDetail';
 import Admin from './pages/Admin';
+import Wishlist from './pages/Wishlist';
 import { fetchProducts } from './api';
 import './index.css';
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
+  const [wishlistItems, setWishlistItems] = useState([]);
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -27,20 +29,42 @@ function App() {
     }
   };
 
-  const handleAddToCart = (product, e) => {
+  const handleAddToCart = (product, e, quantity = 1) => {
     if (e && e.stopPropagation) e.stopPropagation();
-    setCartItems(prev => [...prev, product]);
+    setCartItems(prev => {
+      const existingIndex = prev.findIndex(item => (item._id === product._id || item.id === product.id) && item.name === product.name);
+      if (existingIndex >= 0) {
+        const newCart = [...prev];
+        newCart[existingIndex].quantity = (newCart[existingIndex].quantity || 1) + quantity;
+        return newCart;
+      }
+      return [...prev, { ...product, quantity }];
+    });
     alert(`${product.name}이(가) 장바구니에 담겼습니다!`);
+  };
+
+  const handleToggleWishlist = (product, e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    setWishlistItems(prev => {
+      const isExist = prev.some(item => (item._id === product._id || item.id === product.id));
+      if (isExist) {
+        return prev.filter(item => (item._id !== product._id && item.id !== product.id));
+      } else {
+        alert(`${product.name}이(가) 찜 목록에 추가되었습니다!`);
+        return [...prev, product];
+      }
+    });
   };
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout cartCount={cartItems.length} products={products} />}>
-          <Route index element={<Home handleAddToCart={handleAddToCart} products={products} refreshGlobalProducts={loadProducts} />} />
-          <Route path="category/:categoryId" element={<CategoryPage handleAddToCart={handleAddToCart} products={products} />} />
-          <Route path="product/:id" element={<ProductDetail handleAddToCart={handleAddToCart} products={products} />} />
+        <Route path="/" element={<Layout cartCount={cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0)} products={products} wishlistCount={wishlistItems.length} />}>
+          <Route index element={<Home handleAddToCart={handleAddToCart} handleToggleWishlist={handleToggleWishlist} products={products} refreshGlobalProducts={loadProducts} />} />
+          <Route path="category/:categoryId" element={<CategoryPage handleAddToCart={handleAddToCart} handleToggleWishlist={handleToggleWishlist} products={products} />} />
+          <Route path="product/:id" element={<ProductDetail handleAddToCart={handleAddToCart} handleToggleWishlist={handleToggleWishlist} products={products} />} />
           <Route path="cart" element={<Cart cartItems={cartItems} />} />
+          <Route path="wishlist" element={<Wishlist wishlistItems={wishlistItems} handleAddToCart={handleAddToCart} handleToggleWishlist={handleToggleWishlist} />} />
           <Route path="mypage" element={<MyPage />} />
           <Route path="admin" element={<Admin refreshGlobalProducts={loadProducts} />} />
         </Route>

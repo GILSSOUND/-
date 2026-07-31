@@ -35,6 +35,10 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  detailBlocks: [{
+    type: { type: String, enum: ['image', 'text'], required: true },
+    content: { type: String, required: true }
+  }],
   isNewProduct: {
     type: Boolean,
     default: false,
