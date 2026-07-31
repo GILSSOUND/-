@@ -51,7 +51,7 @@ function App() {
       }
       return [...prev, { ...product, quantity }];
     });
-    showToast(`${product.name}이(가) 장바구니에 담겼습니다!`);
+    showToast(`장바구니에 담겼습니다!`);
   };
 
   const handleRemoveFromCart = (index) => {
@@ -105,7 +105,7 @@ function App() {
           return true;
         });
       } else {
-        showToast(`${product.name}이(가) 찜 목록에 추가되었습니다!`);
+        showToast(`찜 목록에 추가되었습니다!`);
         return [...prev, product];
       }
     });

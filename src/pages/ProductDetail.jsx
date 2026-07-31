@@ -98,10 +98,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             </ul>
           </div>
 
-          <div className="detail-desc">
-            <p>배송비: {product.shippingFee === 0 ? '무료' : `${formatPrice(product.shippingFee !== undefined ? product.shippingFee : 3000)}원`} (50,000원 이상 구매 시 무료)</p>
-            <p>배송안내: 오후 1시 이전 결제 시 당일 발송</p>
-          </div>
+
 
           {/* 옵션 선택 */}
           {product.options && product.options.length > 0 && (
@@ -142,10 +139,10 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
 
       {/* 하단: 상세 설명 탭 */}
       <div className="product-description-section">
-        <div className="desc-tabs" style={{ display: 'flex', borderBottom: '1px solid #eee', marginBottom: '2rem' }}>
-          <div className={`desc-tab ${activeTab === 'detail' ? 'active' : ''}`} onClick={() => setActiveTab('detail')} style={{ flex: 1, textAlign: 'center', padding: '1rem', cursor: 'pointer', fontWeight: activeTab === 'detail' ? 'bold' : 'normal', borderBottom: activeTab === 'detail' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'detail' ? 'var(--primary-color)' : '#666' }}>상품상세정보</div>
-          <div className={`desc-tab ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')} style={{ flex: 1, textAlign: 'center', padding: '1rem', cursor: 'pointer', fontWeight: activeTab === 'info' ? 'bold' : 'normal', borderBottom: activeTab === 'info' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'info' ? 'var(--primary-color)' : '#666' }}>구매안내</div>
-          <div className={`desc-tab ${activeTab === 'review' ? 'active' : ''}`} onClick={() => setActiveTab('review')} style={{ flex: 1, textAlign: 'center', padding: '1rem', cursor: 'pointer', fontWeight: activeTab === 'review' ? 'bold' : 'normal', borderBottom: activeTab === 'review' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'review' ? 'var(--primary-color)' : '#666' }}>상품후기</div>
+        <div className="desc-tabs" style={{ display: 'flex', borderBottom: '1px solid #eee', marginBottom: '1rem' }}>
+          <div className={`desc-tab ${activeTab === 'detail' ? 'active' : ''}`} onClick={() => setActiveTab('detail')} style={{ flex: 1, textAlign: 'center', padding: '0.8rem 0', cursor: 'pointer', fontWeight: activeTab === 'detail' ? 'bold' : 'normal', borderBottom: activeTab === 'detail' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'detail' ? 'var(--primary-color)' : '#666' }}>상품상세정보</div>
+          <div className={`desc-tab ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')} style={{ flex: 1, textAlign: 'center', padding: '0.8rem 0', cursor: 'pointer', fontWeight: activeTab === 'info' ? 'bold' : 'normal', borderBottom: activeTab === 'info' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'info' ? 'var(--primary-color)' : '#666' }}>구매안내</div>
+          <div className={`desc-tab ${activeTab === 'review' ? 'active' : ''}`} onClick={() => setActiveTab('review')} style={{ flex: 1, textAlign: 'center', padding: '0.8rem 0', cursor: 'pointer', fontWeight: activeTab === 'review' ? 'bold' : 'normal', borderBottom: activeTab === 'review' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'review' ? 'var(--primary-color)' : '#666' }}>상품후기</div>
         </div>
         <div className="desc-content">
           {activeTab === 'detail' && (
