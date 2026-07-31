@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Search, Heart, ShoppingCart, User, X, Utensils, Sparkles, MapPin, Truck, Percent } from 'lucide-react';
 import { storeConfig } from '../data/products';
 
 function Layout({ cartCount, products }) {
@@ -39,28 +40,30 @@ function Layout({ cartCount, products }) {
       <nav className="navbar">
         <Link to="/" className="logo">{storeConfig.storeName}</Link>
         <div className="nav-links">
-          <Link to="/category/mealkit">1.밀키트</Link>
-          <Link to="/category/new">2.신상품</Link>
-          <Link to="/category/local">3.산지직송</Link>
-          <Link to="/category/direct">4.업체직송</Link>
-          <Link to="/category/sale">5.특가할인</Link>
+          <Link to="/category/mealkit" style={{display: 'flex', alignItems: 'center', gap: '0.3rem'}}><Utensils size={18} />밀키트</Link>
+          <Link to="/category/new" style={{display: 'flex', alignItems: 'center', gap: '0.3rem'}}><Sparkles size={18} />신상품</Link>
+          <Link to="/category/local" style={{display: 'flex', alignItems: 'center', gap: '0.3rem'}}><MapPin size={18} />산지직송</Link>
+          <Link to="/category/direct" style={{display: 'flex', alignItems: 'center', gap: '0.3rem'}}><Truck size={18} />업체직송</Link>
+          <Link to="/category/sale" style={{display: 'flex', alignItems: 'center', gap: '0.3rem'}}><Percent size={18} />특가할인</Link>
         </div>
         <div className="nav-actions">
-          <button className="icon-btn" onClick={() => setIsSearchOpen(true)}>🔍</button>
-          <button className="icon-btn">❤️</button>
-          <Link to="/cart" className="icon-btn" style={{position: 'relative', textDecoration: 'none', color: 'inherit'}}>
-            🛒
+          <button className="icon-btn" onClick={() => setIsSearchOpen(true)}>
+            <Search size={24} />
+          </button>
+          <button className="icon-btn">
+            <Heart size={24} />
+          </button>
+          <Link to="/cart" className="icon-btn" style={{position: 'relative'}}>
+            <ShoppingCart size={24} />
             {cartCount > 0 && (
-              <span style={{
-                position: 'absolute', top: '-5px', right: '-10px', 
-                background: 'var(--primary-color)', color: 'white', 
-                borderRadius: '50%', padding: '2px 6px', fontSize: '10px', fontWeight: 'bold'
-              }}>
+              <span className="cart-badge">
                 {cartCount}
               </span>
             )}
           </Link>
-          <Link to="/mypage" className="icon-btn" style={{textDecoration: 'none', color: 'inherit'}}>👤</Link>
+          <Link to="/mypage" className="icon-btn">
+            <User size={24} />
+          </Link>
         </div>
       </nav>
 
@@ -77,7 +80,9 @@ function Layout({ cartCount, products }) {
                 autoFocus
                 className="search-input"
               />
-              <button className="close-search-btn" onClick={closeSearch}>✖</button>
+              <button className="close-search-btn" onClick={closeSearch}>
+                <X size={28} />
+              </button>
             </div>
             <div className="search-results">
               {searchQuery && searchResults.length === 0 && (
@@ -105,7 +110,10 @@ function Layout({ cartCount, products }) {
       <footer>
         <p className="footer-text">{storeConfig.storeName} | 대표: 홍길동 | 사업자등록번호: 123-45-67890</p>
         <p className="footer-text">고객센터: 1588-0000 | 이메일: support@{storeConfig.storeName.toLowerCase()}.com</p>
-        <p className="footer-text" style={{marginTop: '1rem', opacity: 0.5}}>© 2026 {storeConfig.storeName}. All rights reserved.</p>
+        <p className="footer-text" style={{marginTop: '1rem', opacity: 0.5}}>
+          © 2026 {storeConfig.storeName}. All rights reserved. 
+          <Link to="/admin" style={{ marginLeft: '1rem', color: 'inherit', textDecoration: 'underline' }}>운영자 페이지</Link>
+        </p>
       </footer>
     </div>
   );

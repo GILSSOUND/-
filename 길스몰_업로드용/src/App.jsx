@@ -37,12 +37,12 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout cartCount={cartItems.length} products={products} />}>
-          <Route index element={<Home handleAddToCart={handleAddToCart} products={products} />} />
+          <Route index element={<Home handleAddToCart={handleAddToCart} products={products} refreshGlobalProducts={loadProducts} />} />
           <Route path="category/:categoryId" element={<CategoryPage handleAddToCart={handleAddToCart} products={products} />} />
           <Route path="product/:id" element={<ProductDetail handleAddToCart={handleAddToCart} products={products} />} />
           <Route path="cart" element={<Cart cartItems={cartItems} />} />
           <Route path="mypage" element={<MyPage />} />
-          <Route path="admin" element={<Admin />} />
+          <Route path="admin" element={<Admin refreshGlobalProducts={loadProducts} />} />
         </Route>
       </Routes>
     </BrowserRouter>

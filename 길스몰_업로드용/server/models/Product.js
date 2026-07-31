@@ -11,6 +11,10 @@ const productSchema = new mongoose.Schema({
     enum: ['mealkit', 'new', 'local', 'direct', 'sale', 'etc'],
     default: 'mealkit'
   },
+  subtitle: {
+    type: String,
+    required: false,
+  },
   originalPrice: {
     type: Number,
     required: false,
@@ -27,6 +31,10 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  detailImageUrl: {
+    type: String,
+    required: false,
+  },
   isNewProduct: {
     type: Boolean,
     default: false,
@@ -34,7 +42,11 @@ const productSchema = new mongoose.Schema({
   isBest: {
     type: Boolean,
     default: false,
-  }
+  },
+  options: [{
+    name: { type: String, required: true },
+    additionalPrice: { type: Number, default: 0 }
+  }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);

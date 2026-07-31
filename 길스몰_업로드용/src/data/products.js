@@ -1,5 +1,5 @@
 export const storeConfig = {
-  storeName: "길스몰",
+  storeName: "GILSMALL",
   slogan: "맛과 가성비를 동시에! 길스몰 밀키트",
   mainBanner: {
     title: "주말 특가전 최대 50% 할인!",

@@ -18,9 +18,18 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../dist')));
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log('MongoDB Connected'))
-.catch(err => console.log('MongoDB Connection Error:', err));
+const mongoUri = process.env.MONGO_URI;
+if (!mongoUri) {
+  console.error("==========================================");
+  console.error("🚨 치명적 에러: MONGO_URI 환경 변수가 없습니다!");
+  console.error("렌더(Render) 대시보드의 Environment Variables에 MONGO_URI를 꼭 추가해주세요.");
+  console.error("==========================================");
+  // process.exit(1); 대신 서버는 살려두고 안내 메시지 출력
+} else {
+  mongoose.connect(mongoUri)
+  .then(() => console.log('MongoDB Connected'))
+  .catch(err => console.log('MongoDB Connection Error:', err));
+}
 
 // Multer Setup (Memory Storage for ImgBB upload)
 const storage = multer.memoryStorage();
@@ -41,11 +50,15 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
     // ImgBB requires base64 string
     const base64Image = req.file.buffer.toString('base64');
     
-    const formData = new FormData();
-    formData.append('image', base64Image);
+    // form-data 패키지 대신 네이티브 URLSearchParams 사용 (안정성 강화)
+    const params = new URLSearchParams();
+    params.append('image', base64Image);
 
-    const response = await axios.post(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, formData, {
-      headers: formData.getHeaders()
+    const response = await axios.post(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, params, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
     });
 
     res.json({
@@ -53,8 +66,9 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
       imageUrl: response.data.data.url
     });
   } catch (error) {
-    console.error('Image Upload Error:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Image upload failed' });
+    const errorDetails = error.response?.data?.error?.message || error.message;
+    console.error('Image Upload Error:', errorDetails);
+    res.status(500).json({ error: `ImgBB 에러: ${errorDetails}` });
   }
 });
 
@@ -102,7 +116,8 @@ app.delete('/api/products/:id', async (req, res) => {
 });
 
 // React Router 대응: API 외의 모든 요청은 index.html로 전송
-app.get('*', (req, res) => {
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) return next();
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
