@@ -31,7 +31,7 @@
   
   /* Layout */
   --nav-height: 80px;
-  --max-width: 1200px;
+  --max-width: 1500px; /* 기존 1200px에서 1500px로 넓혀서 양옆 여백을 줄이고 상품 크기를 키움 */
 }
 
 * {
