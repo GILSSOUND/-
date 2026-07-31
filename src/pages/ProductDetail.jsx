@@ -66,14 +66,14 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
         {/* 왼쪽: 상품 이미지 */}
         <div className="product-detail-img-wrapper">
           <img src={product.imageUrl} alt={product.name} className="product-detail-img" />
+          <div className="detail-image-badges">
+            {product.isBest && <span className="badge badge-best">BEST</span>}
+            {product.isNewProduct && <span className="badge badge-new">NEW</span>}
+          </div>
         </div>
 
         {/* 오른쪽: 상품 정보 */}
         <div className="product-detail-info">
-          <div className="detail-badges">
-            {product.isBest && <span className="badge badge-best">BEST</span>}
-            {product.isNewProduct && <span className="badge badge-new">NEW</span>}
-          </div>
           <h2 className="detail-title">{product.name}</h2>
           {product.subtitle && <p style={{fontSize: '1.1rem', color: '#888', marginBottom: '1.5rem', marginTop: '-0.5rem'}}>{product.subtitle}</p>}
           

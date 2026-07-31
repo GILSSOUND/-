@@ -827,6 +827,17 @@ body {
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+/* 상품 상세페이지 사진 위 배지 위치 고정 (데스크탑/모바일 공통) */
+.detail-image-badges {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 5;
 }
 
 .product-detail-img {
@@ -1137,7 +1148,7 @@ footer {
   }
 
   .product-detail-info {
-    padding: 2rem 5%;
+    padding: 1.2rem 5% 2rem 5%;
     background: white;
     border-radius: 30px 30px 0 0;
     margin-top: -40px;
@@ -1155,7 +1166,11 @@ footer {
     padding: 1rem;
   }
   
-  .detail-title { font-size: 1.8rem; }
+  .detail-title { 
+    font-size: 1.7rem; 
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }
   .detail-price { font-size: 1.8rem; }
 
   .product-name {
