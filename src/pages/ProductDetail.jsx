@@ -60,7 +60,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container detail-page-container">
       <div className="product-detail-layout">
         
         {/* 왼쪽: 상품 이미지 */}

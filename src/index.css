@@ -1056,13 +1056,29 @@ footer {
   }
 
   .product-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
+  }
+
+  .detail-page-container {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: var(--nav-height);
+  }
+
+  .product-detail-img-wrapper {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .product-detail-info,
+  .product-description-section {
+    padding: 0 5%;
   }
 
   .product-detail-layout {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
   }
   
   /* 모바일에서는 하단바 패딩을 화면 꽉 차게 */
