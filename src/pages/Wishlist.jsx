@@ -49,14 +49,16 @@ function Wishlist({ wishlistItems, handleAddToCart, handleToggleWishlist }) {
                 <button 
                   className="outline-btn wishlist-action-btn" 
                   onClick={(e) => handleAddToCart(item, e)}
+                  title="장바구니 담기"
                 >
-                  <ShoppingCart size={18} /> 장바구니
+                  <ShoppingCart size={18} /> <span className="hide-on-mobile">장바구니</span>
                 </button>
                 <button 
                   className="primary-btn wishlist-action-btn"
                   onClick={() => onBuyClick(item)}
+                  title="구매하기"
                 >
-                  <CreditCard size={18} /> 구매하기
+                  <CreditCard size={18} /> <span className="hide-on-mobile">구매하기</span>
                 </button>
               </div>
             </div>

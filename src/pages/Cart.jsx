@@ -35,14 +35,14 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
                 <img src={item.imageUrl} alt={item.name} className="cart-item-img" />
                 <div className="cart-item-info">
                   <h4>{item.name}</h4>
-                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginTop: '0.5rem' }}>
-                    <div className="cart-item-price" style={{margin: 0}}>{formatPrice(item.price)}원</div>
+                  <div className="cart-item-controls">
+                    <div className="cart-item-price">{formatPrice(item.price)}원</div>
                     
                     {/* 수량 조절 컨트롤러 */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#f1f2f6', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
-                      <button onClick={() => handleUpdateQuantity(index, -1)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
-                      <span style={{ minWidth: '20px', textAlign: 'center', fontSize: '0.9rem', fontWeight: '600' }}>{item.quantity || 1}</span>
-                      <button onClick={() => handleUpdateQuantity(index, 1)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
+                    <div className="cart-qty-ctrl">
+                      <button onClick={() => handleUpdateQuantity(index, -1)}>-</button>
+                      <span>{item.quantity || 1}</span>
+                      <button onClick={() => handleUpdateQuantity(index, 1)}>+</button>
                     </div>
 
                     {/* 옵션 변경 컨트롤러 */}
@@ -52,9 +52,9 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
                       if (originalProduct && originalProduct.options && originalProduct.options.length > 0) {
                         return (
                           <select
+                            className="cart-opt-select"
                             value={item.selectedOptionName || ''}
                             onChange={(e) => handleChangeCartItemOption(index, e.target.value)}
-                            style={{ padding: '0.3rem 0.5rem', borderRadius: '4px', border: '1px solid #ddd', background: 'white', outline: 'none', fontSize: '0.9rem' }}
                           >
                             <option value="">옵션 선택안함</option>
                             {originalProduct.options.map((opt, i) => (
@@ -68,15 +68,15 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
                   </div>
                 </div>
                 
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                <div className="cart-item-actions">
                   <button 
                     onClick={() => handleRemoveFromCart(index)}
-                    style={{ background: 'transparent', border: 'none', color: '#ff4757', cursor: 'pointer' }}
+                    className="cart-trash-btn"
                     title="삭제"
                   >
-                    <Trash2 size={20} />
+                    <Trash2 size={18} />
                   </button>
-                  <div style={{ fontWeight: '800', fontSize: '1.2rem', color: 'var(--primary-color)' }}>
+                  <div className="cart-item-total">
                     {formatPrice(item.price * (item.quantity || 1))}원
                   </div>
                 </div>
