@@ -1,12 +1,22 @@
 import React from 'react';
 import { Trash2 } from 'lucide-react';
 
-function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity }) {
+function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleChangeCartItemOption, products }) {
   const formatPrice = (price) => {
     return price.toLocaleString('ko-KR');
   };
 
   const totalPrice = cartItems.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
+
+  const baseShippingFee = cartItems.length > 0 
+    ? Math.max(...cartItems.map(item => {
+        const origId = item._originalId || item._id || item.id;
+        const originalProduct = products?.find(p => p._id === origId || p.id === origId);
+        return originalProduct && originalProduct.shippingFee !== undefined ? Number(originalProduct.shippingFee) : 3000;
+      }))
+    : 0;
+
+  const finalShippingFee = totalPrice > 50000 ? 0 : baseShippingFee;
 
   return (
     <div className="page-container">
@@ -34,6 +44,27 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity }) {
                       <span style={{ minWidth: '20px', textAlign: 'center', fontSize: '0.9rem', fontWeight: '600' }}>{item.quantity || 1}</span>
                       <button onClick={() => handleUpdateQuantity(index, 1)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
                     </div>
+
+                    {/* 옵션 변경 컨트롤러 */}
+                    {(() => {
+                      const origId = item._originalId || item._id || item.id;
+                      const originalProduct = products?.find(p => p._id === origId || p.id === origId);
+                      if (originalProduct && originalProduct.options && originalProduct.options.length > 0) {
+                        return (
+                          <select
+                            value={item.selectedOptionName || ''}
+                            onChange={(e) => handleChangeCartItemOption(index, e.target.value)}
+                            style={{ padding: '0.3rem 0.5rem', borderRadius: '4px', border: '1px solid #ddd', background: 'white', outline: 'none', fontSize: '0.9rem' }}
+                          >
+                            <option value="">옵션 선택안함</option>
+                            {originalProduct.options.map((opt, i) => (
+                              <option key={i} value={opt.name}>{opt.name} {opt.additionalPrice > 0 ? `(+${formatPrice(opt.additionalPrice)}원)` : ''}</option>
+                            ))}
+                          </select>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                 </div>
                 
@@ -60,11 +91,11 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity }) {
             </div>
             <div className="summary-row">
               <span>배송비</span>
-              <span>{totalPrice > 50000 ? '무료' : '3,000원'}</span>
+              <span>{finalShippingFee === 0 ? '무료' : `${formatPrice(finalShippingFee)}원`}</span>
             </div>
             <div className="summary-total">
               <span>총 결제 금액</span>
-              <span>{formatPrice(totalPrice + (totalPrice > 50000 ? 0 : 3000))}원</span>
+              <span>{formatPrice(totalPrice + finalShippingFee)}원</span>
             </div>
             <button className="primary-btn checkout-btn">구매하기</button>
           </div>

@@ -52,7 +52,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
       ...product,
       name: currentOption ? `${product.name} [옵션: ${currentOption.name}]` : product.name,
       price: finalUnitPrice,
-      _originalId: product._id || product.id // 장바구니에서 원본 아이디 참조용
+      _originalId: product._id || product.id, // 장바구니에서 원본 아이디 참조용
+      selectedOptionName: selectedOption // 장바구니에서 옵션 변경을 위해 저장
     };
 
     handleAddToCart(productWithOption, { stopPropagation: () => {} }, quantity);
@@ -89,7 +90,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           </div>
 
           <div className="detail-desc">
-            <p>배송비: 3,000원 (50,000원 이상 구매 시 무료)</p>
+            <p>배송비: {product.shippingFee === 0 ? '무료' : `${formatPrice(product.shippingFee !== undefined ? product.shippingFee : 3000)}원`} (50,000원 이상 구매 시 무료)</p>
             <p>배송안내: 오후 1시 이전 결제 시 당일 발송</p>
           </div>
 

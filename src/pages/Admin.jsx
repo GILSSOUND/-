@@ -21,6 +21,7 @@ function Admin({ refreshGlobalProducts }) {
     category: 'mealkit',
     originalPrice: '',
     price: '',
+    shippingFee: 3000,
     isNewProduct: false,
     isBest: false
   };
@@ -105,6 +106,7 @@ function Admin({ refreshGlobalProducts }) {
       category: product.category || 'mealkit',
       originalPrice: product.originalPrice || '',
       price: product.price || '',
+      shippingFee: product.shippingFee !== undefined ? product.shippingFee : 3000,
       isNewProduct: product.isNewProduct || false,
       isBest: product.isBest || false
     });
@@ -211,6 +213,7 @@ function Admin({ refreshGlobalProducts }) {
         ...formData,
         originalPrice: formData.originalPrice ? Number(formData.originalPrice) : null,
         price: Number(formData.price),
+        shippingFee: formData.shippingFee !== '' ? Number(formData.shippingFee) : 3000,
         discount: calculatedDiscount,
         options: options.filter(o => o.name.trim() !== '').map(o => ({ name: o.name, additionalPrice: Number(o.additionalPrice) })),
         imageUrl,
@@ -355,6 +358,11 @@ function Admin({ refreshGlobalProducts }) {
                   <div>
                     <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>원래 가격 (원)</label>
                     <input type="number" name="originalPrice" value={formData.originalPrice} onChange={handleChange} placeholder="할인 전 가격을 적으면 할인율 자동 계산" style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd'}} />
+                  </div>
+
+                  <div>
+                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>배송비 (원)</label>
+                    <input type="number" name="shippingFee" value={formData.shippingFee} onChange={handleChange} placeholder="기본 3,000원. 0 입력 시 무료배송" style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd'}} />
                   </div>
 
                   <div style={{display: 'flex', gap: '2rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px'}}>
