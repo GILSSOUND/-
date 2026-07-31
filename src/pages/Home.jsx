@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart, CreditCard } from 'lucide-react';
+import { ShoppingCart, Heart, CreditCard, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay, Navigation } from 'swiper/modules';
 import 'swiper/css';
@@ -32,6 +32,8 @@ const bannerData = [
 
 function Home({ handleAddToCart, products, refreshGlobalProducts }) {
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15; // 5 columns * 3 rows
   
   useEffect(() => {
     // 렌더 서버가 슬립 상태일 때 App.jsx의 초기 fetch가 실패해서 products가 비어있을 수 있음.
@@ -43,6 +45,14 @@ function Home({ handleAddToCart, products, refreshGlobalProducts }) {
   
   const formatPrice = (price) => {
     return price.toLocaleString('ko-KR');
+  };
+
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const currentProducts = products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -76,7 +86,7 @@ function Home({ handleAddToCart, products, refreshGlobalProducts }) {
       <main className="section">
         <h2 className="section-title">이주의 추천상품</h2>
         <div className="product-grid">
-          {products.map(product => (
+          {currentProducts.map(product => (
             <div key={product._id || product.id} className="product-card" onClick={() => navigate(`/product/${product._id || product.id}`)}>
               <div className="card-img-container">
                 <img src={product.imageUrl} alt={product.name} className="card-img" />
@@ -126,6 +136,37 @@ function Home({ handleAddToCart, products, refreshGlobalProducts }) {
             </div>
           ))}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button 
+              className="page-btn" 
+              onClick={() => handlePageChange(currentPage - 1)} 
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft size={20} />
+            </button>
+            
+            {[...Array(totalPages)].map((_, idx) => (
+              <button 
+                key={idx + 1} 
+                className={`page-btn ${currentPage === idx + 1 ? 'active' : ''}`}
+                onClick={() => handlePageChange(idx + 1)}
+              >
+                {idx + 1}
+              </button>
+            ))}
+
+            <button 
+              className="page-btn" 
+              onClick={() => handlePageChange(currentPage + 1)} 
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        )}
       </main>
     </>
   );

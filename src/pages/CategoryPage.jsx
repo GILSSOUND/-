@@ -1,10 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart, CreditCard, Utensils, Sparkles, MapPin, Truck, Percent, LayoutGrid } from 'lucide-react';
+import { ShoppingCart, Heart, CreditCard, Utensils, Sparkles, MapPin, Truck, Percent, LayoutGrid, ChevronLeft, ChevronRight } from 'lucide-react';
 
 function CategoryPage({ handleAddToCart, products }) {
   const { categoryId } = useParams();
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
+
+  // 카테고리가 바뀔 때마다 첫 페이지로 초기화
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [categoryId]);
 
   const formatPrice = (price) => {
     return price.toLocaleString('ko-KR');
@@ -47,6 +54,14 @@ function CategoryPage({ handleAddToCart, products }) {
       categoryIcon = <LayoutGrid size={32} style={{marginRight: '0.5rem', color: 'var(--primary-color)'}} />;
   }
 
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const currentProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="page-container">
       <h2 className="page-title" style={{display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '3rem'}}>
@@ -58,8 +73,9 @@ function CategoryPage({ handleAddToCart, products }) {
           <h3>상품 준비중입니다.</h3>
         </div>
       ) : (
-        <div className="product-grid">
-          {filteredProducts.map(product => (
+        <>
+          <div className="product-grid">
+            {currentProducts.map(product => (
             <div key={product._id || product.id} className="product-card" onClick={() => navigate(`/product/${product._id || product.id}`)}>
               <div className="card-img-container">
                 <img src={product.imageUrl} alt={product.name} className="card-img" />
@@ -107,8 +123,40 @@ function CategoryPage({ handleAddToCart, products }) {
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button 
+                className="page-btn" 
+                onClick={() => handlePageChange(currentPage - 1)} 
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft size={20} />
+              </button>
+              
+              {[...Array(totalPages)].map((_, idx) => (
+                <button 
+                  key={idx + 1} 
+                  className={`page-btn ${currentPage === idx + 1 ? 'active' : ''}`}
+                  onClick={() => handlePageChange(idx + 1)}
+                >
+                  {idx + 1}
+                </button>
+              ))}
+
+              <button 
+                className="page-btn" 
+                onClick={() => handlePageChange(currentPage + 1)} 
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
