@@ -44,7 +44,11 @@ function CategoryPage({ handleAddToCart, handleToggleWishlist, products }) {
       categoryIcon = <Truck size={32} style={{marginRight: '0.5rem', color: 'var(--primary-color)'}} />;
       break;
     case 'sale':
-      filteredProducts = products.filter(p => p.discount);
+      filteredProducts = products.filter(p => {
+        if (!p.discount) return false;
+        const discountVal = parseInt(p.discount.replace('%', ''), 10);
+        return !isNaN(discountVal) && discountVal >= 50;
+      });
       categoryName = "특가할인";
       categoryIcon = <Percent size={32} style={{marginRight: '0.5rem', color: 'var(--primary-color)'}} />;
       break;

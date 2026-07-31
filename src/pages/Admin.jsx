@@ -281,6 +281,8 @@ function Admin({ refreshGlobalProducts }) {
             { id: 'list', label: `상품 목록 (${products.length})`, icon: <List size={20} /> },
             { id: 'banner', label: '메인 배너 관리', icon: <ImageIcon size={20} /> },
             { id: 'notice', label: '공지사항 관리', icon: <Bell size={20} /> },
+            { id: 'order', label: '발주 관리 (준비중)', icon: <LayoutDashboard size={20} /> },
+            { id: 'member', label: '회원 관리 (준비중)', icon: <LayoutDashboard size={20} /> },
           ].map(tab => (
             <li key={tab.id} 
                 onClick={() => {
@@ -358,24 +360,24 @@ function Admin({ refreshGlobalProducts }) {
                   <div style={{display: 'flex', gap: '2rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px'}}>
                     <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: '600'}}>
                       <input type="checkbox" name="isNewProduct" checked={formData.isNewProduct} onChange={handleChange} />
-                      🆕 NEW 배지
+                      [NEW 배지]
                     </label>
                     <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: '600'}}>
                       <input type="checkbox" name="isBest" checked={formData.isBest} onChange={handleChange} />
-                      🔥 BEST 배지
+                      [BEST 배지]
                     </label>
                   </div>
 
                   {/* 썸네일 */}
                   <div>
-                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>📸 메인 썸네일 사진</label>
+                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>• 메인 썸네일 사진</label>
                     <input type="file" accept="image/*" onChange={handleFileChange} style={{width: '100%', padding: '0.5rem', border: '1px dashed #ccc', borderRadius: '8px'}} />
                   </div>
 
                   {/* 옵션 */}
                   <div style={{background: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', border: '1px solid #eee'}}>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
-                      <label style={{fontWeight: 'bold'}}>✨ 상품 옵션 설정 (선택사항)</label>
+                      <label style={{fontWeight: 'bold'}}>• 상품 옵션 설정 (선택사항)</label>
                       <button type="button" onClick={handleAddOption} style={{padding: '0.4rem 0.8rem', background: '#333', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>+ 추가</button>
                     </div>
                     <div style={{display: 'flex', flexDirection: 'column', gap: '0.8rem'}}>
@@ -441,7 +443,7 @@ function Admin({ refreshGlobalProducts }) {
               {/* 오른쪽: 미리보기 */}
               <div style={{flex: 1.5, minWidth: '500px', position: 'sticky', top: '100px'}}>
                 <h3 style={{marginBottom: '1rem', color: '#666', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                  👀 쇼핑몰 미리보기
+                  [쇼핑몰 미리보기]
                 </h3>
                 
                 <div style={{background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', pointerEvents: 'none'}}>
@@ -582,10 +584,12 @@ function Admin({ refreshGlobalProducts }) {
           </div>
         )}
 
-        {(activeTab === 'banner' || activeTab === 'notice') && (
+        {(activeTab === 'banner' || activeTab === 'notice' || activeTab === 'order' || activeTab === 'member') && (
           <div style={{textAlign: 'center', padding: '5rem', background: 'white', borderRadius: '16px', color: '#888'}}>
             <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '1rem'}}>
-              {activeTab === 'banner' ? '메인 배너 관리' : '공지사항 관리'}
+              {activeTab === 'banner' ? '메인 배너 관리' : 
+               activeTab === 'notice' ? '공지사항 관리' : 
+               activeTab === 'order' ? '발주 관리' : '회원 관리'}
             </h2>
             <p>이 기능은 추후 업데이트 될 예정입니다.</p>
           </div>

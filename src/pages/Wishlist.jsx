@@ -30,7 +30,12 @@ function Wishlist({ wishlistItems, handleAddToCart, handleToggleWishlist }) {
               
               <div className="wishlist-item-info" onClick={() => navigate(`/product/${item._id || item.id}`)}>
                 <h4 className="wishlist-item-title">{item.name}</h4>
-                <div className="wishlist-item-price">{formatPrice(item.price)}원</div>
+                <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                  {item.discount && (
+                    <span style={{color: 'var(--primary-color)', fontWeight: '800', fontSize: '1.1rem'}}>{item.discount}</span>
+                  )}
+                  <div className="wishlist-item-price">{formatPrice(item.price)}원</div>
+                </div>
               </div>
 
               <div className="wishlist-item-actions">

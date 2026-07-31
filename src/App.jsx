@@ -32,7 +32,10 @@ function App() {
   const handleAddToCart = (product, e, quantity = 1) => {
     if (e && e.stopPropagation) e.stopPropagation();
     setCartItems(prev => {
-      const existingIndex = prev.findIndex(item => (item._id === product._id || item.id === product.id) && item.name === product.name);
+      const existingIndex = prev.findIndex(item => {
+        const isSameId = (item._id && product._id && item._id === product._id) || (item.id && product.id && item.id === product.id);
+        return isSameId && item.name === product.name;
+      });
       if (existingIndex >= 0) {
         const newCart = [...prev];
         newCart[existingIndex].quantity = (newCart[existingIndex].quantity || 1) + quantity;
@@ -46,9 +49,17 @@ function App() {
   const handleToggleWishlist = (product, e) => {
     if (e && e.stopPropagation) e.stopPropagation();
     setWishlistItems(prev => {
-      const isExist = prev.some(item => (item._id === product._id || item.id === product.id));
+      const isExist = prev.some(item => {
+        if (item._id && product._id && item._id === product._id) return true;
+        if (item.id && product.id && item.id === product.id) return true;
+        return false;
+      });
       if (isExist) {
-        return prev.filter(item => (item._id !== product._id && item.id !== product.id));
+        return prev.filter(item => {
+          if (item._id && product._id && item._id === product._id) return false;
+          if (item.id && product.id && item.id === product.id) return false;
+          return true;
+        });
       } else {
         alert(`${product.name}이(가) 찜 목록에 추가되었습니다!`);
         return [...prev, product];
