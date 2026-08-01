@@ -89,24 +89,40 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
 
       {/* Products Section */}
       <main className="section">
-        <h2 className="section-title">이주의 추천상품</h2>
-        <div className="recommended-ad-banner" style={{
-          width: '100%',
-          aspectRatio: '4 / 1', // 가로로 긴 배너 비율
-          minHeight: '200px',
-          backgroundColor: '#f5f5f5',
-          borderRadius: '12px',
-          marginBottom: '4rem',
-          overflow: 'hidden',
-          cursor: 'pointer',
-          boxShadow: 'var(--shadow-sm)'
-        }}>
-          {/* 사용자가 추후 광고 이미지를 넣을 수 있는 배너 영역 */}
-          <img 
-            src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=2000" 
-            alt="이주의 추천상품 특별 기획전" 
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
+        <div className="recommended-section" style={{ position: 'relative', marginBottom: '4rem' }}>
+          <div className="trendy-title" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem', paddingLeft: '0.5rem' }}>
+            <span style={{ fontSize: '1.2rem', opacity: 0.7 }}>🍴</span>
+            <span style={{ fontWeight: 300, fontSize: '1.4rem', letterSpacing: '4px', color: '#222', fontFamily: 'serif' }}>이주의 추천상품</span>
+            <span style={{ fontSize: '1.2rem', opacity: 0.7 }}>🍎</span>
+          </div>
+          <Swiper
+            modules={[Autoplay, Pagination]}
+            pagination={{ clickable: true }}
+            autoplay={{ delay: 4000, disableOnInteraction: false }}
+            loop={true}
+            className="ad-banner-swiper"
+            style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}
+          >
+            {[1, 2, 3].map((item) => (
+              <SwiperSlide key={item}>
+                <div className="prep-banner" style={{
+                  width: '100%',
+                  aspectRatio: '4 / 1',
+                  minHeight: '200px',
+                  backgroundColor: '#f1f3f5',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#868e96',
+                  fontWeight: 400,
+                  fontSize: '1.3rem',
+                  letterSpacing: '1px'
+                }}>
+                  지금은 상품준비중입니다
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
 
         <h2 className="section-title">전체상품</h2>
