@@ -55,6 +55,11 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const recommendedProducts = products.filter(p => p.isBest).slice(0, 5);
+  if (recommendedProducts.length === 0 && products.length > 0) {
+    recommendedProducts.push(...products.slice(0, 5));
+  }
+
   return (
     <>
       {/* Hero Slider Section */}
@@ -85,6 +90,53 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
       {/* Products Section */}
       <main className="section">
         <h2 className="section-title">이주의 추천상품</h2>
+        <Swiper
+          modules={[Autoplay, Navigation]}
+          spaceBetween={20}
+          slidesPerView={2.2}
+          navigation={true}
+          breakpoints={{
+            768: { slidesPerView: 3.5, spaceBetween: 20 },
+            1024: { slidesPerView: 5, spaceBetween: 30 },
+          }}
+          className="recommended-swiper"
+          style={{ padding: '0.5rem', marginBottom: '4rem' }}
+        >
+          {recommendedProducts.map(product => (
+            <SwiperSlide key={`rec-${product._id || product.id}`}>
+              <div className="product-card" onClick={() => navigate(`/product/${product._id || product.id}`)}>
+                <div className="card-img-container">
+                  <img src={product.imageUrl} alt={product.name} className="card-img" />
+                  <div className="badges">
+                    {product.isBest && <span className="badge badge-best">BEST</span>}
+                    {product.isNewProduct && <span className="badge badge-new">NEW</span>}
+                  </div>
+                  <div className="card-hover-actions">
+                    <button className="cart-circle-btn" onClick={(e) => handleToggleWishlist(product, e)} title="찜하기"><Heart size={20} /></button>
+                    <button className="cart-circle-btn" onClick={(e) => handleAddToCart(product, e)} title="장바구니 담기"><ShoppingCart size={20} /></button>
+                    <button className="cart-circle-btn" onClick={(e) => { e.stopPropagation(); navigate(`/product/${product._id || product.id}`); }} title="구매하기"><CreditCard size={20} /></button>
+                  </div>
+                </div>
+                <div className="product-info">
+                  <h3 className="product-name">{product.name}</h3>
+                  <div className="price-container">
+                    {product.originalPrice && (
+                      <div className="price-top-row" style={{ justifyContent: 'flex-start' }}>
+                        <span className="original-price">{formatPrice(product.originalPrice)}원</span>
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '0.5rem' }}>
+                      <span className="price">{formatPrice(product.price)}원</span>
+                      {product.discount && <span className="discount">{product.discount}</span>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+
+        <h2 className="section-title">전체상품</h2>
         <div className="product-grid">
           {currentProducts.map(product => (
             <div key={product._id || product.id} className="product-card" onClick={() => navigate(`/product/${product._id || product.id}`)}>
@@ -94,29 +146,10 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
                   {product.isBest && <span className="badge badge-best">BEST</span>}
                   {product.isNewProduct && <span className="badge badge-new">NEW</span>}
                 </div>
-                {/* 둥근 장바구니/찜/구매 버튼 (마우스 호버 시 등장) */}
                 <div className="card-hover-actions">
-                  <button 
-                    className="cart-circle-btn" 
-                    onClick={(e) => handleToggleWishlist(product, e)}
-                    title="찜하기"
-                  >
-                    <Heart size={20} />
-                  </button>
-                  <button 
-                    className="cart-circle-btn" 
-                    onClick={(e) => handleAddToCart(product, e)}
-                    title="장바구니 담기"
-                  >
-                    <ShoppingCart size={20} />
-                  </button>
-                  <button 
-                    className="cart-circle-btn" 
-                    onClick={(e) => { e.stopPropagation(); navigate(`/product/${product._id || product.id}`); }}
-                    title="구매하기"
-                  >
-                    <CreditCard size={20} />
-                  </button>
+                  <button className="cart-circle-btn" onClick={(e) => handleToggleWishlist(product, e)} title="찜하기"><Heart size={20} /></button>
+                  <button className="cart-circle-btn" onClick={(e) => handleAddToCart(product, e)} title="장바구니 담기"><ShoppingCart size={20} /></button>
+                  <button className="cart-circle-btn" onClick={(e) => { e.stopPropagation(); navigate(`/product/${product._id || product.id}`); }} title="구매하기"><CreditCard size={20} /></button>
                 </div>
               </div>
               <div className="product-info">
