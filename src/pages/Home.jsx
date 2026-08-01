@@ -90,7 +90,7 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
       {/* Products Section */}
       <main className="section">
         <div className="recommended-section" style={{ position: 'relative', marginBottom: '4rem' }}>
-          <h2 className="section-title">이주의 추천상품</h2>
+          <h2 className="dot-title">이주의 추천상품</h2>
           <Swiper
             modules={[Autoplay, Pagination]}
             pagination={{ clickable: true }}
@@ -117,18 +117,13 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <div style={{
-                    position: 'absolute',
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.4)'
-                  }}></div>
                   <h3 style={{
                     position: 'relative',
                     color: '#fff',
-                    fontWeight: 700,
-                    fontSize: '1.8rem',
-                    letterSpacing: '1px',
-                    textShadow: '0 2px 4px rgba(0,0,0,0.5)'
+                    fontWeight: 800,
+                    fontSize: '2rem',
+                    letterSpacing: '2px',
+                    textShadow: '0 3px 6px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5)'
                   }}>
                     지금은 상품준비중입니다
                   </h3>
