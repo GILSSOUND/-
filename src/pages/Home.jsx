@@ -90,51 +90,24 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
       {/* Products Section */}
       <main className="section">
         <h2 className="section-title">이주의 추천상품</h2>
-        <Swiper
-          modules={[Autoplay, Navigation]}
-          spaceBetween={20}
-          slidesPerView={2.2}
-          navigation={true}
-          breakpoints={{
-            768: { slidesPerView: 3.5, spaceBetween: 20 },
-            1024: { slidesPerView: 5, spaceBetween: 30 },
-          }}
-          className="recommended-swiper"
-          style={{ padding: '0.5rem', marginBottom: '4rem' }}
-        >
-          {recommendedProducts.map(product => (
-            <SwiperSlide key={`rec-${product._id || product.id}`}>
-              <div className="product-card" onClick={() => navigate(`/product/${product._id || product.id}`)}>
-                <div className="card-img-container">
-                  <img src={product.imageUrl} alt={product.name} className="card-img" />
-                  <div className="badges">
-                    {product.isBest && <span className="badge badge-best">BEST</span>}
-                    {product.isNewProduct && <span className="badge badge-new">NEW</span>}
-                  </div>
-                  <div className="card-hover-actions">
-                    <button className="cart-circle-btn" onClick={(e) => handleToggleWishlist(product, e)} title="찜하기"><Heart size={20} /></button>
-                    <button className="cart-circle-btn" onClick={(e) => handleAddToCart(product, e)} title="장바구니 담기"><ShoppingCart size={20} /></button>
-                    <button className="cart-circle-btn" onClick={(e) => { e.stopPropagation(); navigate(`/product/${product._id || product.id}`); }} title="구매하기"><CreditCard size={20} /></button>
-                  </div>
-                </div>
-                <div className="product-info">
-                  <h3 className="product-name">{product.name}</h3>
-                  <div className="price-container">
-                    {product.originalPrice && (
-                      <div className="price-top-row" style={{ justifyContent: 'flex-start' }}>
-                        <span className="original-price">{formatPrice(product.originalPrice)}원</span>
-                      </div>
-                    )}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '0.5rem' }}>
-                      <span className="price">{formatPrice(product.price)}원</span>
-                      {product.discount && <span className="discount">{product.discount}</span>}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+        <div className="recommended-ad-banner" style={{
+          width: '100%',
+          aspectRatio: '4 / 1', // 가로로 긴 배너 비율
+          minHeight: '200px',
+          backgroundColor: '#f5f5f5',
+          borderRadius: '12px',
+          marginBottom: '4rem',
+          overflow: 'hidden',
+          cursor: 'pointer',
+          boxShadow: 'var(--shadow-sm)'
+        }}>
+          {/* 사용자가 추후 광고 이미지를 넣을 수 있는 배너 영역 */}
+          <img 
+            src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=2000" 
+            alt="이주의 추천상품 특별 기획전" 
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        </div>
 
         <h2 className="section-title">전체상품</h2>
         <div className="product-grid">
