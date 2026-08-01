@@ -90,35 +90,48 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
       {/* Products Section */}
       <main className="section">
         <div className="recommended-section" style={{ position: 'relative', marginBottom: '4rem' }}>
-          <div className="trendy-title" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem', paddingLeft: '0.5rem' }}>
-            <span style={{ fontSize: '1.2rem', opacity: 0.7 }}>🍴</span>
-            <span style={{ fontWeight: 300, fontSize: '1.4rem', letterSpacing: '4px', color: '#222', fontFamily: 'serif' }}>이주의 추천상품</span>
-            <span style={{ fontSize: '1.2rem', opacity: 0.7 }}>🍎</span>
-          </div>
+          <h2 className="section-title">이주의 추천상품</h2>
           <Swiper
             modules={[Autoplay, Pagination]}
             pagination={{ clickable: true }}
             autoplay={{ delay: 4000, disableOnInteraction: false }}
             loop={true}
             className="ad-banner-swiper"
-            style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}
+            style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', border: '2px solid var(--primary-color)' }}
           >
-            {[1, 2, 3].map((item) => (
-              <SwiperSlide key={item}>
+            {[
+              "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200",
+              "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=1200",
+              "https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&q=80&w=1200"
+            ].map((imgUrl, idx) => (
+              <SwiperSlide key={idx}>
                 <div className="prep-banner" style={{
                   width: '100%',
                   aspectRatio: '4 / 1',
                   minHeight: '200px',
-                  backgroundColor: '#f1f3f5',
+                  position: 'relative',
+                  backgroundImage: `url(${imgUrl})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#868e96',
-                  fontWeight: 400,
-                  fontSize: '1.3rem',
-                  letterSpacing: '1px'
+                  justifyContent: 'center'
                 }}>
-                  지금은 상품준비중입니다
+                  <div style={{
+                    position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.4)'
+                  }}></div>
+                  <h3 style={{
+                    position: 'relative',
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: '1.8rem',
+                    letterSpacing: '1px',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.5)'
+                  }}>
+                    지금은 상품준비중입니다
+                  </h3>
                 </div>
               </SwiperSlide>
             ))}
