@@ -42,3 +42,13 @@ export const uploadImage = async (file) => {
     throw new Error(message);
   }
 };
+
+export const fetchConfig = async (key) => {
+  const res = await axios.get(`${API_URL}/config/${key}`);
+  return res.data;
+};
+
+export const updateConfig = async (key, value) => {
+  const res = await axios.post(`${API_URL}/config/${key}`, { value });
+  return res.data;
+};

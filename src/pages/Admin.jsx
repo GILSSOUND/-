@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchProducts, createProduct, updateProduct, deleteProduct, uploadImage } from '../api';
+import { fetchProducts, createProduct, updateProduct, deleteProduct, uploadImage, fetchConfig, updateConfig } from '../api';
 import { LayoutDashboard, PackagePlus, List, Image as ImageIcon, Bell, Edit, Trash2, ChevronLeft, ChevronRight, Plus, X, Image as ImgIcon, Type } from 'lucide-react';
 
 function Admin({ refreshGlobalProducts }) {
@@ -44,9 +44,67 @@ function Admin({ refreshGlobalProducts }) {
   const [options, setOptions] = useState([]);
   const [uploading, setUploading] = useState(false);
 
+  // 배너 관리 상태
+  const [heroBanners, setHeroBanners] = useState([]);
+  const [recBanners, setRecBanners] = useState([]);
+
   useEffect(() => {
     loadProducts();
+    loadBanners();
   }, []);
+
+  const loadBanners = async () => {
+    try {
+      const hero = await fetchConfig('hero_banners');
+      if (hero) setHeroBanners(hero);
+      const rec = await fetchConfig('recommended_banners');
+      if (rec) setRecBanners(rec);
+    } catch (e) {
+      console.error('Failed to load banners');
+    }
+  };
+
+  const handleBannerUpload = async (e, type) => {
+    if(!e.target.files || !e.target.files[0]) return;
+    setUploading(true);
+    try {
+      const res = await uploadImage(e.target.files[0]);
+      const newBanner = { id: Date.now(), imageUrl: res.imageUrl, title: '', subtitle: '' };
+      
+      if(type === 'hero') {
+        const updated = [...heroBanners, newBanner];
+        setHeroBanners(updated);
+        await updateConfig('hero_banners', updated);
+      } else {
+        const updated = [...recBanners, newBanner];
+        setRecBanners(updated);
+        await updateConfig('recommended_banners', updated);
+      }
+      alert('배너가 업로드되었습니다.');
+    } catch(err) {
+      alert("배너 업로드 실패: " + err.message);
+    } finally {
+      setUploading(false);
+      e.target.value = ''; // input reset
+    }
+  };
+
+  const handleDeleteBanner = async (id, type) => {
+    if(!window.confirm("이 배너를 삭제하시겠습니까?")) return;
+    try {
+      if(type === 'hero') {
+        const updated = heroBanners.filter(b => b.id !== id);
+        setHeroBanners(updated);
+        await updateConfig('hero_banners', updated);
+      } else {
+        const updated = recBanners.filter(b => b.id !== id);
+        setRecBanners(updated);
+        await updateConfig('recommended_banners', updated);
+      }
+    } catch(err) {
+      alert("배너 삭제 실패");
+    }
+  };
 
   const loadProducts = async () => {
     try {
@@ -282,7 +340,8 @@ function Admin({ refreshGlobalProducts }) {
           {[
             { id: 'register', label: editingProductId ? '상품 수정' : '상품 등록', icon: <PackagePlus size={20} /> },
             { id: 'list', label: `상품 목록 (${products.length})`, icon: <List size={20} /> },
-            { id: 'banner', label: '메인 배너 관리', icon: <ImageIcon size={20} /> },
+            { id: 'banner', label: '메인 상단 배너 관리', icon: <ImageIcon size={20} /> },
+            { id: 'rec_banner', label: '추천상품 배너 관리', icon: <ImageIcon size={20} /> },
             { id: 'notice', label: '공지사항 관리', icon: <Bell size={20} /> },
             { id: 'order', label: '발주 관리 (준비중)', icon: <LayoutDashboard size={20} /> },
             { id: 'member', label: '회원 관리 (준비중)', icon: <LayoutDashboard size={20} /> },
@@ -592,12 +651,77 @@ function Admin({ refreshGlobalProducts }) {
           </div>
         )}
 
-        {(activeTab === 'banner' || activeTab === 'notice' || activeTab === 'order' || activeTab === 'member') && (
+        {activeTab === 'banner' && (
+          <div style={{background: 'white', padding: '3rem', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)'}}>
+            <h2 style={{fontSize: '1.8rem', fontWeight: '800', marginBottom: '1rem', color: '#333'}}>메인 상단 배너 관리</h2>
+            <div style={{padding: '1rem', background: '#fff3e0', color: '#e65100', borderRadius: '8px', marginBottom: '2rem', fontWeight: '600'}}>
+              권장 이미지 사이즈: 가로 1920px × 세로 500px
+            </div>
+            
+            <div style={{marginBottom: '2rem'}}>
+              <label style={{display: 'inline-block', padding: '0.8rem 1.5rem', background: 'var(--primary-color)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>
+                {uploading ? '업로드 중...' : '+ 새 배너 이미지 등록'}
+                <input type="file" accept="image/*" style={{display: 'none'}} disabled={uploading} onChange={(e) => handleBannerUpload(e, 'hero')} />
+              </label>
+            </div>
+
+            <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
+              {heroBanners.length === 0 ? (
+                <p style={{color: '#888'}}>등록된 상단 배너가 없습니다.</p>
+              ) : heroBanners.map((banner, idx) => (
+                <div key={banner.id} style={{border: '1px solid #eee', borderRadius: '12px', padding: '1rem', display: 'flex', gap: '1rem', alignItems: 'center'}}>
+                  <span style={{fontWeight: 'bold', fontSize: '1.2rem', color: '#aaa'}}>{idx + 1}</span>
+                  <img src={banner.imageUrl} alt="banner" style={{width: '240px', height: '62px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd'}} />
+                  <div style={{flex: 1}}>
+                    <a href={banner.imageUrl} target="_blank" rel="noreferrer" style={{color: '#666', fontSize: '0.9rem', wordBreak: 'break-all'}}>{banner.imageUrl}</a>
+                  </div>
+                  <button onClick={() => handleDeleteBanner(banner.id, 'hero')} style={{padding: '0.6rem 1rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer'}}>
+                    삭제
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'rec_banner' && (
+          <div style={{background: 'white', padding: '3rem', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)'}}>
+            <h2 style={{fontSize: '1.8rem', fontWeight: '800', marginBottom: '1rem', color: '#333'}}>추천상품 배너 관리</h2>
+            <div style={{padding: '1rem', background: '#fff3e0', color: '#e65100', borderRadius: '8px', marginBottom: '2rem', fontWeight: '600'}}>
+              권장 이미지 사이즈: 가로 1200px × 세로 300px (비율 4:1)
+            </div>
+            
+            <div style={{marginBottom: '2rem'}}>
+              <label style={{display: 'inline-block', padding: '0.8rem 1.5rem', background: 'var(--primary-color)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>
+                {uploading ? '업로드 중...' : '+ 추천상품 배너 등록'}
+                <input type="file" accept="image/*" style={{display: 'none'}} disabled={uploading} onChange={(e) => handleBannerUpload(e, 'rec')} />
+              </label>
+            </div>
+
+            <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
+              {recBanners.length === 0 ? (
+                <p style={{color: '#888'}}>등록된 추천상품 배너가 없습니다.</p>
+              ) : recBanners.map((banner, idx) => (
+                <div key={banner.id} style={{border: '1px solid #eee', borderRadius: '12px', padding: '1rem', display: 'flex', gap: '1rem', alignItems: 'center'}}>
+                  <span style={{fontWeight: 'bold', fontSize: '1.2rem', color: '#aaa'}}>{idx + 1}</span>
+                  <img src={banner.imageUrl} alt="banner" style={{width: '200px', height: '50px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd'}} />
+                  <div style={{flex: 1}}>
+                    <a href={banner.imageUrl} target="_blank" rel="noreferrer" style={{color: '#666', fontSize: '0.9rem', wordBreak: 'break-all'}}>{banner.imageUrl}</a>
+                  </div>
+                  <button onClick={() => handleDeleteBanner(banner.id, 'rec')} style={{padding: '0.6rem 1rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer'}}>
+                    삭제
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {(activeTab === 'notice' || activeTab === 'order' || activeTab === 'member') && (
           <div style={{textAlign: 'center', padding: '5rem', background: 'white', borderRadius: '16px', color: '#888'}}>
             <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '1rem'}}>
-              {activeTab === 'banner' ? '메인 배너 관리' : 
-               activeTab === 'notice' ? '공지사항 관리' : 
-               activeTab === 'order' ? '발주 관리' : '회원 관리'}
+               {activeTab === 'notice' ? '공지사항 관리' : 
+                activeTab === 'order' ? '발주 관리' : '회원 관리'}
             </h2>
             <p>이 기능은 추후 업데이트 될 예정입니다.</p>
           </div>

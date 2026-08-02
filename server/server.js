@@ -7,6 +7,7 @@ const axios = require('axios');
 const FormData = require('form-data');
 const path = require('path');
 const Product = require('./models/Product');
+const Config = require('./models/Config');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -70,6 +71,31 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
     const errorDetails = error.response?.data?.error?.message || error.message;
     console.error('Image Upload Error:', errorDetails);
     res.status(500).json({ error: `ImgBB 에러: ${errorDetails}` });
+  }
+});
+
+// --- Config Routes ---
+app.get('/api/config/:key', async (req, res) => {
+  try {
+    const config = await Config.findOne({ key: req.params.key });
+    res.json(config ? config.value : null);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch config' });
+  }
+});
+
+app.post('/api/config/:key', async (req, res) => {
+  try {
+    const { key } = req.params;
+    const { value } = req.body;
+    const config = await Config.findOneAndUpdate(
+      { key },
+      { value },
+      { new: true, upsert: true }
+    );
+    res.json({ success: true, data: config.value });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update config' });
   }
 });
 

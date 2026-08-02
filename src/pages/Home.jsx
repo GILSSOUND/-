@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { fetchConfig } from '../api';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Heart, CreditCard, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -35,12 +36,30 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15; // 5 columns * 3 rows
   
+  const [heroBanners, setHeroBanners] = useState(bannerData);
+  const [recBanners, setRecBanners] = useState([
+    { id: 1, imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200" },
+    { id: 2, imageUrl: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=1200" },
+    { id: 3, imageUrl: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&q=80&w=1200" }
+  ]);
+
   useEffect(() => {
-    // 렌더 서버가 슬립 상태일 때 App.jsx의 초기 fetch가 실패해서 products가 비어있을 수 있음.
-    // 홈 화면 진입 시 products가 없으면 다시 한 번 불러오기 시도.
     if (products.length === 0 && refreshGlobalProducts) {
       refreshGlobalProducts();
     }
+    
+    const loadBanners = async () => {
+      try {
+        const hero = await fetchConfig('hero_banners');
+        if (hero && hero.length > 0) setHeroBanners(hero);
+        
+        const rec = await fetchConfig('recommended_banners');
+        if (rec && rec.length > 0) setRecBanners(rec);
+      } catch (e) {
+        console.error("배너 로딩 실패", e);
+      }
+    };
+    loadBanners();
   }, [products.length, refreshGlobalProducts]);
   
   const formatPrice = (price) => {
@@ -72,15 +91,19 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
           loop={true}
           className="mySwiper"
         >
-          {bannerData.map((banner) => (
+          {heroBanners.map((banner) => (
             <SwiperSlide key={banner.id}>
               <div className="hero-slide">
-                <img src={banner.imageUrl} alt={banner.title} className="hero-slide-bg" />
-                <div className="hero-slide-overlay"></div>
-                <div className="hero-slide-content">
-                  <h1 className="hero-slide-title">{banner.title}</h1>
-                  <p className="hero-slide-subtitle">{banner.subtitle}</p>
-                </div>
+                <img src={banner.imageUrl} alt={banner.title || '배너'} className="hero-slide-bg" />
+                {banner.title && (
+                  <>
+                    <div className="hero-slide-overlay"></div>
+                    <div className="hero-slide-content">
+                      <h1 className="hero-slide-title">{banner.title}</h1>
+                      <p className="hero-slide-subtitle">{banner.subtitle}</p>
+                    </div>
+                  </>
+                )}
               </div>
             </SwiperSlide>
           ))}
@@ -99,18 +122,14 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
             className="ad-banner-swiper"
             style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', border: '2px solid var(--primary-color)' }}
           >
-            {[
-              "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200",
-              "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=1200",
-              "https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&q=80&w=1200"
-            ].map((imgUrl, idx) => (
-              <SwiperSlide key={idx}>
+            {recBanners.map((banner) => (
+              <SwiperSlide key={banner.id}>
                 <div className="prep-banner" style={{
                   width: '100%',
                   aspectRatio: '4 / 1',
                   minHeight: '200px',
                   position: 'relative',
-                  backgroundImage: `url(${imgUrl})`,
+                  backgroundImage: `url(${banner.imageUrl})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   display: 'flex',
