@@ -38,6 +38,7 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
   
   const [heroBanners, setHeroBanners] = useState([]);
   const [recBanners, setRecBanners] = useState([]);
+  const [isBannersLoaded, setIsBannersLoaded] = useState(false);
 
   useEffect(() => {
     if (products.length === 0 && refreshGlobalProducts) {
@@ -47,12 +48,27 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
     const loadBanners = async () => {
       try {
         const hero = await fetchConfig('hero_banners');
-        if (hero && hero.length > 0) setHeroBanners(hero);
+        if (hero && hero.length > 0) {
+          setHeroBanners(hero);
+        } else {
+          setHeroBanners(bannerData);
+        }
         
         const rec = await fetchConfig('recommended_banners');
-        if (rec && rec.length > 0) setRecBanners(rec);
+        if (rec && rec.length > 0) {
+          setRecBanners(rec);
+        } else {
+          setRecBanners([
+            { id: 1, imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200" },
+            { id: 2, imageUrl: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=1200" },
+            { id: 3, imageUrl: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&q=80&w=1200" }
+          ]);
+        }
       } catch (e) {
         console.error("배너 로딩 실패", e);
+        setHeroBanners(bannerData);
+      } finally {
+        setIsBannersLoaded(true);
       }
     };
     loadBanners();
@@ -87,7 +103,11 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
           loop={true}
           className="mySwiper"
         >
-          {heroBanners.length > 0 ? heroBanners.map((banner, index) => (
+          {!isBannersLoaded ? (
+            <SwiperSlide>
+              <div className="hero-slide" style={{background: '#eee'}}></div>
+            </SwiperSlide>
+          ) : heroBanners.length > 0 ? heroBanners.map((banner, index) => (
             <SwiperSlide key={banner.id}>
               <div 
                 className="hero-slide" 
@@ -155,7 +175,11 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
             className="ad-banner-swiper"
             style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', border: '2px solid var(--primary-color)' }}
           >
-            {recBanners.length > 0 ? recBanners.map((banner, index) => (
+            {!isBannersLoaded ? (
+              <SwiperSlide>
+                <div className="prep-banner" style={{ width: '100%', aspectRatio: '4 / 1', background: '#eee', borderRadius: '8px' }}></div>
+              </SwiperSlide>
+            ) : recBanners.length > 0 ? recBanners.map((banner, index) => (
               <SwiperSlide key={banner.id}>
                 <div 
                   className="prep-banner" 
