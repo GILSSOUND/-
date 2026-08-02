@@ -99,8 +99,23 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
                   <>
                     <div className="hero-slide-overlay"></div>
                     <div className="hero-slide-content">
-                      <h1 className="hero-slide-title">{banner.title}</h1>
-                      <p className="hero-slide-subtitle">{banner.subtitle}</p>
+                      <h1 className="hero-slide-title" style={{
+                        color: banner.titleColor || '#ffffff',
+                        fontSize: banner.titleSize ? `${banner.titleSize}px` : '40px',
+                        fontFamily: banner.titleFontFamily || "'Noto Sans KR', sans-serif"
+                      }}>
+                        {banner.title}
+                      </h1>
+                      {banner.subtitle && (
+                        <p className="hero-slide-subtitle" style={{
+                          color: banner.subtitleColor || '#dddddd',
+                          fontSize: banner.subtitleSize ? `${banner.subtitleSize}px` : '20px',
+                          fontFamily: banner.subtitleFontFamily || "'Noto Sans KR', sans-serif",
+                          marginTop: '1rem'
+                        }}>
+                          {banner.subtitle}
+                        </p>
+                      )}
                     </div>
                   </>
                 )}
@@ -136,16 +151,19 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <h3 style={{
-                    position: 'relative',
-                    color: '#fff',
-                    fontWeight: 800,
-                    fontSize: '2rem',
-                    letterSpacing: '2px',
-                    textShadow: '0 3px 6px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5)'
-                  }}>
-                    지금은 상품준비중입니다
-                  </h3>
+                  {banner.title && (
+                    <h3 style={{
+                      position: 'relative',
+                      color: banner.titleColor || '#ffffff',
+                      fontWeight: 800,
+                      fontSize: banner.titleSize ? `${banner.titleSize}px` : '32px',
+                      fontFamily: banner.titleFontFamily || "'Noto Sans KR', sans-serif",
+                      letterSpacing: '2px',
+                      textShadow: '0 3px 6px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5)'
+                    }}>
+                      {banner.title}
+                    </h3>
+                  )}
                 </div>
               </SwiperSlide>
             ))}
