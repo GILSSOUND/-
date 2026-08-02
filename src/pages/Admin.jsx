@@ -815,7 +815,7 @@ function Admin({ refreshGlobalProducts }) {
           
           <div style={{marginBottom: '1rem'}}>
             <label style={{display: 'inline-block', padding: '0.8rem 1.5rem', background: 'var(--primary-color)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>
-              {uploading ? '사진 업로드 중...' : '📷 배경 사진 변경하기'}
+              {uploading ? '사진 업로드 중...' : '배경 사진 등록하기'}
               <input type="file" accept="image/*" style={{display: 'none'}} disabled={uploading} onChange={handleModalImageUpload} />
             </label>
           </div>
@@ -884,6 +884,17 @@ function Admin({ refreshGlobalProducts }) {
           </div>
 
           <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+            {/* 연결할 상품 설정 */}
+            <div style={{display: 'flex', flexWrap: 'wrap', gap: '1rem', background: '#fafafa', padding: '1rem', borderRadius: '8px', border: '1px solid #eee'}}>
+              <div style={{flex: '1 1 100%'}}><strong style={{color: '#555'}}>연결할 상품 (배너 클릭 시 해당 상품 페이지로 이동)</strong></div>
+              <select value={editingBanner.linkProductId || ''} onChange={(e) => setEditingBanner({...editingBanner, linkProductId: e.target.value})} style={{width: '100%', padding: '0.8rem', border: '1px solid #ddd', borderRadius: '4px', fontSize: '1rem', cursor: 'pointer'}}>
+                <option value="">-- 연결 안 함 (클릭 효과 없음) --</option>
+                {products.map(p => (
+                  <option key={p._id || p.id} value={p._id || p.id}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+
             {/* 메인 문구 설정 */}
             <div style={{display: 'flex', flexWrap: 'wrap', gap: '1rem', background: '#fafafa', padding: '1rem', borderRadius: '8px', border: '1px solid #eee'}}>
               <div style={{flex: '1 1 100%'}}><strong style={{color: '#555'}}>{editorType === 'hero' ? '메인 문구' : '배너 문구'}</strong></div>

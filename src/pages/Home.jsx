@@ -93,7 +93,11 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
         >
           {heroBanners.map((banner) => (
             <SwiperSlide key={banner.id}>
-              <div className="hero-slide">
+              <div 
+                className="hero-slide" 
+                onClick={() => banner.linkProductId && navigate(`/product/${banner.linkProductId}`)}
+                style={{ cursor: banner.linkProductId ? 'pointer' : 'default' }}
+              >
                 <img src={banner.imageUrl} alt={banner.title || '배너'} className="hero-slide-bg" />
                 {banner.title && (
                   <>
@@ -139,18 +143,23 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
           >
             {recBanners.map((banner) => (
               <SwiperSlide key={banner.id}>
-                <div className="prep-banner" style={{
-                  width: '100%',
-                  aspectRatio: '4 / 1',
-                  minHeight: '200px',
-                  position: 'relative',
-                  backgroundImage: `url(${banner.imageUrl})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
+                <div 
+                  className="prep-banner" 
+                  onClick={() => banner.linkProductId && navigate(`/product/${banner.linkProductId}`)}
+                  style={{
+                    width: '100%',
+                    aspectRatio: '4 / 1',
+                    minHeight: '200px',
+                    position: 'relative',
+                    backgroundImage: `url(${banner.imageUrl})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: banner.linkProductId ? 'pointer' : 'default'
+                  }}
+                >
                   {banner.title && (
                     <h3 style={{
                       position: 'relative',
