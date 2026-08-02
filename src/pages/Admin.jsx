@@ -47,6 +47,10 @@ function Admin({ refreshGlobalProducts }) {
   // 배너 관리 상태
   const [heroBanners, setHeroBanners] = useState([]);
   const [recBanners, setRecBanners] = useState([]);
+  
+  // 에디터 모달 상태
+  const [editingBanner, setEditingBanner] = useState(null);
+  const [editorType, setEditorType] = useState(null); // 'hero' | 'rec'
 
   useEffect(() => {
     loadProducts();
@@ -64,60 +68,78 @@ function Admin({ refreshGlobalProducts }) {
     }
   };
 
-  const handleBannerUpload = async (e, type) => {
-    if(!e.target.files || !e.target.files[0]) return;
-    setUploading(true);
-    try {
-      const res = await uploadImage(e.target.files[0]);
-      const newBanner = { 
-        id: Date.now(), 
-        imageUrl: res.imageUrl, 
-        title: '', 
+  const handleOpenBannerEditor = (type, existingBanner = null) => {
+    setEditorType(type);
+    if (existingBanner) {
+      setEditingBanner({...existingBanner});
+    } else {
+      setEditingBanner({
+        id: Date.now(),
+        imageUrl: '',
+        title: '',
         subtitle: '',
-        titleSize: 40,
+        titleSize: type === 'hero' ? 40 : 32,
         titleColor: '#ffffff',
         titleFontFamily: "'Noto Sans KR', sans-serif",
         subtitleSize: 20,
         subtitleColor: '#dddddd',
         subtitleFontFamily: "'Noto Sans KR', sans-serif",
-      };
-      
-      if(type === 'hero') {
-        const updated = [...heroBanners, newBanner];
-        setHeroBanners(updated);
-        await updateConfig('hero_banners', updated);
-      } else {
-        const updated = [...recBanners, newBanner];
-        setRecBanners(updated);
-        await updateConfig('recommended_banners', updated);
-      }
-      alert('배너가 업로드되었습니다.');
+      });
+    }
+  };
+
+  const handleCloseBannerEditor = () => {
+    setEditingBanner(null);
+    setEditorType(null);
+  };
+
+  const handleModalImageUpload = async (e) => {
+    if(!e.target.files || !e.target.files[0]) return;
+    setUploading(true);
+    try {
+      const res = await uploadImage(e.target.files[0]);
+      setEditingBanner({...editingBanner, imageUrl: res.imageUrl});
     } catch(err) {
-      alert("배너 업로드 실패: " + err.message);
+      alert("이미지 업로드 실패: " + err.message);
     } finally {
       setUploading(false);
-      e.target.value = ''; // input reset
+      e.target.value = '';
     }
   };
 
-  const handleBannerSettingChange = (id, type, field, value) => {
-    if (type === 'hero') {
-      setHeroBanners(heroBanners.map(b => b.id === id ? { ...b, [field]: value } : b));
-    } else {
-      setRecBanners(recBanners.map(b => b.id === id ? { ...b, [field]: value } : b));
+  const handleSaveBannerEditor = async () => {
+    if (!editingBanner.imageUrl) {
+      alert("배너 이미지를 업로드해주세요.");
+      return;
     }
-  };
-
-  const handleSaveBannerSettings = async (type) => {
+    
     try {
-      if (type === 'hero') {
-        await updateConfig('hero_banners', heroBanners);
+      let updatedList;
+      if (editorType === 'hero') {
+        const idx = heroBanners.findIndex(b => b.id === editingBanner.id);
+        if (idx >= 0) {
+          updatedList = [...heroBanners];
+          updatedList[idx] = editingBanner;
+        } else {
+          updatedList = [...heroBanners, editingBanner];
+        }
+        setHeroBanners(updatedList);
+        await updateConfig('hero_banners', updatedList);
       } else {
-        await updateConfig('recommended_banners', recBanners);
+        const idx = recBanners.findIndex(b => b.id === editingBanner.id);
+        if (idx >= 0) {
+          updatedList = [...recBanners];
+          updatedList[idx] = editingBanner;
+        } else {
+          updatedList = [...recBanners, editingBanner];
+        }
+        setRecBanners(updatedList);
+        await updateConfig('recommended_banners', updatedList);
       }
-      alert('배너 설정이 저장되었습니다.');
+      handleCloseBannerEditor();
+      alert('배너가 저장되었습니다.');
     } catch(err) {
-      alert('저장 실패: ' + err.message);
+      alert("저장 실패: " + err.message);
     }
   };
 
@@ -360,6 +382,7 @@ function Admin({ refreshGlobalProducts }) {
   };
 
   return (
+    <>
     <div style={{display: 'flex', minHeight: '100vh', background: '#f8f9fa'}}>
       
       {/* 1. 왼쪽 사이드바 메뉴 */}
@@ -691,80 +714,35 @@ function Admin({ refreshGlobalProducts }) {
             </div>
             
             <div style={{marginBottom: '2rem'}}>
-              <label style={{display: 'inline-block', padding: '0.8rem 1.5rem', background: 'var(--primary-color)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>
-                {uploading ? '업로드 중...' : '+ 새 배너 이미지 등록'}
-                <input type="file" accept="image/*" style={{display: 'none'}} disabled={uploading} onChange={(e) => handleBannerUpload(e, 'hero')} />
-              </label>
+              <button onClick={() => handleOpenBannerEditor('hero')} style={{padding: '0.8rem 1.5rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem'}}>
+                + 새 상단 배너 추가
+              </button>
             </div>
 
-            <div style={{display: 'flex', flexDirection: 'column', gap: '2rem'}}>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
               {heroBanners.length === 0 ? (
                 <p style={{color: '#888'}}>등록된 상단 배너가 없습니다.</p>
               ) : heroBanners.map((banner, idx) => (
                 <div key={banner.id} style={{border: '1px solid #ddd', borderRadius: '12px', padding: '1.5rem', background: '#fafafa', position: 'relative'}}>
-                  <div style={{display: 'flex', gap: '1.5rem', marginBottom: '1.5rem'}}>
+                  <div style={{display: 'flex', gap: '1.5rem', alignItems: 'center'}}>
                     <span style={{fontWeight: '900', fontSize: '1.5rem', color: 'var(--primary-color)'}}>{idx + 1}</span>
-                    <img src={banner.imageUrl} alt="banner" style={{width: '320px', height: '83px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ccc'}} />
-                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem', justifyContent: 'center'}}>
-                      <a href={banner.imageUrl} target="_blank" rel="noreferrer" style={{color: '#888', fontSize: '0.85rem', wordBreak: 'break-all'}}>{banner.imageUrl}</a>
+                    <img src={banner.imageUrl} alt="banner" style={{width: '240px', height: '62px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ccc'}} />
+                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '0.3rem', justifyContent: 'center'}}>
+                      <strong style={{fontSize: '1.1rem'}}>{banner.title || '(문구 없음)'}</strong>
+                      <span style={{color: '#888', fontSize: '0.9rem'}}>{banner.subtitle}</span>
                     </div>
-                    <button onClick={() => handleDeleteBanner(banner.id, 'hero')} style={{height: 'fit-content', padding: '0.6rem 1rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer'}}>
-                      삭제
-                    </button>
-                  </div>
-                  
-                  {/* 메인 문구 설정 */}
-                  <div style={{display: 'flex', flexWrap: 'wrap', gap: '1rem', background: 'white', padding: '1rem', borderRadius: '8px', border: '1px solid #eee', marginBottom: '1rem'}}>
-                    <div style={{flex: '1 1 100%'}}><strong style={{color: '#555'}}>메인 문구</strong></div>
-                    <input type="text" placeholder="메인 문구 입력" value={banner.title || ''} onChange={(e) => handleBannerSettingChange(banner.id, 'hero', 'title', e.target.value)} style={{flex: '3', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} />
-                    <input type="number" placeholder="크기(숫자)" value={banner.titleSize || 40} onChange={(e) => handleBannerSettingChange(banner.id, 'hero', 'titleSize', e.target.value)} style={{flex: '1', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} title="글자 크기(px)" />
-                    <input type="color" value={banner.titleColor || '#ffffff'} onChange={(e) => handleBannerSettingChange(banner.id, 'hero', 'titleColor', e.target.value)} style={{width: '50px', height: '40px', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer'}} title="글자 색상" />
-                    <select value={banner.titleFontFamily || "'Noto Sans KR', sans-serif"} onChange={(e) => handleBannerSettingChange(banner.id, 'hero', 'titleFontFamily', e.target.value)} style={{flex: '2', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}}>
-                      <option value="'Noto Sans KR', sans-serif">고딕 (Noto Sans)</option>
-                      <option value="'Noto Serif KR', serif">명조 (Noto Serif)</option>
-                      <option value="'Nanum Gothic', sans-serif">나눔고딕</option>
-                      <option value="'Nanum Myeongjo', serif">나눔명조</option>
-                      <option value="'Black Han Sans', sans-serif">검은고딕 (두꺼움)</option>
-                      <option value="'Jua', sans-serif">주아체 (둥글둥글)</option>
-                      <option value="'Do Hyeon', sans-serif">도현체 (각진제목)</option>
-                      <option value="'Gowun Dodum', sans-serif">고운돋움</option>
-                      <option value="'Gowun Batang', serif">고운바탕</option>
-                      <option value="'Dongle', sans-serif">동글 (매우귀여움)</option>
-                      <option value="'Nanum Pen Script', cursive">나눔펜글씨</option>
-                    </select>
-                  </div>
-
-                  {/* 서브 문구 설정 */}
-                  <div style={{display: 'flex', flexWrap: 'wrap', gap: '1rem', background: 'white', padding: '1rem', borderRadius: '8px', border: '1px solid #eee'}}>
-                    <div style={{flex: '1 1 100%'}}><strong style={{color: '#555'}}>서브 문구</strong></div>
-                    <input type="text" placeholder="서브 문구 입력" value={banner.subtitle || ''} onChange={(e) => handleBannerSettingChange(banner.id, 'hero', 'subtitle', e.target.value)} style={{flex: '3', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} />
-                    <input type="number" placeholder="크기(숫자)" value={banner.subtitleSize || 20} onChange={(e) => handleBannerSettingChange(banner.id, 'hero', 'subtitleSize', e.target.value)} style={{flex: '1', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} title="글자 크기(px)" />
-                    <input type="color" value={banner.subtitleColor || '#dddddd'} onChange={(e) => handleBannerSettingChange(banner.id, 'hero', 'subtitleColor', e.target.value)} style={{width: '50px', height: '40px', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer'}} title="글자 색상" />
-                    <select value={banner.subtitleFontFamily || "'Noto Sans KR', sans-serif"} onChange={(e) => handleBannerSettingChange(banner.id, 'hero', 'subtitleFontFamily', e.target.value)} style={{flex: '2', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}}>
-                      <option value="'Noto Sans KR', sans-serif">고딕 (Noto Sans)</option>
-                      <option value="'Noto Serif KR', serif">명조 (Noto Serif)</option>
-                      <option value="'Nanum Gothic', sans-serif">나눔고딕</option>
-                      <option value="'Nanum Myeongjo', serif">나눔명조</option>
-                      <option value="'Black Han Sans', sans-serif">검은고딕 (두꺼움)</option>
-                      <option value="'Jua', sans-serif">주아체 (둥글둥글)</option>
-                      <option value="'Do Hyeon', sans-serif">도현체 (각진제목)</option>
-                      <option value="'Gowun Dodum', sans-serif">고운돋움</option>
-                      <option value="'Gowun Batang', serif">고운바탕</option>
-                      <option value="'Dongle', sans-serif">동글 (매우귀여움)</option>
-                      <option value="'Nanum Pen Script', cursive">나눔펜글씨</option>
-                    </select>
+                    <div style={{display: 'flex', gap: '0.5rem'}}>
+                      <button onClick={() => handleOpenBannerEditor('hero', banner)} style={{padding: '0.6rem 1rem', background: '#4bcffa', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold'}}>
+                        수정
+                      </button>
+                      <button onClick={() => handleDeleteBanner(banner.id, 'hero')} style={{padding: '0.6rem 1rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold'}}>
+                        삭제
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-            
-            {heroBanners.length > 0 && (
-              <div style={{marginTop: '2rem', textAlign: 'right'}}>
-                <button onClick={() => handleSaveBannerSettings('hero')} style={{padding: '1rem 3rem', background: '#333', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold'}}>
-                  상단 배너 설정 저장하기
-                </button>
-              </div>
-            )}
           </div>
         )}
 
@@ -776,47 +754,30 @@ function Admin({ refreshGlobalProducts }) {
             </div>
             
             <div style={{marginBottom: '2rem'}}>
-              <label style={{display: 'inline-block', padding: '0.8rem 1.5rem', background: 'var(--primary-color)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>
-                {uploading ? '업로드 중...' : '+ 추천상품 배너 등록'}
-                <input type="file" accept="image/*" style={{display: 'none'}} disabled={uploading} onChange={(e) => handleBannerUpload(e, 'rec')} />
-              </label>
+              <button onClick={() => handleOpenBannerEditor('rec')} style={{padding: '0.8rem 1.5rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem'}}>
+                + 새 추천상품 배너 추가
+              </button>
             </div>
 
-            <div style={{display: 'flex', flexDirection: 'column', gap: '2rem'}}>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
               {recBanners.length === 0 ? (
                 <p style={{color: '#888'}}>등록된 추천상품 배너가 없습니다.</p>
               ) : recBanners.map((banner, idx) => (
                 <div key={banner.id} style={{border: '1px solid #ddd', borderRadius: '12px', padding: '1.5rem', background: '#fafafa', position: 'relative'}}>
-                  <div style={{display: 'flex', gap: '1.5rem', marginBottom: '1.5rem'}}>
+                  <div style={{display: 'flex', gap: '1.5rem', alignItems: 'center'}}>
                     <span style={{fontWeight: '900', fontSize: '1.5rem', color: 'var(--primary-color)'}}>{idx + 1}</span>
                     <img src={banner.imageUrl} alt="banner" style={{width: '240px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ccc'}} />
-                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem', justifyContent: 'center'}}>
-                      <a href={banner.imageUrl} target="_blank" rel="noreferrer" style={{color: '#888', fontSize: '0.85rem', wordBreak: 'break-all'}}>{banner.imageUrl}</a>
+                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '0.3rem', justifyContent: 'center'}}>
+                      <strong style={{fontSize: '1.1rem'}}>{banner.title || '(문구 없음)'}</strong>
                     </div>
-                    <button onClick={() => handleDeleteBanner(banner.id, 'rec')} style={{height: 'fit-content', padding: '0.6rem 1rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer'}}>
-                      삭제
-                    </button>
-                  </div>
-                  
-                  {/* 메인 문구 설정 */}
-                  <div style={{display: 'flex', flexWrap: 'wrap', gap: '1rem', background: 'white', padding: '1rem', borderRadius: '8px', border: '1px solid #eee'}}>
-                    <div style={{flex: '1 1 100%'}}><strong style={{color: '#555'}}>배너 문구</strong></div>
-                    <input type="text" placeholder="문구 입력 (예: 지금은 상품준비중입니다)" value={banner.title || ''} onChange={(e) => handleBannerSettingChange(banner.id, 'rec', 'title', e.target.value)} style={{flex: '3', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} />
-                    <input type="number" placeholder="크기(숫자)" value={banner.titleSize || 32} onChange={(e) => handleBannerSettingChange(banner.id, 'rec', 'titleSize', e.target.value)} style={{flex: '1', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} title="글자 크기(px)" />
-                    <input type="color" value={banner.titleColor || '#ffffff'} onChange={(e) => handleBannerSettingChange(banner.id, 'rec', 'titleColor', e.target.value)} style={{width: '50px', height: '40px', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer'}} title="글자 색상" />
-                    <select value={banner.titleFontFamily || "'Noto Sans KR', sans-serif"} onChange={(e) => handleBannerSettingChange(banner.id, 'rec', 'titleFontFamily', e.target.value)} style={{flex: '2', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}}>
-                      <option value="'Noto Sans KR', sans-serif">고딕 (Noto Sans)</option>
-                      <option value="'Noto Serif KR', serif">명조 (Noto Serif)</option>
-                      <option value="'Nanum Gothic', sans-serif">나눔고딕</option>
-                      <option value="'Nanum Myeongjo', serif">나눔명조</option>
-                      <option value="'Black Han Sans', sans-serif">검은고딕 (두꺼움)</option>
-                      <option value="'Jua', sans-serif">주아체 (둥글둥글)</option>
-                      <option value="'Do Hyeon', sans-serif">도현체 (각진제목)</option>
-                      <option value="'Gowun Dodum', sans-serif">고운돋움</option>
-                      <option value="'Gowun Batang', serif">고운바탕</option>
-                      <option value="'Dongle', sans-serif">동글 (매우귀여움)</option>
-                      <option value="'Nanum Pen Script', cursive">나눔펜글씨</option>
-                    </select>
+                    <div style={{display: 'flex', gap: '0.5rem'}}>
+                      <button onClick={() => handleOpenBannerEditor('rec', banner)} style={{padding: '0.6rem 1rem', background: '#4bcffa', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold'}}>
+                        수정
+                      </button>
+                      <button onClick={() => handleDeleteBanner(banner.id, 'rec')} style={{padding: '0.6rem 1rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold'}}>
+                        삭제
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -824,9 +785,7 @@ function Admin({ refreshGlobalProducts }) {
 
             {recBanners.length > 0 && (
               <div style={{marginTop: '2rem', textAlign: 'right'}}>
-                <button onClick={() => handleSaveBannerSettings('rec')} style={{padding: '1rem 3rem', background: '#333', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold'}}>
-                  추천상품 배너 설정 저장하기
-                </button>
+                {/* Save button removed */}
               </div>
             )}
           </div>
@@ -844,6 +803,141 @@ function Admin({ refreshGlobalProducts }) {
 
       </div>
     </div>
+
+    {/* 에디터 모달 */}
+    {editingBanner && (
+      <div className="modal-overlay" onClick={handleCloseBannerEditor}>
+        <div className="modal-content" onClick={e => e.stopPropagation()}>
+          <button className="modal-close-btn" onClick={handleCloseBannerEditor}>&times;</button>
+          <h2 style={{fontSize: '1.8rem', fontWeight: '800', marginBottom: '1.5rem', color: '#333'}}>
+            {editorType === 'hero' ? '상단 배너 에디터' : '추천상품 배너 에디터'}
+          </h2>
+          
+          <div style={{marginBottom: '1rem'}}>
+            <label style={{display: 'inline-block', padding: '0.8rem 1.5rem', background: 'var(--primary-color)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>
+              {uploading ? '사진 업로드 중...' : '📷 배경 사진 변경하기'}
+              <input type="file" accept="image/*" style={{display: 'none'}} disabled={uploading} onChange={handleModalImageUpload} />
+            </label>
+          </div>
+
+          <div className="modal-preview-box">
+            {editorType === 'hero' ? (
+              <div className="hero-slide" style={{ width: '100%', height: '300px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
+                <img src={editingBanner.imageUrl || 'https://via.placeholder.com/1920x500?text=배너이미지'} alt="미리보기" className="hero-slide-bg" style={{width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0}} />
+                {editingBanner.title && (
+                  <>
+                    <div className="hero-slide-overlay" style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.3)'}}></div>
+                    <div className="hero-slide-content" style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', width: '100%'}}>
+                      <h1 style={{
+                        color: editingBanner.titleColor,
+                        fontSize: `${editingBanner.titleSize}px`,
+                        fontFamily: editingBanner.titleFontFamily,
+                        margin: 0
+                      }}>
+                        {editingBanner.title}
+                      </h1>
+                      {editingBanner.subtitle && (
+                        <p style={{
+                          color: editingBanner.subtitleColor,
+                          fontSize: `${editingBanner.subtitleSize}px`,
+                          fontFamily: editingBanner.subtitleFontFamily,
+                          marginTop: '1rem',
+                          margin: '1rem 0 0 0'
+                        }}>
+                          {editingBanner.subtitle}
+                        </p>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="prep-banner" style={{
+                width: '100%',
+                aspectRatio: '4 / 1',
+                position: 'relative',
+                backgroundImage: `url(${editingBanner.imageUrl || 'https://via.placeholder.com/1200x300?text=배너이미지'})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '8px',
+                overflow: 'hidden'
+              }}>
+                {editingBanner.title && (
+                  <h3 style={{
+                    position: 'relative',
+                    color: editingBanner.titleColor,
+                    fontWeight: 800,
+                    fontSize: `${editingBanner.titleSize}px`,
+                    fontFamily: editingBanner.titleFontFamily,
+                    letterSpacing: '2px',
+                    textShadow: '0 3px 6px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5)',
+                    margin: 0
+                  }}>
+                    {editingBanner.title}
+                  </h3>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+            {/* 메인 문구 설정 */}
+            <div style={{display: 'flex', flexWrap: 'wrap', gap: '1rem', background: '#fafafa', padding: '1rem', borderRadius: '8px', border: '1px solid #eee'}}>
+              <div style={{flex: '1 1 100%'}}><strong style={{color: '#555'}}>{editorType === 'hero' ? '메인 문구' : '배너 문구'}</strong></div>
+              <input type="text" placeholder="문구 입력" value={editingBanner.title} onChange={(e) => setEditingBanner({...editingBanner, title: e.target.value})} style={{flex: '3', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} />
+              <input type="number" placeholder="크기(숫자)" value={editingBanner.titleSize} onChange={(e) => setEditingBanner({...editingBanner, titleSize: e.target.value})} style={{flex: '1', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} title="글자 크기(px)" />
+              <input type="color" value={editingBanner.titleColor} onChange={(e) => setEditingBanner({...editingBanner, titleColor: e.target.value})} style={{width: '50px', height: '40px', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer'}} title="글자 색상" />
+              <select value={editingBanner.titleFontFamily} onChange={(e) => setEditingBanner({...editingBanner, titleFontFamily: e.target.value})} style={{flex: '2', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}}>
+                <option value="'Noto Sans KR', sans-serif">고딕 (Noto Sans)</option>
+                <option value="'Noto Serif KR', serif">명조 (Noto Serif)</option>
+                <option value="'Nanum Gothic', sans-serif">나눔고딕</option>
+                <option value="'Nanum Myeongjo', serif">나눔명조</option>
+                <option value="'Black Han Sans', sans-serif">검은고딕 (두꺼움)</option>
+                <option value="'Jua', sans-serif">주아체 (둥글둥글)</option>
+                <option value="'Do Hyeon', sans-serif">도현체 (각진제목)</option>
+                <option value="'Gowun Dodum', sans-serif">고운돋움</option>
+                <option value="'Gowun Batang', serif">고운바탕</option>
+                <option value="'Dongle', sans-serif">동글 (매우귀여움)</option>
+                <option value="'Nanum Pen Script', cursive">나눔펜글씨</option>
+              </select>
+            </div>
+
+            {/* 서브 문구 설정 (상단 배너 전용) */}
+            {editorType === 'hero' && (
+              <div style={{display: 'flex', flexWrap: 'wrap', gap: '1rem', background: '#fafafa', padding: '1rem', borderRadius: '8px', border: '1px solid #eee'}}>
+                <div style={{flex: '1 1 100%'}}><strong style={{color: '#555'}}>서브 문구</strong></div>
+                <input type="text" placeholder="서브 문구 입력" value={editingBanner.subtitle} onChange={(e) => setEditingBanner({...editingBanner, subtitle: e.target.value})} style={{flex: '3', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} />
+                <input type="number" placeholder="크기(숫자)" value={editingBanner.subtitleSize} onChange={(e) => setEditingBanner({...editingBanner, subtitleSize: e.target.value})} style={{flex: '1', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} title="글자 크기(px)" />
+                <input type="color" value={editingBanner.subtitleColor} onChange={(e) => setEditingBanner({...editingBanner, subtitleColor: e.target.value})} style={{width: '50px', height: '40px', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer'}} title="글자 색상" />
+                <select value={editingBanner.subtitleFontFamily} onChange={(e) => setEditingBanner({...editingBanner, subtitleFontFamily: e.target.value})} style={{flex: '2', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}}>
+                  <option value="'Noto Sans KR', sans-serif">고딕 (Noto Sans)</option>
+                  <option value="'Noto Serif KR', serif">명조 (Noto Serif)</option>
+                  <option value="'Nanum Gothic', sans-serif">나눔고딕</option>
+                  <option value="'Nanum Myeongjo', serif">나눔명조</option>
+                  <option value="'Black Han Sans', sans-serif">검은고딕 (두꺼움)</option>
+                  <option value="'Jua', sans-serif">주아체 (둥글둥글)</option>
+                  <option value="'Do Hyeon', sans-serif">도현체 (각진제목)</option>
+                  <option value="'Gowun Dodum', sans-serif">고운돋움</option>
+                  <option value="'Gowun Batang', serif">고운바탕</option>
+                  <option value="'Dongle', sans-serif">동글 (매우귀여움)</option>
+                  <option value="'Nanum Pen Script', cursive">나눔펜글씨</option>
+                </select>
+              </div>
+            )}
+          </div>
+
+          <div style={{marginTop: '2rem', textAlign: 'center'}}>
+            <button onClick={handleSaveBannerEditor} style={{padding: '1rem 4rem', background: '#333', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold'}}>
+              저장하기
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 
