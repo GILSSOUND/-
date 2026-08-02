@@ -36,12 +36,8 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15; // 5 columns * 3 rows
   
-  const [heroBanners, setHeroBanners] = useState(bannerData);
-  const [recBanners, setRecBanners] = useState([
-    { id: 1, imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200" },
-    { id: 2, imageUrl: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=1200" },
-    { id: 3, imageUrl: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&q=80&w=1200" }
-  ]);
+  const [heroBanners, setHeroBanners] = useState([]);
+  const [recBanners, setRecBanners] = useState([]);
 
   useEffect(() => {
     if (products.length === 0 && refreshGlobalProducts) {
@@ -91,21 +87,35 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
           loop={true}
           className="mySwiper"
         >
-          {heroBanners.map((banner) => (
+          {heroBanners.length > 0 ? heroBanners.map((banner, index) => (
             <SwiperSlide key={banner.id}>
               <div 
                 className="hero-slide" 
                 onClick={() => banner.linkProductId && navigate(`/product/${banner.linkProductId}`)}
                 style={{ cursor: banner.linkProductId ? 'pointer' : 'default' }}
               >
-                <img src={banner.imageUrl} alt={banner.title || '배너'} className="hero-slide-bg" />
+                <img 
+                  src={banner.imageUrl} 
+                  alt={banner.title || '배너'} 
+                  className="hero-slide-bg" 
+                  loading={index === 0 ? "eager" : "lazy"}
+                  fetchpriority={index === 0 ? "high" : "auto"}
+                />
                 {banner.title && (
                   <>
                     <div className="hero-slide-overlay"></div>
-                    <div className="hero-slide-content">
+                    <div className="hero-slide-content" style={{
+                      position: 'absolute',
+                      left: banner.textPosX !== undefined ? `${banner.textPosX}%` : '50%',
+                      top: banner.textPosY !== undefined ? `${banner.textPosY}%` : '50%',
+                      transform: 'translate(-50%, -50%)',
+                      textAlign: 'center',
+                      width: '100%',
+                      zIndex: 10
+                    }}>
                       <h1 className="hero-slide-title" style={{
                         color: banner.titleColor || '#ffffff',
-                        fontSize: banner.titleSize ? `${banner.titleSize}px` : '40px',
+                        '--banner-title-size': banner.titleSize ? `${banner.titleSize}px` : '40px',
                         fontFamily: banner.titleFontFamily || "'Noto Sans KR', sans-serif"
                       }}>
                         {banner.title}
@@ -113,7 +123,7 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
                       {banner.subtitle && (
                         <p className="hero-slide-subtitle" style={{
                           color: banner.subtitleColor || '#dddddd',
-                          fontSize: banner.subtitleSize ? `${banner.subtitleSize}px` : '20px',
+                          '--banner-subtitle-size': banner.subtitleSize ? `${banner.subtitleSize}px` : '20px',
                           fontFamily: banner.subtitleFontFamily || "'Noto Sans KR', sans-serif",
                           marginTop: '1rem'
                         }}>
@@ -125,7 +135,11 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
                 )}
               </div>
             </SwiperSlide>
-          ))}
+          )) : (
+            <SwiperSlide>
+              <div className="hero-slide" style={{background: '#eee'}}></div>
+            </SwiperSlide>
+          )}
         </Swiper>
       </div>
 
@@ -141,7 +155,7 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
             className="ad-banner-swiper"
             style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', border: '2px solid var(--primary-color)' }}
           >
-            {recBanners.map((banner) => (
+            {recBanners.length > 0 ? recBanners.map((banner, index) => (
               <SwiperSlide key={banner.id}>
                 <div 
                   className="prep-banner" 
@@ -151,31 +165,57 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
                     aspectRatio: '4 / 1',
                     minHeight: '200px',
                     position: 'relative',
-                    backgroundImage: `url(${banner.imageUrl})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    cursor: banner.linkProductId ? 'pointer' : 'default'
+                    cursor: banner.linkProductId ? 'pointer' : 'default',
+                    overflow: 'hidden'
                   }}
                 >
+                  <img 
+                    src={banner.imageUrl} 
+                    alt={banner.title || '배너'}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    fetchpriority={index === 0 ? "high" : "auto"}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover'
+                    }}
+                  />
                   {banner.title && (
-                    <h3 style={{
-                      position: 'relative',
-                      color: banner.titleColor || '#ffffff',
-                      fontWeight: 800,
-                      fontSize: banner.titleSize ? `${banner.titleSize}px` : '32px',
-                      fontFamily: banner.titleFontFamily || "'Noto Sans KR', sans-serif",
-                      letterSpacing: '2px',
-                      textShadow: '0 3px 6px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5)'
+                    <div style={{
+                      position: 'absolute',
+                      left: banner.textPosX !== undefined ? `${banner.textPosX}%` : '50%',
+                      top: banner.textPosY !== undefined ? `${banner.textPosY}%` : '50%',
+                      transform: 'translate(-50%, -50%)',
+                      textAlign: 'center',
+                      width: '100%',
+                      zIndex: 10
                     }}>
-                      {banner.title}
-                    </h3>
+                      <h3 className="rec-banner-title" style={{
+                        color: banner.titleColor || '#ffffff',
+                        fontWeight: 800,
+                        '--banner-title-size': banner.titleSize ? `${banner.titleSize}px` : '32px',
+                        fontFamily: banner.titleFontFamily || "'Noto Sans KR', sans-serif",
+                        letterSpacing: '2px',
+                        textShadow: '0 3px 6px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5)',
+                        margin: 0
+                      }}>
+                        {banner.title}
+                      </h3>
+                    </div>
                   )}
                 </div>
               </SwiperSlide>
-            ))}
+            )) : (
+              <SwiperSlide>
+                <div className="prep-banner" style={{ width: '100%', aspectRatio: '4 / 1', background: '#eee' }}></div>
+              </SwiperSlide>
+            )}
           </Swiper>
         </div>
 

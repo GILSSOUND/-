@@ -200,7 +200,7 @@ body {
 }
 
 .hero-slide-title {
-  font-size: 3.5rem;
+  font-size: var(--banner-title-size, 3.5rem);
   font-weight: 800;
   margin-bottom: 1rem;
   text-shadow: 0 2px 10px rgba(0,0,0,0.3);
@@ -208,7 +208,7 @@ body {
 }
 
 .hero-slide-subtitle {
-  font-size: 1.2rem;
+  font-size: var(--banner-subtitle-size, 1.2rem);
   font-weight: 400;
   opacity: 0.9;
   text-shadow: 0 1px 5px rgba(0,0,0,0.3);
@@ -216,6 +216,10 @@ body {
 }
 
 /* Swiper overrides */
+.rec-banner-title {
+  font-size: var(--banner-title-size, 2rem);
+}
+
 .swiper-pagination-bullet {
   background-color: white !important;
   opacity: 0.5 !important;
@@ -1115,6 +1119,18 @@ footer {
   
   .nav-links a {
     font-size: 0.85rem;
+  }
+
+  .hero-slide-title {
+    font-size: calc(var(--banner-title-size, 3.5rem) * 0.6);
+  }
+  
+  .hero-slide-subtitle {
+    font-size: calc(var(--banner-subtitle-size, 1.2rem) * 0.6);
+  }
+  
+  .rec-banner-title {
+    font-size: calc(var(--banner-title-size, 2rem) * 0.6);
   }
   
   .nav-links a svg {

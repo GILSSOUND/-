@@ -93,6 +93,49 @@ function Admin({ refreshGlobalProducts }) {
     setEditorType(null);
   };
 
+  const handleDragStart = (e) => {
+    e.preventDefault();
+    const container = e.currentTarget.parentElement;
+    const rect = container.getBoundingClientRect();
+    
+    const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+    
+    const startX = clientX;
+    const startY = clientY;
+    const initialPosX = editingBanner.textPosX !== undefined ? editingBanner.textPosX : 50;
+    const initialPosY = editingBanner.textPosY !== undefined ? editingBanner.textPosY : 50;
+
+    const handleDragMove = (moveEvent) => {
+      const currentX = moveEvent.type.includes('touch') ? moveEvent.touches[0].clientX : moveEvent.clientX;
+      const currentY = moveEvent.type.includes('touch') ? moveEvent.touches[0].clientY : moveEvent.clientY;
+      
+      const dx = currentX - startX;
+      const dy = currentY - startY;
+      
+      const newPosX = Math.max(0, Math.min(100, initialPosX + (dx / rect.width) * 100));
+      const newPosY = Math.max(0, Math.min(100, initialPosY + (dy / rect.height) * 100));
+      
+      setEditingBanner(prev => ({
+        ...prev,
+        textPosX: newPosX,
+        textPosY: newPosY
+      }));
+    };
+
+    const handleDragEnd = () => {
+      document.removeEventListener('mousemove', handleDragMove);
+      document.removeEventListener('mouseup', handleDragEnd);
+      document.removeEventListener('touchmove', handleDragMove);
+      document.removeEventListener('touchend', handleDragEnd);
+    };
+
+    document.addEventListener('mousemove', handleDragMove);
+    document.addEventListener('mouseup', handleDragEnd);
+    document.addEventListener('touchmove', handleDragMove, { passive: false });
+    document.addEventListener('touchend', handleDragEnd);
+  };
+
   const handleModalImageUpload = async (e) => {
     if(!e.target.files || !e.target.files[0]) return;
     setUploading(true);
@@ -827,7 +870,25 @@ function Admin({ refreshGlobalProducts }) {
                 {editingBanner.title && (
                   <>
                     <div className="hero-slide-overlay" style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.3)'}}></div>
-                    <div className="hero-slide-content" style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', width: '100%'}}>
+                    <div 
+                      className="hero-slide-content" 
+                      onMouseDown={handleDragStart}
+                      onTouchStart={handleDragStart}
+                      style={{
+                        position: 'absolute', 
+                        left: editingBanner.textPosX !== undefined ? `${editingBanner.textPosX}%` : '50%',
+                        top: editingBanner.textPosY !== undefined ? `${editingBanner.textPosY}%` : '50%',
+                        transform: 'translate(-50%, -50%)', 
+                        textAlign: 'center', 
+                        width: '100%',
+                        cursor: 'move',
+                        padding: '1rem',
+                        border: '2px dashed rgba(255,255,255,0.5)',
+                        borderRadius: '8px',
+                        zIndex: 10
+                      }}
+                      title="드래그하여 위치 변경"
+                    >
                       <h1 style={{
                         color: editingBanner.titleColor,
                         fontSize: `${editingBanner.titleSize}px`,
@@ -856,28 +917,56 @@ function Admin({ refreshGlobalProducts }) {
                 width: '100%',
                 aspectRatio: '4 / 1',
                 position: 'relative',
-                backgroundImage: `url(${editingBanner.imageUrl || 'https://via.placeholder.com/1200x300?text=배너이미지'})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: '8px',
                 overflow: 'hidden'
               }}>
+                <img 
+                  src={editingBanner.imageUrl || 'https://via.placeholder.com/1200x300?text=배너이미지'} 
+                  alt="미리보기"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
                 {editingBanner.title && (
-                  <h3 style={{
-                    position: 'relative',
-                    color: editingBanner.titleColor,
-                    fontWeight: 800,
-                    fontSize: `${editingBanner.titleSize}px`,
-                    fontFamily: editingBanner.titleFontFamily,
-                    letterSpacing: '2px',
-                    textShadow: '0 3px 6px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5)',
-                    margin: 0
-                  }}>
-                    {editingBanner.title}
-                  </h3>
+                  <div
+                    onMouseDown={handleDragStart}
+                    onTouchStart={handleDragStart}
+                    style={{
+                      position: 'absolute',
+                      left: editingBanner.textPosX !== undefined ? `${editingBanner.textPosX}%` : '50%',
+                      top: editingBanner.textPosY !== undefined ? `${editingBanner.textPosY}%` : '50%',
+                      transform: 'translate(-50%, -50%)',
+                      textAlign: 'center',
+                      width: '100%',
+                      cursor: 'move',
+                      padding: '1rem',
+                      border: '2px dashed rgba(255,255,255,0.5)',
+                      borderRadius: '8px',
+                      zIndex: 10
+                    }}
+                    title="드래그하여 위치 변경"
+                  >
+                    <h3 style={{
+                      position: 'relative',
+                      color: editingBanner.titleColor,
+                      fontWeight: 800,
+                      fontSize: `${editingBanner.titleSize}px`,
+                      fontFamily: editingBanner.titleFontFamily,
+                      letterSpacing: '2px',
+                      textShadow: '0 3px 6px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5)',
+                      margin: 0
+                    }}>
+                      {editingBanner.title}
+                    </h3>
+                  </div>
                 )}
               </div>
             )}
