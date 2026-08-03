@@ -945,7 +945,14 @@ body {
   box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
   z-index: 1000;
   gap: 0.8rem;
+  display: none; /* 데스크톱에서는 기본 숨김 */
   border-top: 1px solid #eee;
+}
+
+@media (max-width: 768px) {
+  .sticky-bottom-bar {
+    display: flex;
+  }
 }
 
 .sticky-bottom-bar .wish {
@@ -1188,9 +1195,13 @@ footer {
     padding: 0 5%;
   }
   
-  /* 모바일에서는 하단바 패딩을 화면 꽉 차게 */
+  /* 모바일 하단바 패딩 화면 대응 */
   .sticky-bottom-bar {
     padding: 1rem;
+  }
+  
+  .detail-action-buttons-desktop {
+    display: none !important;
   }
   
   .detail-title { 

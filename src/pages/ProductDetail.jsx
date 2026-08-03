@@ -68,12 +68,48 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
     <div className="page-container detail-page-container">
       <div className="product-detail-layout">
         
-        {/* 왼쪽: 상품 이미지 */}
-        <div className="product-detail-img-wrapper">
-          <img src={product.imageUrl} alt={product.name} className="product-detail-img" />
-          <div className="detail-image-badges">
-            {product.isBest && <span className="badge badge-best">BEST</span>}
-            {product.isNewProduct && <span className="badge badge-new">NEW</span>}
+        {/* 왼쪽: 상품 이미지 + 포토 리뷰 */}
+        <div className="product-detail-left-col" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <div className="product-detail-img-wrapper">
+            <img src={product.imageUrl} alt={product.name} className="product-detail-img" />
+            <div className="detail-image-badges">
+              {product.isBest && <span className="badge badge-best">BEST</span>}
+              {product.isNewProduct && <span className="badge badge-new">NEW</span>}
+            </div>
+          </div>
+
+          {/* 포토 리뷰 영역 */}
+          <div className="photo-reviews-section">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem', borderBottom: '2px solid #333', paddingBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1.2rem', margin: 0 }}>포토 리뷰</h3>
+              <span style={{ fontSize: '0.9rem', color: '#666', cursor: 'pointer' }}>전체보기 &gt;</span>
+            </div>
+            
+            {product.reviews && product.reviews.filter(r => r.photoUrl).length > 0 ? (
+              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'thin' }}>
+                {product.reviews.filter(r => r.photoUrl).map((review, idx) => (
+                  <div key={idx} style={{ flex: '0 0 auto', width: '120px', height: '120px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }}>
+                    <img src={review.photoUrl} alt="포토리뷰" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              /* 더미 데이터(임시) 또는 빈 상태 */
+              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'thin' }}>
+                {[
+                  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=80",
+                  "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&q=80",
+                  "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&q=80"
+                ].map((mockUrl, idx) => (
+                  <div key={idx} style={{ flex: '0 0 auto', width: '100px', height: '100px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }}>
+                    <img src={mockUrl} alt="포토리뷰 임시" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                ))}
+                <div style={{ flex: '0 0 auto', width: '100px', height: '100px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', color: '#888', fontSize: '0.9rem', cursor: 'pointer', border: '1px solid #eee' }}>
+                  + 더보기
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -137,6 +173,19 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           <div className="detail-total">
             <span>총 결제금액</span>
             <span className="total-price">{formatPrice(totalPrice)}원</span>
+          </div>
+          
+          {/* 하단 버튼 영역 (데스크톱 용) */}
+          <div className="detail-action-buttons-desktop" style={{ display: 'flex', gap: '0.8rem', marginTop: '1.5rem' }}>
+            <button className="outline-btn wish" onClick={(e) => handleToggleWishlist(product, e)} style={{ flex: '0 0 auto', padding: '0 1.5rem', height: '54px', borderRadius: '8px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff6b00' }}>
+              <Heart size={24} />
+            </button>
+            <button className="outline-btn cart" onClick={onAddToCartClick} style={{ flex: 1, height: '54px', borderRadius: '8px', border: '1px solid var(--primary-color)', color: 'var(--primary-color)', background: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
+              장바구니 담기
+            </button>
+            <button className="primary-btn buy" onClick={(e) => { onAddToCartClick(e); navigate('/cart'); }} style={{ flex: 1, height: '54px', borderRadius: '8px', border: 'none', background: 'var(--primary-color)', color: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
+              구매하기
+            </button>
           </div>
         </div>
 
