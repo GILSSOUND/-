@@ -150,31 +150,33 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           {/* 포토 리뷰 영역 */}
           <div className="photo-reviews-section" style={{ minWidth: 0, width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem', borderBottom: '2px solid #333', paddingBottom: '0.5rem' }}>
-              <h3 style={{ fontSize: '1.2rem', margin: 0 }}>포토 리뷰</h3>
-              <span style={{ fontSize: '0.9rem', color: '#666', cursor: 'pointer' }}>전체보기 &gt;</span>
+              <h3 style={{ fontSize: '1.2rem', margin: 0, marginLeft: '1.5rem' }}>포토 리뷰</h3>
+              <span style={{ fontSize: '0.9rem', color: '#666', cursor: 'pointer', marginRight: '1.5rem' }}>전체보기</span>
             </div>
             
             {product.reviews && product.reviews.filter(r => r.photoUrl).length > 0 ? (
-              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'thin', width: '100%' }}>
+              <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', width: '100%', paddingLeft: '1.5rem', paddingRight: '1.5rem', boxSizing: 'border-box' }}>
                 {product.reviews.filter(r => r.photoUrl).map((review, idx) => (
-                  <div key={idx} style={{ flex: '0 0 auto', width: '120px', height: '120px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }}>
+                  <div key={idx} style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }}>
                     <img src={review.photoUrl} alt="포토리뷰" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 ))}
               </div>
             ) : (
               /* 더미 데이터(임시) 또는 빈 상태 */
-              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'thin', width: '100%' }}>
+              <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', width: '100%', paddingLeft: '1.5rem', paddingRight: '1.5rem', boxSizing: 'border-box' }}>
                 {[
                   "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=80",
                   "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&q=80",
-                  "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&q=80"
+                  "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&q=80",
+                  "https://images.unsplash.com/photo-1544025162-d76694265947?w=200&q=80",
+                  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&q=80"
                 ].map((mockUrl, idx) => (
-                  <div key={idx} style={{ flex: '0 0 auto', width: '100px', height: '100px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }}>
+                  <div key={idx} style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }}>
                     <img src={mockUrl} alt="포토리뷰 임시" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 ))}
-                <div style={{ flex: '0 0 auto', width: '100px', height: '100px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', color: '#888', fontSize: '0.9rem', cursor: 'pointer', border: '1px solid #eee' }}>
+                <div style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', color: '#888', fontSize: '0.85rem', cursor: 'pointer', border: '1px solid #eee' }}>
                   + 더보기
                 </div>
               </div>
