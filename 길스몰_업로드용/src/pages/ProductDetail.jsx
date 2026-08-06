@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Heart, CreditCard } from 'lucide-react';
 
-function ProductDetail({ handleAddToCart, products }) {
+function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('detail');
   const [selectedOption, setSelectedOption] = useState('');
+
+  // 페이지 진입 시 스크롤을 항상 맨 위로 이동 (다른 상품 클릭 시에도 적용)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
 
   const product = products.find(p => p._id === id || p.id === parseInt(id));
 
@@ -52,29 +57,64 @@ function ProductDetail({ handleAddToCart, products }) {
       ...product,
       name: currentOption ? `${product.name} [옵션: ${currentOption.name}]` : product.name,
       price: finalUnitPrice,
-      _originalId: product._id || product.id // 장바구니에서 원본 아이디 참조용
+      _originalId: product._id || product.id, // 장바구니에서 원본 아이디 참조용
+      selectedOptionName: selectedOption // 장바구니에서 옵션 변경을 위해 저장
     };
 
-    for(let i=0; i<quantity; i++) {
-      handleAddToCart(productWithOption, { stopPropagation: () => {} });
-    }
+    handleAddToCart(productWithOption, { stopPropagation: () => {} }, quantity);
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container detail-page-container">
       <div className="product-detail-layout">
         
-        {/* 왼쪽: 상품 이미지 */}
-        <div className="product-detail-img-wrapper">
-          <img src={product.imageUrl} alt={product.name} className="product-detail-img" />
+        {/* 왼쪽: 상품 이미지 + 포토 리뷰 */}
+        <div className="product-detail-left-col" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', minWidth: 0, maxWidth: '100%' }}>
+          <div className="product-detail-img-wrapper">
+            <img src={product.imageUrl} alt={product.name} className="product-detail-img" />
+            <div className="detail-image-badges">
+              {product.isBest && <span className="badge badge-best">BEST</span>}
+              {product.isNewProduct && <span className="badge badge-new">NEW</span>}
+            </div>
+          </div>
+
+          {/* 포토 리뷰 영역 */}
+          <div className="photo-reviews-section">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem', borderBottom: '2px solid #333', paddingBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1.2rem', margin: 0 }}>포토 리뷰</h3>
+              <span style={{ fontSize: '0.9rem', color: '#666', cursor: 'pointer' }}>전체보기 &gt;</span>
+            </div>
+            
+            {product.reviews && product.reviews.filter(r => r.photoUrl).length > 0 ? (
+              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'thin' }}>
+                {product.reviews.filter(r => r.photoUrl).map((review, idx) => (
+                  <div key={idx} style={{ flex: '0 0 auto', width: '120px', height: '120px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }}>
+                    <img src={review.photoUrl} alt="포토리뷰" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              /* 더미 데이터(임시) 또는 빈 상태 */
+              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'thin' }}>
+                {[
+                  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=80",
+                  "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&q=80",
+                  "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&q=80"
+                ].map((mockUrl, idx) => (
+                  <div key={idx} style={{ flex: '0 0 auto', width: '100px', height: '100px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }}>
+                    <img src={mockUrl} alt="포토리뷰 임시" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                ))}
+                <div style={{ flex: '0 0 auto', width: '100px', height: '100px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', color: '#888', fontSize: '0.9rem', cursor: 'pointer', border: '1px solid #eee' }}>
+                  + 더보기
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 오른쪽: 상품 정보 */}
         <div className="product-detail-info">
-          <div className="detail-badges">
-            {product.isBest && <span className="badge badge-best">BEST</span>}
-            {product.isNewProduct && <span className="badge badge-new">NEW</span>}
-          </div>
           <h2 className="detail-title">{product.name}</h2>
           {product.subtitle && <p style={{fontSize: '1.1rem', color: '#888', marginBottom: '1.5rem', marginTop: '-0.5rem'}}>{product.subtitle}</p>}
           
@@ -90,10 +130,16 @@ function ProductDetail({ handleAddToCart, products }) {
             </div>
           </div>
 
-          <div className="detail-desc">
-            <p>배송비: 3,000원 (50,000원 이상 구매 시 무료)</p>
-            <p>배송안내: 오후 1시 이전 결제 시 당일 발송</p>
+          {/* 추가 혜택 박스 */}
+          <div className="detail-benefits-box" style={{ background: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', border: '1px solid #eee', marginBottom: '2rem' }}>
+            <h4 style={{ color: 'var(--primary-color)', marginBottom: '0.5rem', fontSize: '1.1rem' }}>추가 혜택</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, color: '#555', lineHeight: '1.6' }}>
+              <li>• 일반 후기 작성 시 100포인트 지급</li>
+              <li>• 포토 후기 작성 시 150포인트 지급</li>
+            </ul>
           </div>
+
+
 
           {/* 옵션 선택 */}
           {product.options && product.options.length > 0 && (
@@ -128,11 +174,18 @@ function ProductDetail({ handleAddToCart, products }) {
             <span>총 결제금액</span>
             <span className="total-price">{formatPrice(totalPrice)}원</span>
           </div>
-
-          <div className="detail-actions">
-            <button className="outline-btn wish" style={{flex: 1}}><Heart size={20} /> 찜하기</button>
-            <button className="outline-btn cart" style={{flex: 1}} onClick={onAddToCartClick}><ShoppingCart size={20} /> 장바구니</button>
-            <button className="primary-btn" style={{flex: 2}}><CreditCard size={20} /> 바로 구매하기</button>
+          
+          {/* 하단 버튼 영역 (데스크톱 용) */}
+          <div className="detail-action-buttons-desktop" style={{ display: 'flex', gap: '0.8rem', marginTop: '1.5rem' }}>
+            <button className="outline-btn wish" onClick={(e) => handleToggleWishlist(product, e)} style={{ flex: '0 0 auto', padding: '0 1.5rem', height: '54px', borderRadius: '8px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff6b00' }}>
+              <Heart size={24} />
+            </button>
+            <button className="outline-btn cart" onClick={onAddToCartClick} style={{ flex: 1, height: '54px', borderRadius: '8px', border: '1px solid var(--primary-color)', color: 'var(--primary-color)', background: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
+              장바구니 담기
+            </button>
+            <button className="primary-btn buy" onClick={(e) => { onAddToCartClick(e); navigate('/cart'); }} style={{ flex: 1, height: '54px', borderRadius: '8px', border: 'none', background: 'var(--primary-color)', color: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
+              구매하기
+            </button>
           </div>
         </div>
 
@@ -140,26 +193,49 @@ function ProductDetail({ handleAddToCart, products }) {
 
       {/* 하단: 상세 설명 탭 */}
       <div className="product-description-section">
-        <div className="desc-tabs" style={{ display: 'flex', borderBottom: '1px solid #eee', marginBottom: '2rem' }}>
-          <div className={`desc-tab ${activeTab === 'detail' ? 'active' : ''}`} onClick={() => setActiveTab('detail')} style={{ flex: 1, textAlign: 'center', padding: '1rem', cursor: 'pointer', fontWeight: activeTab === 'detail' ? 'bold' : 'normal', borderBottom: activeTab === 'detail' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'detail' ? 'var(--primary-color)' : '#666' }}>상품상세정보</div>
-          <div className={`desc-tab ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')} style={{ flex: 1, textAlign: 'center', padding: '1rem', cursor: 'pointer', fontWeight: activeTab === 'info' ? 'bold' : 'normal', borderBottom: activeTab === 'info' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'info' ? 'var(--primary-color)' : '#666' }}>구매안내</div>
-          <div className={`desc-tab ${activeTab === 'review' ? 'active' : ''}`} onClick={() => setActiveTab('review')} style={{ flex: 1, textAlign: 'center', padding: '1rem', cursor: 'pointer', fontWeight: activeTab === 'review' ? 'bold' : 'normal', borderBottom: activeTab === 'review' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'review' ? 'var(--primary-color)' : '#666' }}>상품후기</div>
+        <div className="desc-tabs" style={{ display: 'flex', borderBottom: '1px solid #eee', marginBottom: '1rem' }}>
+          <div className={`desc-tab ${activeTab === 'detail' ? 'active' : ''}`} onClick={() => setActiveTab('detail')} style={{ flex: 1, textAlign: 'center', padding: '0.8rem 0', cursor: 'pointer', fontWeight: activeTab === 'detail' ? 'bold' : 'normal', borderBottom: activeTab === 'detail' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'detail' ? 'var(--primary-color)' : '#666' }}>상품상세정보</div>
+          <div className={`desc-tab ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')} style={{ flex: 1, textAlign: 'center', padding: '0.8rem 0', cursor: 'pointer', fontWeight: activeTab === 'info' ? 'bold' : 'normal', borderBottom: activeTab === 'info' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'info' ? 'var(--primary-color)' : '#666' }}>구매안내</div>
+          <div className={`desc-tab ${activeTab === 'review' ? 'active' : ''}`} onClick={() => setActiveTab('review')} style={{ flex: 1, textAlign: 'center', padding: '0.8rem 0', cursor: 'pointer', fontWeight: activeTab === 'review' ? 'bold' : 'normal', borderBottom: activeTab === 'review' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'review' ? 'var(--primary-color)' : '#666' }}>상품후기</div>
         </div>
         <div className="desc-content">
           {activeTab === 'detail' && (
-            product.detailImageUrl ? (
-              <div style={{width: '100%', marginTop: '2rem', textAlign: 'center'}}>
-                <img src={product.detailImageUrl} alt="상품 상세 설명" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}} />
-              </div>
-            ) : (
-              <>
-                <h3>상세 정보</h3>
-                <p>이곳에 상품의 자세한 설명이나 조리 방법, 영양 정보 등의 이미지가 들어갑니다.</p>
-                <div style={{width: '100%', height: '500px', backgroundColor: '#f1f2f6', marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#747d8c', borderRadius: '8px'}}>
-                  [판매자가 상세 설명 이미지를 등록하지 않았습니다]
+            <div style={{width: '100%', marginTop: '2rem'}}>
+              {/* 구버전 단일 이미지 지원 */}
+              {product.detailImageUrl && (
+                <div style={{textAlign: 'center', marginBottom: '2rem'}}>
+                  <img src={product.detailImageUrl} alt="상품 상세 설명" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}} />
                 </div>
-              </>
-            )
+              )}
+              
+              {/* 신규 다중 블록 지원 */}
+              {product.detailBlocks && product.detailBlocks.length > 0 ? (
+                <div style={{display: 'flex', flexDirection: 'column', gap: '2rem', alignItems: 'center'}}>
+                  {product.detailBlocks.map((block, idx) => (
+                    <div key={idx} style={{width: '100%', maxWidth: '800px', margin: '0 auto'}}>
+                      {block.type === 'image' && (
+                        <img src={block.content} alt={`상세 이미지 ${idx}`} style={{width: '100%', height: 'auto', display: 'block'}} />
+                      )}
+                      {block.type === 'text' && (
+                        <p style={{whiteSpace: 'pre-wrap', lineHeight: '1.8', fontSize: '1.1rem', color: '#333', textAlign: 'left', padding: '0 1rem'}}>
+                          {block.content}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                !product.detailImageUrl && (
+                  <>
+                    <h3>상세 정보</h3>
+                    <p>이곳에 상품의 자세한 설명이나 조리 방법, 영양 정보 등의 이미지가 들어갑니다.</p>
+                    <div style={{width: '100%', height: '500px', backgroundColor: '#f1f2f6', marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#747d8c', borderRadius: '8px'}}>
+                      [판매자가 상세 설명을 등록하지 않았습니다]
+                    </div>
+                  </>
+                )
+              )}
+            </div>
           )}
           {activeTab === 'info' && (
             <div style={{ padding: '2rem', background: '#f9f9f9', borderRadius: '8px' }}>
@@ -179,6 +255,16 @@ function ProductDetail({ handleAddToCart, products }) {
           )}
         </div>
       </div>
+
+      {/* 하단 고정 바 (Sticky Bottom Bar) */}
+      <div className="sticky-bottom-bar">
+        <button className="outline-btn wish" onClick={(e) => handleToggleWishlist(product, e)}>
+          <Heart size={24} />
+        </button>
+        <button className="outline-btn cart" onClick={onAddToCartClick}>장바구니 담기</button>
+        <button className="primary-btn buy" onClick={(e) => { onAddToCartClick(e); navigate('/cart'); }}>구매하기</button>
+      </div>
+
     </div>
   );
 }

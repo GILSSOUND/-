@@ -13,6 +13,11 @@ export const createProduct = async (productData) => {
   return res.data;
 };
 
+export const updateProduct = async (id, productData) => {
+  const res = await axios.put(`${API_URL}/products/${id}`, productData);
+  return res.data;
+};
+
 export const deleteProduct = async (id) => {
   const res = await axios.delete(`${API_URL}/products/${id}`);
   return res.data;
@@ -36,4 +41,14 @@ export const uploadImage = async (file) => {
     const message = error.response?.data?.error?.message || error.message;
     throw new Error(message);
   }
+};
+
+export const fetchConfig = async (key) => {
+  const res = await axios.get(`${API_URL}/config/${key}`);
+  return res.data;
+};
+
+export const updateConfig = async (key, value) => {
+  const res = await axios.post(`${API_URL}/config/${key}`, { value });
+  return res.data;
 };

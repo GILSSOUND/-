@@ -23,6 +23,11 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  shippingFee: {
+    type: Number,
+    required: false,
+    default: 3000
+  },
   discount: {
     type: String,
     required: false,
@@ -35,6 +40,10 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  detailBlocks: [{
+    type: { type: String, enum: ['image', 'text'], required: true },
+    content: { type: String, required: true }
+  }],
   isNewProduct: {
     type: Boolean,
     default: false,
