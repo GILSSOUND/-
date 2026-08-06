@@ -9,9 +9,11 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   const [activeTab, setActiveTab] = useState('detail');
   const [selectedOption, setSelectedOption] = useState('');
 
-  // 페이지 진입 시 스크롤을 항상 맨 위로 이동 (다른 상품 클릭 시에도 적용)
+  // 페이지 진입 시 사진과 포토리뷰가 함께 보이도록 살짝 아래로 스크롤
   useEffect(() => {
-    window.scrollTo(0, 0);
+    setTimeout(() => {
+      window.scrollTo({ top: window.innerWidth <= 1024 ? 120 : 0, behavior: 'smooth' });
+    }, 100);
   }, [id]);
 
   const product = products.find(p => p._id === id || p.id === parseInt(id));
@@ -150,7 +152,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           {/* 포토 리뷰 영역 */}
           <div className="photo-reviews-section" style={{ minWidth: 0, width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem', borderBottom: '2px solid #333', paddingBottom: '0.5rem' }}>
-              <h3 style={{ fontSize: '1.2rem', margin: 0, marginLeft: '1.5rem' }}>포토 리뷰</h3>
+              <h3 style={{ fontSize: '1.2rem', margin: 0, marginLeft: '1.5rem' }}>포토 리뷰 <span style={{ fontSize: '0.8rem', color: '#aaa', fontWeight: 'normal', marginLeft: '0.4rem', letterSpacing: '0.5px' }}>PHOTO REVIEW</span></h3>
               <span style={{ fontSize: '0.9rem', color: '#666', cursor: 'pointer', marginRight: '1.5rem' }}>전체보기</span>
             </div>
             
@@ -190,7 +192,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           {product.subtitle && <p style={{fontSize: '1rem', color: '#888', marginBottom: '1rem', marginTop: 0}}>{product.subtitle}</p>}
           
           <div className="detail-price-box" style={{ marginBottom: '0.8rem' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.6rem' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: '0.6rem' }}>
               {product.originalPrice && (
                 <span className="detail-original-price" style={{ textDecoration: 'line-through', color: '#bbb', fontSize: '1.1rem', lineHeight: '1.2' }}>{formatPrice(product.originalPrice)}원</span>
               )}
@@ -229,10 +231,11 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           )}
 
           {/* 수량 선택 및 총 결제금액 통합 레이아웃 */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.2rem 0', borderTop: '1px solid #eee', borderBottom: '1px solid #eee', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.2rem 1.5rem', borderTop: '1px solid #eee', borderBottom: '1px solid #eee', marginBottom: '1rem' }}>
             
             {/* 왼쪽: 수량 선택 */}
-            <div className="quantity-selector" style={{ margin: 0, padding: 0, border: 'none', background: 'transparent' }}>
+            <div className="quantity-selector" style={{ margin: 0, padding: 0, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+              <span style={{ fontSize: '0.95rem', color: '#555', fontWeight: 'bold' }}>수량</span>
               <div className="quantity-controls" style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '6px', overflow: 'hidden', background: 'white' }}>
                 <button onClick={handleDecrease} style={{ width: '36px', height: '36px', border: 'none', background: '#f8f9fa', cursor: 'pointer', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>-</button>
                 <span style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 'bold', color: '#333' }}>{quantity}</span>
@@ -243,7 +246,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             {/* 오른쪽: 총 결제금액 */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.2rem' }}>
               <span style={{ fontSize: '0.9rem', color: '#666' }}>총 결제금액</span>
-              <span className="total-price" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--primary-color)', lineHeight: '1' }}>{formatPrice(totalPrice)}원</span>
+              <span className="total-price" style={{ fontSize: '1.7rem', fontWeight: 'bold', color: 'var(--primary-color)', lineHeight: '1' }}>{formatPrice(totalPrice)}원</span>
             </div>
           </div>
           
