@@ -65,6 +65,75 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   };
 
   return (
+    <>
+      <style>
+        {`
+          /* 📱 모바일/태블릿(1024px 이하) 강제 화면 맞춤 및 겹침 방지 코드 (절대 우위) */
+          @media (max-width: 1024px) {
+            html, body {
+              overflow-x: hidden !important;
+              max-width: 100vw !important;
+              width: 100% !important;
+            }
+            .detail-page-container {
+              width: 100vw !important;
+              max-width: 100vw !important;
+              padding: var(--nav-height) 0 0 0 !important;
+              overflow-x: hidden !important;
+              box-sizing: border-box !important;
+            }
+            .product-detail-layout {
+              display: flex !important;
+              flex-direction: column !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+              gap: 0 !important;
+              margin: 0 !important;
+              box-sizing: border-box !important;
+            }
+            .product-detail-left-col {
+              width: 100vw !important;
+              max-width: 100vw !important;
+              padding: 0 !important;
+              box-sizing: border-box !important;
+            }
+            .product-detail-info {
+              position: static !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+              margin-top: 0 !important;
+              border-radius: 0 !important;
+              box-shadow: none !important;
+              padding: 1.2rem 5% 2rem 5% !important;
+              box-sizing: border-box !important;
+              border-top: 1px solid #eee !important;
+            }
+            .detail-title {
+              word-break: break-all !important;
+              overflow-wrap: break-word !important;
+            }
+            .product-description-section {
+              width: 100vw !important;
+              max-width: 100vw !important;
+              padding: 0 5% !important;
+              margin: 0 auto !important;
+              box-sizing: border-box !important;
+              display: flex !important;
+              flex-direction: column !important;
+              align-items: center !important;
+            }
+            .desc-tabs {
+              width: 100% !important;
+              max-width: 100% !important;
+              justify-content: center !important;
+            }
+            .desc-content {
+              width: 100% !important;
+              max-width: 100% !important;
+            }
+          }
+        `}
+      </style>
     <div className="page-container detail-page-container" style={{ overflowX: 'hidden', width: '100%', maxWidth: '100vw', boxSizing: 'border-box' }}>
       <div className="product-detail-layout" style={{ maxWidth: '100%' }}>
         
@@ -266,6 +335,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
       </div>
 
     </div>
+    </>
   );
 }
 
