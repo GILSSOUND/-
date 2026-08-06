@@ -65,11 +65,80 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   };
 
   return (
-    <div className="page-container detail-page-container">
-      <div className="product-detail-layout">
+    <>
+      <style>
+        {`
+          /* 📱 모바일/태블릿(1024px 이하) 강제 화면 맞춤 및 겹침 방지 코드 (절대 우위) */
+          @media (max-width: 1024px) {
+            html, body {
+              overflow-x: hidden !important;
+              max-width: 100vw !important;
+              width: 100% !important;
+            }
+            .detail-page-container {
+              width: 100vw !important;
+              max-width: 100vw !important;
+              padding: var(--nav-height) 0 0 0 !important;
+              overflow-x: hidden !important;
+              box-sizing: border-box !important;
+            }
+            .product-detail-layout {
+              display: flex !important;
+              flex-direction: column !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+              gap: 0 !important;
+              margin: 0 !important;
+              box-sizing: border-box !important;
+            }
+            .product-detail-left-col {
+              width: 100vw !important;
+              max-width: 100vw !important;
+              padding: 0 !important;
+              box-sizing: border-box !important;
+            }
+            .product-detail-info {
+              position: static !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+              margin-top: 0 !important;
+              border-radius: 0 !important;
+              box-shadow: none !important;
+              padding: 1.2rem 5% 2rem 5% !important;
+              box-sizing: border-box !important;
+              border-top: 1px solid #eee !important;
+            }
+            .detail-title {
+              word-break: break-all !important;
+              overflow-wrap: break-word !important;
+            }
+            .product-description-section {
+              width: 100vw !important;
+              max-width: 100vw !important;
+              padding: 0 5% !important;
+              margin: 0 auto !important;
+              box-sizing: border-box !important;
+              display: flex !important;
+              flex-direction: column !important;
+              align-items: center !important;
+            }
+            .desc-tabs {
+              width: 100% !important;
+              max-width: 100% !important;
+              justify-content: center !important;
+            }
+            .desc-content {
+              width: 100% !important;
+              max-width: 100% !important;
+            }
+          }
+        `}
+      </style>
+    <div className="page-container detail-page-container" style={{ overflowX: 'hidden', width: '100%', maxWidth: '100vw', boxSizing: 'border-box' }}>
+      <div className="product-detail-layout" style={{ maxWidth: '100%' }}>
         
         {/* 왼쪽: 상품 이미지 + 포토 리뷰 */}
-        <div className="product-detail-left-col" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div className="product-detail-left-col" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', minWidth: 0, maxWidth: '100%' }}>
           <div className="product-detail-img-wrapper">
             <img src={product.imageUrl} alt={product.name} className="product-detail-img" />
             <div className="detail-image-badges">
@@ -79,14 +148,14 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           </div>
 
           {/* 포토 리뷰 영역 */}
-          <div className="photo-reviews-section">
+          <div className="photo-reviews-section" style={{ minWidth: 0, width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem', borderBottom: '2px solid #333', paddingBottom: '0.5rem' }}>
               <h3 style={{ fontSize: '1.2rem', margin: 0 }}>포토 리뷰</h3>
               <span style={{ fontSize: '0.9rem', color: '#666', cursor: 'pointer' }}>전체보기 &gt;</span>
             </div>
             
             {product.reviews && product.reviews.filter(r => r.photoUrl).length > 0 ? (
-              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'thin' }}>
+              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'thin', width: '100%' }}>
                 {product.reviews.filter(r => r.photoUrl).map((review, idx) => (
                   <div key={idx} style={{ flex: '0 0 auto', width: '120px', height: '120px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }}>
                     <img src={review.photoUrl} alt="포토리뷰" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -95,7 +164,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
               </div>
             ) : (
               /* 더미 데이터(임시) 또는 빈 상태 */
-              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'thin' }}>
+              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'thin', width: '100%' }}>
                 {[
                   "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=80",
                   "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&q=80",
@@ -114,7 +183,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
         </div>
 
         {/* 오른쪽: 상품 정보 */}
-        <div className="product-detail-info">
+        <div className="product-detail-info" style={{ marginTop: 0, borderRadius: 0, boxShadow: 'none', borderTop: '1px solid #eee' }}>
           <h2 className="detail-title">{product.name}</h2>
           {product.subtitle && <p style={{fontSize: '1.1rem', color: '#888', marginBottom: '1.5rem', marginTop: '-0.5rem'}}>{product.subtitle}</p>}
           
@@ -266,6 +335,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
       </div>
 
     </div>
+    </>
   );
 }
 
