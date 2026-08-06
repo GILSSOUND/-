@@ -65,8 +65,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   };
 
   return (
-    <div className="page-container detail-page-container">
-      <div className="product-detail-layout">
+    <div className="page-container detail-page-container" style={{ overflowX: 'hidden', width: '100%', maxWidth: '100vw', boxSizing: 'border-box' }}>
+      <div className="product-detail-layout" style={{ maxWidth: '100%' }}>
         
         {/* 왼쪽: 상품 이미지 + 포토 리뷰 */}
         <div className="product-detail-left-col" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', minWidth: 0, maxWidth: '100%' }}>
@@ -114,7 +114,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
         </div>
 
         {/* 오른쪽: 상품 정보 */}
-        <div className="product-detail-info">
+        <div className="product-detail-info" style={{ marginTop: 0, borderRadius: 0, boxShadow: 'none', borderTop: '1px solid #eee' }}>
           <h2 className="detail-title">{product.name}</h2>
           {product.subtitle && <p style={{fontSize: '1.1rem', color: '#888', marginBottom: '1.5rem', marginTop: '-0.5rem'}}>{product.subtitle}</p>}
           
