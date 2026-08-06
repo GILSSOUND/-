@@ -1180,6 +1180,10 @@ footer {
     grid-template-columns: 1fr;
     gap: 0;
   }
+  
+  .product-detail-left-col {
+    padding-bottom: 40px;
+  }
 
   .product-detail-info {
     padding: 1.2rem 5% 2rem 5%;
