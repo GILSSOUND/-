@@ -186,40 +186,37 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
 
         {/* 오른쪽: 상품 정보 */}
         <div className="product-detail-info" style={{ marginTop: 0, borderRadius: 0, boxShadow: 'none', borderTop: '1px solid #eee' }}>
-          <h2 className="detail-title">{product.name}</h2>
-          {product.subtitle && <p style={{fontSize: '1.1rem', color: '#888', marginBottom: '1.5rem', marginTop: '-0.5rem'}}>{product.subtitle}</p>}
+          <h2 className="detail-title" style={{ marginBottom: '0.2rem' }}>{product.name}</h2>
+          {product.subtitle && <p style={{fontSize: '1rem', color: '#888', marginBottom: '1rem', marginTop: 0}}>{product.subtitle}</p>}
           
-          <div className="detail-price-box">
-            {product.originalPrice && (
-              <div className="detail-price-top-row">
-                <span className="detail-original-price">{formatPrice(product.originalPrice)}원</span>
-              </div>
-            )}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-              <span className="detail-price">{formatPrice(finalUnitPrice)}원</span>
-              {product.discount && <span className="detail-discount">{product.discount}</span>}
+          <div className="detail-price-box" style={{ marginBottom: '0.8rem' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.6rem' }}>
+              {product.originalPrice && (
+                <span className="detail-original-price" style={{ textDecoration: 'line-through', color: '#bbb', fontSize: '1.1rem', lineHeight: '1.2' }}>{formatPrice(product.originalPrice)}원</span>
+              )}
+              <span className="detail-price" style={{ fontSize: '1.6rem', fontWeight: 'bold', color: 'var(--primary-color)', lineHeight: '1' }}>{formatPrice(finalUnitPrice)}원</span>
+              {product.discount && <span className="detail-discount" style={{ color: '#ff6b00', fontWeight: 'bold', fontSize: '1.2rem', lineHeight: '1.1' }}>{product.discount}</span>}
             </div>
           </div>
 
           {/* 추가 혜택 박스 */}
-          <div className="detail-benefits-box" style={{ background: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', border: '1px solid #eee', marginBottom: '2rem' }}>
-            <h4 style={{ color: 'var(--primary-color)', marginBottom: '0.5rem', fontSize: '1.1rem' }}>추가 혜택</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, color: '#555', lineHeight: '1.6' }}>
+          <div className="detail-benefits-box" style={{ background: '#f8f9fa', padding: '1rem', borderRadius: '8px', border: '1px solid #eee', marginBottom: '1.5rem' }}>
+            <h4 style={{ color: 'var(--primary-color)', marginBottom: '0.3rem', fontSize: '0.95rem' }}>추가 혜택</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, color: '#555', lineHeight: '1.4', fontSize: '0.9rem' }}>
               <li>• 일반 후기 작성 시 100포인트 지급</li>
               <li>• 포토 후기 작성 시 150포인트 지급</li>
             </ul>
           </div>
 
-
-
           {/* 옵션 선택 */}
           {product.options && product.options.length > 0 && (
-            <div className="option-selector-container">
-              <span className="quantity-label">옵션</span>
+            <div className="option-selector-container" style={{ marginBottom: '1rem' }}>
+              <span className="quantity-label" style={{ fontSize: '0.9rem' }}>옵션</span>
               <select 
                 className="option-selector"
                 value={selectedOption}
                 onChange={(e) => setSelectedOption(e.target.value)}
+                style={{ padding: '0.6rem', fontSize: '0.95rem' }}
               >
                 <option value="">옵션을 선택하세요</option>
                 {product.options.map((opt, idx) => (
@@ -231,19 +228,23 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             </div>
           )}
 
-          {/* 수량 선택 */}
-          <div className="quantity-selector">
-            <span className="quantity-label">수량</span>
-            <div className="quantity-controls">
-              <button onClick={handleDecrease}>-</button>
-              <span>{quantity}</span>
-              <button onClick={handleIncrease}>+</button>
+          {/* 수량 선택 및 총 결제금액 통합 레이아웃 */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.2rem 0', borderTop: '1px solid #eee', borderBottom: '1px solid #eee', marginBottom: '1rem' }}>
+            
+            {/* 왼쪽: 수량 선택 */}
+            <div className="quantity-selector" style={{ margin: 0, padding: 0, border: 'none', background: 'transparent' }}>
+              <div className="quantity-controls" style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '6px', overflow: 'hidden', background: 'white' }}>
+                <button onClick={handleDecrease} style={{ width: '36px', height: '36px', border: 'none', background: '#f8f9fa', cursor: 'pointer', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>-</button>
+                <span style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 'bold', color: '#333' }}>{quantity}</span>
+                <button onClick={handleIncrease} style={{ width: '36px', height: '36px', border: 'none', background: '#f8f9fa', cursor: 'pointer', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>+</button>
+              </div>
             </div>
-          </div>
 
-          <div className="detail-total">
-            <span>총 결제금액</span>
-            <span className="total-price">{formatPrice(totalPrice)}원</span>
+            {/* 오른쪽: 총 결제금액 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.2rem' }}>
+              <span style={{ fontSize: '0.9rem', color: '#666' }}>총 결제금액</span>
+              <span className="total-price" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--primary-color)', lineHeight: '1' }}>{formatPrice(totalPrice)}원</span>
+            </div>
           </div>
           
           {/* 하단 버튼 영역 (데스크톱 용) */}
