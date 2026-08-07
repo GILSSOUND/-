@@ -280,37 +280,40 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             </div>
           )}
 
-          {/* 수량 선택 및 총 결제금액 통합 레이아웃 */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '1.2rem 1.5rem', borderTop: '1px solid #eee', borderBottom: '1px solid #eee', marginBottom: '1rem' }}>
-            
-            {/* 왼쪽: 수량 선택 */}
-            <div className="quantity-selector" style={{ margin: 0, padding: 0, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-              <span style={{ fontSize: '0.95rem', color: '#555', fontWeight: 'bold' }}>수량</span>
-              <div className="quantity-controls" style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '6px', overflow: 'hidden', background: 'white' }}>
-                <button onClick={handleDecrease} style={{ width: '36px', height: '36px', border: 'none', background: '#f8f9fa', cursor: 'pointer', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>-</button>
-                <span style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 'bold', color: '#333' }}>{quantity}</span>
-                <button onClick={handleIncrease} style={{ width: '36px', height: '36px', border: 'none', background: '#f8f9fa', cursor: 'pointer', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>+</button>
+          {/* 하단 영역 (수량 + 총액 + 버튼) */}
+          <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+            {/* 수량 선택 및 총 결제금액 */}
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '3rem', padding: '1.2rem 1.5rem', borderTop: '1px solid #eee', borderBottom: '1px solid #eee' }}>
+              
+              {/* 수량 선택 */}
+              <div className="quantity-selector" style={{ margin: 0, padding: 0, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                <span style={{ fontSize: '1rem', color: '#555', fontWeight: 'bold' }}>수량</span>
+                <div className="quantity-controls" style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '6px', overflow: 'hidden', background: 'white' }}>
+                  <button onClick={handleDecrease} style={{ width: '36px', height: '36px', border: 'none', background: '#f8f9fa', cursor: 'pointer', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>-</button>
+                  <span style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 'bold', color: '#333' }}>{quantity}</span>
+                  <button onClick={handleIncrease} style={{ width: '36px', height: '36px', border: 'none', background: '#f8f9fa', cursor: 'pointer', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>+</button>
+                </div>
+              </div>
+
+              {/* 총 결제금액 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <span style={{ fontSize: '1rem', color: '#666', fontWeight: 'bold' }}>총 결제금액</span>
+                <span className="total-price" style={{ fontSize: '2.2rem', fontWeight: '900', color: 'var(--primary-color)', lineHeight: '1' }}>{formatPrice(totalPrice)}<span style={{fontSize: '1.4rem'}}>원</span></span>
               </div>
             </div>
 
-            {/* 오른쪽: 총 결제금액 */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.4rem' }}>
-              <span style={{ fontSize: '0.9rem', color: '#666' }}>총 결제금액</span>
-              <span className="total-price" style={{ fontSize: '1.7rem', fontWeight: 'bold', color: 'var(--primary-color)', lineHeight: '1' }}>{formatPrice(totalPrice)}원</span>
+            {/* 하단 버튼 영역 (데스크톱 용) */}
+            <div className="detail-action-buttons-desktop" style={{ display: 'flex', gap: '0.8rem' }}>
+              <button className="outline-btn wish" onClick={(e) => handleToggleWishlist(product, e)} style={{ flex: '0 0 auto', padding: '0 1.5rem', height: '54px', borderRadius: '8px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff6b00' }}>
+                <Heart size={24} />
+              </button>
+              <button className="outline-btn cart" onClick={onAddToCartClick} style={{ flex: 1, height: '54px', borderRadius: '8px', border: '1px solid var(--primary-color)', color: 'var(--primary-color)', background: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
+                장바구니 담기
+              </button>
+              <button className="primary-btn buy" onClick={(e) => { onAddToCartClick(e); navigate('/cart'); }} style={{ flex: 1, height: '54px', borderRadius: '8px', border: 'none', background: 'var(--primary-color)', color: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
+                구매하기
+              </button>
             </div>
-          </div>
-
-          {/* 하단 버튼 영역 (데스크톱 용) */}
-          <div className="detail-action-buttons-desktop" style={{ display: 'flex', gap: '0.8rem', marginTop: 'auto' }}>
-            <button className="outline-btn wish" onClick={(e) => handleToggleWishlist(product, e)} style={{ flex: '0 0 auto', padding: '0 1.5rem', height: '54px', borderRadius: '8px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff6b00' }}>
-              <Heart size={24} />
-            </button>
-            <button className="outline-btn cart" onClick={onAddToCartClick} style={{ flex: 1, height: '54px', borderRadius: '8px', border: '1px solid var(--primary-color)', color: 'var(--primary-color)', background: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
-              장바구니 담기
-            </button>
-            <button className="primary-btn buy" onClick={(e) => { onAddToCartClick(e); navigate('/cart'); }} style={{ flex: 1, height: '54px', borderRadius: '8px', border: 'none', background: 'var(--primary-color)', color: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
-              구매하기
-            </button>
           </div>
         </div>
 
