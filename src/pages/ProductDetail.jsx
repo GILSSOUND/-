@@ -162,22 +162,44 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
               max-width: 100% !important;
             }
           }
+          
+          @media (min-width: 1025px) {
+            .product-detail-layout {
+              display: grid !important;
+              grid-template-columns: 1fr 1fr !important;
+              grid-template-areas: 
+                "image info"
+                "review ." !important;
+              gap: 4rem !important;
+            }
+            .product-detail-img-wrapper { grid-area: image; }
+            .product-detail-info { grid-area: info; }
+            .photo-reviews-section { grid-area: review; margin-top: -2rem; }
+          }
+          @media (max-width: 1024px) {
+            .product-detail-layout {
+              display: flex !important;
+              flex-direction: column !important;
+            }
+            .product-detail-img-wrapper { order: 1; }
+            .photo-reviews-section { order: 2; margin-top: 2rem; }
+            .product-detail-info { order: 3; }
+          }
         `}
       </style>
     <div className="page-container detail-page-container" style={{ overflowX: 'hidden', width: '100%', maxWidth: '100vw', boxSizing: 'border-box' }}>
       <div className="product-detail-layout" style={{ maxWidth: '100%' }}>
         
-        {/* 왼쪽: 상품 이미지 + 포토 리뷰 */}
-        <div className="product-detail-left-col" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', minWidth: 0, maxWidth: '100%' }}>
-          <div className="product-detail-img-wrapper">
-            <img src={product.imageUrl} alt={product.name} className="product-detail-img" />
-            <div className="detail-image-badges">
-              {product.isBest && <span className="badge badge-best">BEST</span>}
-              {product.isNewProduct && <span className="badge badge-new">NEW</span>}
-            </div>
+        {/* 메인 이미지 영역 (왼쪽 상단) */}
+        <div className="product-detail-img-wrapper" style={{ minWidth: 0, maxWidth: '100%' }}>
+          <img src={product.imageUrl} alt={product.name} className="product-detail-img" />
+          <div className="detail-image-badges">
+            {product.isBest && <span className="badge badge-best">BEST</span>}
+            {product.isNewProduct && <span className="badge badge-new">NEW</span>}
           </div>
+        </div>
 
-          {/* 포토 리뷰 영역 */}
+        {/* 포토 리뷰 영역 (왼쪽 하단) */}
           <div className="photo-reviews-section" style={{ minWidth: 0, width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem', borderBottom: '2px solid #333', paddingBottom: '0.5rem' }}>
               <h3 style={{ fontSize: '1.2rem', margin: 0, marginLeft: '1.5rem' }}>포토 리뷰 <span style={{ fontSize: '0.8rem', color: '#aaa', fontWeight: 'normal', marginLeft: '0.4rem', letterSpacing: '0.5px' }}>PHOTO REVIEW</span></h3>
@@ -212,7 +234,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
               </div>
             )}
           </div>
-        </div>
+        {/* </left-col 제거됨, grid-area로 대체> */}
 
         {/* 오른쪽: 상품 정보 */}
         <div className="product-detail-info" style={{ marginTop: 0, borderRadius: 0, boxShadow: 'none', borderTop: '1px solid #eee', display: 'flex', flexDirection: 'column' }}>
@@ -277,18 +299,9 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
               <span className="total-price" style={{ fontSize: '1.7rem', fontWeight: 'bold', color: 'var(--primary-color)', lineHeight: '1' }}>{formatPrice(totalPrice)}원</span>
             </div>
           </div>
-          
-          {/* 고객 안심 배송 안내 (빈 공간 채우기 용도) */}
-          <div style={{ marginTop: 'auto', background: '#f8f9fa', borderRadius: '8px', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem', border: '1px solid #eee', marginBottom: '1.5rem' }}>
-            <div style={{ fontSize: '2rem' }}>🚚</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-              <strong style={{ fontSize: '0.95rem', color: '#333' }}>오후 2시 이전 주문 시 <span style={{color: 'var(--primary-color)'}}>당일 발송!</span></strong>
-              <span style={{ fontSize: '0.85rem', color: '#666' }}>빠르고 안전하게 꼼꼼히 포장하여 배달해 드려요.</span>
-            </div>
-          </div>
 
           {/* 하단 버튼 영역 (데스크톱 용) */}
-          <div className="detail-action-buttons-desktop" style={{ display: 'flex', gap: '0.8rem' }}>
+          <div className="detail-action-buttons-desktop" style={{ display: 'flex', gap: '0.8rem', marginTop: 'auto' }}>
             <button className="outline-btn wish" onClick={(e) => handleToggleWishlist(product, e)} style={{ flex: '0 0 auto', padding: '0 1.5rem', height: '54px', borderRadius: '8px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff6b00' }}>
               <Heart size={24} />
             </button>
