@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Heart, CreditCard } from 'lucide-react';
 
@@ -8,6 +8,34 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('detail');
   const [selectedOption, setSelectedOption] = useState('');
+
+  const detailRef = useRef(null);
+  const infoRef = useRef(null);
+  const reviewRef = useRef(null);
+
+  const scrollToSection = (ref, tabName) => {
+    setActiveTab(tabName);
+    if (ref && ref.current) {
+      const yOffset = -50; 
+      const y = ref.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPos = window.pageYOffset + 100;
+      if (reviewRef.current && scrollPos >= reviewRef.current.offsetTop) {
+        setActiveTab('review');
+      } else if (infoRef.current && scrollPos >= infoRef.current.offsetTop) {
+        setActiveTab('info');
+      } else if (detailRef.current && scrollPos >= detailRef.current.offsetTop) {
+        setActiveTab('detail');
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // 페이지 진입 시 사진과 포토리뷰가 함께 보이도록 살짝 아래로 스크롤
   useEffect(() => {
@@ -268,66 +296,77 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
 
       {/* 하단: 상세 설명 탭 */}
       <div className="product-description-section">
-        <div className="desc-tabs" style={{ display: 'flex', borderBottom: '1px solid #eee', marginBottom: '1rem' }}>
-          <div className={`desc-tab ${activeTab === 'detail' ? 'active' : ''}`} onClick={() => setActiveTab('detail')} style={{ flex: 1, textAlign: 'center', padding: '0.8rem 0', cursor: 'pointer', fontWeight: activeTab === 'detail' ? 'bold' : 'normal', borderBottom: activeTab === 'detail' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'detail' ? 'var(--primary-color)' : '#666' }}>상품상세정보</div>
-          <div className={`desc-tab ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')} style={{ flex: 1, textAlign: 'center', padding: '0.8rem 0', cursor: 'pointer', fontWeight: activeTab === 'info' ? 'bold' : 'normal', borderBottom: activeTab === 'info' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'info' ? 'var(--primary-color)' : '#666' }}>구매안내</div>
-          <div className={`desc-tab ${activeTab === 'review' ? 'active' : ''}`} onClick={() => setActiveTab('review')} style={{ flex: 1, textAlign: 'center', padding: '0.8rem 0', cursor: 'pointer', fontWeight: activeTab === 'review' ? 'bold' : 'normal', borderBottom: activeTab === 'review' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'review' ? 'var(--primary-color)' : '#666' }}>상품후기</div>
+        <div className="desc-tabs" style={{ display: 'flex', borderBottom: '1px solid #eee', marginBottom: '1rem', position: 'sticky', top: 0, background: 'white', zIndex: 10 }}>
+          <div className={`desc-tab ${activeTab === 'detail' ? 'active' : ''}`} onClick={() => scrollToSection(detailRef, 'detail')} style={{ flex: 1, textAlign: 'center', padding: '0.8rem 0', cursor: 'pointer', fontWeight: activeTab === 'detail' ? 'bold' : 'normal', borderBottom: activeTab === 'detail' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'detail' ? 'var(--primary-color)' : '#666' }}>상품상세정보</div>
+          <div className={`desc-tab ${activeTab === 'info' ? 'active' : ''}`} onClick={() => scrollToSection(infoRef, 'info')} style={{ flex: 1, textAlign: 'center', padding: '0.8rem 0', cursor: 'pointer', fontWeight: activeTab === 'info' ? 'bold' : 'normal', borderBottom: activeTab === 'info' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'info' ? 'var(--primary-color)' : '#666' }}>구매안내</div>
+          <div className={`desc-tab ${activeTab === 'review' ? 'active' : ''}`} onClick={() => scrollToSection(reviewRef, 'review')} style={{ flex: 1, textAlign: 'center', padding: '0.8rem 0', cursor: 'pointer', fontWeight: activeTab === 'review' ? 'bold' : 'normal', borderBottom: activeTab === 'review' ? '3px solid var(--primary-color)' : 'none', color: activeTab === 'review' ? 'var(--primary-color)' : '#666' }}>상품후기</div>
         </div>
         <div className="desc-content">
-          {activeTab === 'detail' && (
-            <div style={{width: '100%', marginTop: '2rem'}}>
-              {/* 구버전 단일 이미지 지원 */}
-              {product.detailImageUrl && (
-                <div style={{textAlign: 'center', marginBottom: '2rem'}}>
-                  <img src={product.detailImageUrl} alt="상품 상세 설명" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}} />
-                </div>
-              )}
-              
-              {/* 신규 다중 블록 지원 */}
-              {product.detailBlocks && product.detailBlocks.length > 0 ? (
-                <div style={{display: 'flex', flexDirection: 'column', gap: '2rem', alignItems: 'center'}}>
-                  {product.detailBlocks.map((block, idx) => (
-                    <div key={idx} style={{width: '100%', maxWidth: '800px', margin: '0 auto'}}>
-                      {block.type === 'image' && (
-                        <img src={block.content} alt={`상세 이미지 ${idx}`} style={{width: '100%', height: 'auto', display: 'block'}} />
-                      )}
-                      {block.type === 'text' && (
-                        <p style={{whiteSpace: 'pre-wrap', lineHeight: '1.8', fontSize: '1.1rem', color: '#333', textAlign: 'left', padding: '0 1rem'}}>
-                          {block.content}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                !product.detailImageUrl && (
-                  <>
-                    <h3>상세 정보</h3>
-                    <p>이곳에 상품의 자세한 설명이나 조리 방법, 영양 정보 등의 이미지가 들어갑니다.</p>
-                    <div style={{width: '100%', height: '500px', backgroundColor: '#f1f2f6', marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#747d8c', borderRadius: '8px'}}>
-                      [판매자가 상세 설명을 등록하지 않았습니다]
-                    </div>
-                  </>
-                )
-              )}
-            </div>
-          )}
-          {activeTab === 'info' && (
-            <div style={{ padding: '2rem', background: '#f9f9f9', borderRadius: '8px' }}>
-              <h3>교환 및 반품 안내</h3>
-              <ul style={{ marginTop: '1rem', lineHeight: '1.8', color: '#555' }}>
-                <li>상품 수령 후 7일 이내 교환/반품이 가능합니다.</li>
-                <li>신선식품의 경우 단순 변심에 의한 교환/반품은 불가합니다.</li>
-                <li>상품에 하자가 있는 경우 배송비는 무료입니다.</li>
-                <li>자세한 사항은 고객센터(1588-0000)로 문의 바랍니다.</li>
-              </ul>
-            </div>
-          )}
-          {activeTab === 'review' && (
+          {/* 상품상세정보 섹션 */}
+          <div ref={detailRef} style={{width: '100%', paddingTop: '1rem', paddingBottom: '3rem'}}>
+            {/* 구버전 단일 이미지 지원 */}
+            {product.detailImageUrl && (
+              <div style={{textAlign: 'center', marginBottom: '2rem'}}>
+                <img src={product.detailImageUrl} alt="상품 상세 설명" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}} />
+              </div>
+            )}
+            
+            {/* 신규 다중 블록 지원 */}
+            {product.detailBlocks && product.detailBlocks.length > 0 ? (
+              <div style={{display: 'flex', flexDirection: 'column', gap: '2rem', alignItems: 'center'}}>
+                {product.detailBlocks.map((block, idx) => (
+                  <div key={idx} style={{width: '100%', maxWidth: '800px', margin: '0 auto'}}>
+                    {block.type === 'image' && (
+                      <img src={block.content} alt={`상세 이미지 ${idx}`} style={{width: '100%', height: 'auto', display: 'block'}} />
+                    )}
+                    {block.type === 'text' && (
+                      <p style={{whiteSpace: 'pre-wrap', lineHeight: '1.8', fontSize: '1.1rem', color: '#333', textAlign: 'left', padding: '0 1rem'}}>
+                        {block.content}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              !product.detailImageUrl && (
+                <>
+                  <h3 style={{textAlign: 'center', marginBottom: '1rem'}}>상세 정보</h3>
+                  <p style={{textAlign: 'center'}}>이곳에 상품의 자세한 설명이나 조리 방법, 영양 정보 등의 이미지가 들어갑니다.</p>
+                  <div style={{width: '100%', height: '300px', backgroundColor: '#f1f2f6', marginTop: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#747d8c', borderRadius: '8px'}}>
+                    [판매자가 상세 설명을 등록하지 않았습니다]
+                  </div>
+                </>
+              )
+            )}
+          </div>
+
+          {/* 구매안내 섹션 */}
+          <div ref={infoRef} style={{ paddingTop: '2rem', paddingBottom: '3rem', borderTop: '1px solid #eee' }}>
+            <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.3rem' }}>구매 안내</h3>
+            {product.purchaseInfoImageUrl ? (
+              <div style={{textAlign: 'center'}}>
+                <img src={product.purchaseInfoImageUrl} alt="구매 안내" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}} />
+              </div>
+            ) : (
+              <div style={{ padding: '2rem', background: '#f9f9f9', borderRadius: '8px' }}>
+                <h4>교환 및 반품 안내</h4>
+                <ul style={{ marginTop: '1rem', lineHeight: '1.8', color: '#555' }}>
+                  <li>상품 수령 후 7일 이내 교환/반품이 가능합니다.</li>
+                  <li>신선식품의 경우 단순 변심에 의한 교환/반품은 불가합니다.</li>
+                  <li>상품에 하자가 있는 경우 배송비는 무료입니다.</li>
+                  <li>자세한 사항은 고객센터(1588-0000)로 문의 바랍니다.</li>
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {/* 상품후기 섹션 */}
+          <div ref={reviewRef} style={{ paddingTop: '2rem', paddingBottom: '5rem', borderTop: '1px solid #eee' }}>
+            <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.3rem' }}>상품 후기</h3>
             <div style={{ padding: '3rem 2rem', textAlign: 'center', color: '#888', background: '#f9f9f9', borderRadius: '8px' }}>
               아직 등록된 후기가 없습니다.<br/>첫 번째 후기를 남겨주세요!
             </div>
-          )}
+          </div>
         </div>
       </div>
 

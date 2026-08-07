@@ -37,6 +37,10 @@ function Admin({ refreshGlobalProducts }) {
   const [detailImagePreview, setDetailImagePreview] = useState(null);
   const [detailImageFile, setDetailImageFile] = useState(null);
 
+  // 구매 안내 이미지
+  const [purchaseImagePreview, setPurchaseImagePreview] = useState(null);
+  const [purchaseImageFile, setPurchaseImageFile] = useState(null);
+
   // 다중 블록 (사진/글) 상태
   const [detailBlocks, setDetailBlocks] = useState([]); 
   // 구조: { type: 'text' | 'image', content: '...', file?: File, preview?: string }
@@ -272,6 +276,10 @@ function Admin({ refreshGlobalProducts }) {
     setDetailImageFile(null);
     setDetailImagePreview(product.detailImageUrl || null);
     
+    // 구매 안내 이미지
+    setPurchaseImageFile(null);
+    setPurchaseImagePreview(product.purchaseInfoImageUrl || null);
+    
     // 블록 데이터
     if (product.detailBlocks && product.detailBlocks.length > 0) {
       setDetailBlocks(product.detailBlocks.map(b => ({
@@ -300,6 +308,8 @@ function Admin({ refreshGlobalProducts }) {
     setImagePreview(null);
     setDetailImageFile(null);
     setDetailImagePreview(null);
+    setPurchaseImageFile(null);
+    setPurchaseImagePreview(null);
     setDetailBlocks([]);
     setOptions([]);
   };
@@ -317,6 +327,14 @@ function Admin({ refreshGlobalProducts }) {
       const file = e.target.files[0];
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file)); 
+    }
+  };
+
+  const handlePurchaseFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setPurchaseImageFile(file);
+      setPurchaseImagePreview(URL.createObjectURL(file)); 
     }
   };
 
@@ -355,6 +373,13 @@ function Admin({ refreshGlobalProducts }) {
          oldDetailImageUrl = res.imageUrl;
       }
 
+      // 구매 안내 이미지 처리
+      let oldPurchaseImageUrl = purchaseImagePreview;
+      if (purchaseImageFile) {
+         const res = await uploadImage(purchaseImageFile);
+         oldPurchaseImageUrl = res.imageUrl;
+      }
+
       let calculatedDiscount = '';
       if (formData.originalPrice && formData.price) {
         const orig = Number(formData.originalPrice);
@@ -373,6 +398,7 @@ function Admin({ refreshGlobalProducts }) {
         options: options.filter(o => o.name.trim() !== '').map(o => ({ name: o.name, additionalPrice: Number(o.additionalPrice) })),
         imageUrl,
         detailImageUrl: oldDetailImageUrl,
+        purchaseInfoImageUrl: oldPurchaseImageUrl,
         detailBlocks: processedBlocks
       };
 
@@ -537,6 +563,17 @@ function Admin({ refreshGlobalProducts }) {
                   <div>
                     <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>• 메인 썸네일 사진</label>
                     <input type="file" accept="image/*" onChange={handleFileChange} style={{width: '100%', padding: '0.5rem', border: '1px dashed #ccc', borderRadius: '8px'}} />
+                  </div>
+
+                  {/* 구매 안내 이미지 */}
+                  <div>
+                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>• 구매 안내 이미지 (반품/교환 등)</label>
+                    <input type="file" accept="image/*" onChange={handlePurchaseFileChange} style={{width: '100%', padding: '0.5rem', border: '1px dashed #ccc', borderRadius: '8px'}} />
+                    {purchaseImagePreview && (
+                      <div style={{marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--primary-color)'}}>
+                        이미지가 등록되어 있습니다.
+                      </div>
+                    )}
                   </div>
 
                   {/* 옵션 */}
