@@ -215,7 +215,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
         </div>
 
         {/* 오른쪽: 상품 정보 */}
-        <div className="product-detail-info" style={{ marginTop: 0, borderRadius: 0, boxShadow: 'none', borderTop: '1px solid #eee' }}>
+        <div className="product-detail-info" style={{ marginTop: 0, borderRadius: 0, boxShadow: 'none', borderTop: '1px solid #eee', display: 'flex', flexDirection: 'column' }}>
           <h2 className="detail-title" style={{ marginBottom: '0.2rem' }}>{product.name}</h2>
           {product.subtitle && <p style={{fontSize: '1rem', color: '#888', marginBottom: '1rem', marginTop: 0}}>{product.subtitle}</p>}
           
@@ -278,8 +278,17 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             </div>
           </div>
           
+          {/* 고객 안심 배송 안내 (빈 공간 채우기 용도) */}
+          <div style={{ marginTop: 'auto', background: '#f8f9fa', borderRadius: '8px', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem', border: '1px solid #eee', marginBottom: '1.5rem' }}>
+            <div style={{ fontSize: '2rem' }}>🚚</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+              <strong style={{ fontSize: '0.95rem', color: '#333' }}>오후 2시 이전 주문 시 <span style={{color: 'var(--primary-color)'}}>당일 발송!</span></strong>
+              <span style={{ fontSize: '0.85rem', color: '#666' }}>빠르고 안전하게 꼼꼼히 포장하여 배달해 드려요.</span>
+            </div>
+          </div>
+
           {/* 하단 버튼 영역 (데스크톱 용) */}
-          <div className="detail-action-buttons-desktop" style={{ display: 'flex', gap: '0.8rem', marginTop: '1.5rem' }}>
+          <div className="detail-action-buttons-desktop" style={{ display: 'flex', gap: '0.8rem' }}>
             <button className="outline-btn wish" onClick={(e) => handleToggleWishlist(product, e)} style={{ flex: '0 0 auto', padding: '0 1.5rem', height: '54px', borderRadius: '8px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff6b00' }}>
               <Heart size={24} />
             </button>
