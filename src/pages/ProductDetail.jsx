@@ -262,7 +262,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           </div>
 
           {/* 추가 혜택 박스 */}
-          <div className="detail-benefits-box" style={{ background: '#f8f9fa', padding: '1rem', borderRadius: '8px', border: '1px solid #eee', marginBottom: '1.5rem' }}>
+          <div className="detail-benefits-box" style={{ background: '#f8f9fa', padding: '1rem', borderRadius: '8px', border: '1px solid #eee', marginBottom: '0' }}>
             <h4 style={{ color: 'var(--primary-color)', marginBottom: '0.3rem', fontSize: '0.95rem' }}>추가 혜택</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, color: '#555', lineHeight: '1.4', fontSize: '0.9rem' }}>
               <li>• 일반 후기 작성 시 100포인트 지급</li>
@@ -272,11 +272,11 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
 
           {/* 서브 이미지 (최대 5개 나열) */}
           {product.subImageUrls && product.subImageUrls.length > 0 && (
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '0.5rem', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: '0.6rem', margin: '0.5rem 0', overflowX: 'auto', paddingBottom: '0', justifyContent: 'center' }}>
               {/* 메인 이미지 (썸네일) */}
               <div 
                 onClick={() => setDisplayImage(product.imageUrl)}
-                style={{ flex: '0 0 auto', width: '70px', height: '70px', borderRadius: '8px', overflow: 'hidden', border: (displayImage || product.imageUrl) === product.imageUrl ? '2px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                style={{ flex: '0 0 auto', width: '90px', height: '90px', borderRadius: '8px', overflow: 'hidden', border: (displayImage || product.imageUrl) === product.imageUrl ? '3px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
               >
                 <img src={product.imageUrl} alt="main thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
@@ -286,7 +286,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                 <div 
                   key={idx} 
                   onClick={() => setDisplayImage(url)}
-                  style={{ flex: '0 0 auto', width: '70px', height: '70px', borderRadius: '8px', overflow: 'hidden', border: displayImage === url ? '2px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                  style={{ flex: '0 0 auto', width: '90px', height: '90px', borderRadius: '8px', overflow: 'hidden', border: displayImage === url ? '3px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
                 >
                   <img src={url} alt={`sub ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
