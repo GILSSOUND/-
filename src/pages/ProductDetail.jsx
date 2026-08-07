@@ -184,14 +184,46 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             .product-detail-info { grid-area: info; }
             .photo-reviews-section { grid-area: review; margin-top: -2rem; }
           }
+          .quantity-price-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3rem;
+            padding: 1.2rem 1.5rem;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+          }
+          .total-price-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+          }
+          .desktop-sub-images { display: block; }
+          .mobile-sub-images { display: none; }
+          
           @media (max-width: 1024px) {
+            .desktop-sub-images { display: none !important; }
+            .mobile-sub-images { display: block !important; margin-top: 1rem; }
+            
             .product-detail-layout {
               display: flex !important;
               flex-direction: column !important;
             }
             .product-detail-img-wrapper { order: 1; }
-            .photo-reviews-section { order: 2; margin-top: 2rem; }
+            .mobile-sub-images { order: 2; }
             .product-detail-info { order: 3; }
+            .photo-reviews-section { order: 4; margin-top: 2rem; }
+            
+            .quantity-price-container {
+              justify-content: space-between !important;
+              gap: 1rem !important;
+              padding: 1.2rem 0.5rem !important;
+            }
+            .total-price-wrapper {
+              flex-direction: column !important;
+              align-items: flex-end !important;
+              gap: 0.2rem !important;
+            }
           }
         `}
       </style>
@@ -200,11 +232,34 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
         
         {/* 메인 이미지 영역 (왼쪽 상단) */}
         <div className="product-detail-img-wrapper" style={{ minWidth: 0, maxWidth: '100%' }}>
-          <img src={displayImage || product.imageUrl} alt={product.name} className="product-detail-img" />
+          <img src={displayImage || product.imageUrl} alt={product.name} className="product-detail-img" fetchPriority="high" />
           <div className="detail-image-badges">
             {product.isBest && <span className="badge badge-best">BEST</span>}
             {product.isNewProduct && <span className="badge badge-new">NEW</span>}
           </div>
+        </div>
+
+        {/* 모바일 서브 이미지 (메인 이미지 바로 아래) */}
+        <div className="mobile-sub-images">
+          {product.subImageUrls && product.subImageUrls.length > 0 && (
+            <div style={{ display: 'flex', gap: '0.6rem', overflowX: 'auto', paddingBottom: '0.5rem', paddingLeft: '0.5rem', paddingRight: '0.5rem', justifyContent: 'flex-start' }}>
+              <div 
+                onClick={() => setDisplayImage(product.imageUrl)}
+                style={{ flex: '0 0 auto', width: '80px', height: '80px', borderRadius: '8px', overflow: 'hidden', border: (displayImage || product.imageUrl) === product.imageUrl ? '3px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
+              >
+                <img src={product.imageUrl} alt="main thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+              {product.subImageUrls.map((url, idx) => (
+                <div 
+                  key={idx} 
+                  onClick={() => setDisplayImage(url)}
+                  style={{ flex: '0 0 auto', width: '80px', height: '80px', borderRadius: '8px', overflow: 'hidden', border: displayImage === url ? '3px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                >
+                  <img src={url} alt={`sub ${idx}`} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 포토 리뷰 영역 (왼쪽 하단) */}
@@ -218,7 +273,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
               <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', width: '100%', paddingLeft: '1.5rem', paddingRight: '1.5rem', boxSizing: 'border-box' }}>
                 {product.reviews.filter(r => r.photoUrl).map((review, idx) => (
                   <div key={idx} style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }}>
-                    <img src={review.photoUrl} alt="포토리뷰" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={review.photoUrl} alt="포토리뷰" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 ))}
               </div>
@@ -235,7 +290,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                   "https://images.unsplash.com/photo-1560684352-8497838a2229?w=200&q=80"
                 ].map((mockUrl, idx) => (
                   <div key={idx} style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }}>
-                    <img src={mockUrl} alt="포토리뷰 임시" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={mockUrl} alt="포토리뷰 임시" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 ))}
                 <div style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', color: '#888', fontSize: '0.85rem', cursor: 'pointer', border: '1px solid #eee' }}>
@@ -270,29 +325,31 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             </ul>
           </div>
 
-          {/* 서브 이미지 (최대 5개 나열) */}
-          {product.subImageUrls && product.subImageUrls.length > 0 && (
-            <div style={{ display: 'flex', gap: '0.6rem', margin: '0.5rem 0', overflowX: 'auto', paddingBottom: '0', justifyContent: 'center' }}>
-              {/* 메인 이미지 (썸네일) */}
-              <div 
-                onClick={() => setDisplayImage(product.imageUrl)}
-                style={{ flex: '0 0 auto', width: '90px', height: '90px', borderRadius: '8px', overflow: 'hidden', border: (displayImage || product.imageUrl) === product.imageUrl ? '3px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
-              >
-                <img src={product.imageUrl} alt="main thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-              
-              {/* 서브 이미지들 */}
-              {product.subImageUrls.map((url, idx) => (
+          {/* 데스크톱 서브 이미지 */}
+          <div className="desktop-sub-images">
+            {product.subImageUrls && product.subImageUrls.length > 0 && (
+              <div style={{ display: 'flex', gap: '0.6rem', margin: '0.5rem 0', overflowX: 'auto', paddingBottom: '0', justifyContent: 'center' }}>
+                {/* 메인 이미지 (썸네일) */}
                 <div 
-                  key={idx} 
-                  onClick={() => setDisplayImage(url)}
-                  style={{ flex: '0 0 auto', width: '90px', height: '90px', borderRadius: '8px', overflow: 'hidden', border: displayImage === url ? '3px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                  onClick={() => setDisplayImage(product.imageUrl)}
+                  style={{ flex: '0 0 auto', width: '90px', height: '90px', borderRadius: '8px', overflow: 'hidden', border: (displayImage || product.imageUrl) === product.imageUrl ? '3px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
                 >
-                  <img src={url} alt={`sub ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={product.imageUrl} alt="main thumbnail" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
-              ))}
-            </div>
-          )}
+                
+                {/* 서브 이미지들 */}
+                {product.subImageUrls.map((url, idx) => (
+                  <div 
+                    key={idx} 
+                    onClick={() => setDisplayImage(url)}
+                    style={{ flex: '0 0 auto', width: '90px', height: '90px', borderRadius: '8px', overflow: 'hidden', border: displayImage === url ? '3px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                  >
+                    <img src={url} alt={`sub ${idx}`} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* 하단 영역 (옵션 + 수량 + 총액 + 버튼) */}
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
@@ -317,10 +374,10 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             )}
 
             {/* 수량 선택 및 총 결제금액 */}
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '3rem', padding: '1.2rem 1.5rem', borderTop: '1px solid #eee', borderBottom: '1px solid #eee' }}>
+            <div className="quantity-price-container">
               
               {/* 수량 선택 */}
-              <div className="quantity-selector" style={{ margin: 0, padding: 0, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+              <div className="quantity-selector" style={{ margin: 0, padding: 0, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', gap: '0.8rem', whiteSpace: 'nowrap' }}>
                 <span style={{ fontSize: '1rem', color: '#555', fontWeight: 'bold' }}>수량</span>
                 <div className="quantity-controls" style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '6px', overflow: 'hidden', background: 'white' }}>
                   <button onClick={handleDecrease} style={{ width: '36px', height: '36px', border: 'none', background: '#f8f9fa', cursor: 'pointer', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>-</button>
@@ -330,7 +387,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
               </div>
 
               {/* 총 결제금액 */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div className="total-price-wrapper">
                 <span style={{ fontSize: '1rem', color: '#666', fontWeight: 'bold' }}>총 결제금액</span>
                 <span className="total-price" style={{ fontSize: '2.2rem', fontWeight: '900', color: 'var(--primary-color)', lineHeight: '1' }}>{formatPrice(totalPrice)}<span style={{fontSize: '1.4rem'}}>원</span></span>
               </div>
@@ -366,7 +423,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             {/* 구버전 단일 이미지 지원 */}
             {product.detailImageUrl && (
               <div style={{textAlign: 'center', marginBottom: '2rem'}}>
-                <img src={product.detailImageUrl} alt="상품 상세 설명" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}} />
+                <img src={product.detailImageUrl} alt="상품 상세 설명" loading="lazy" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}} />
               </div>
             )}
             
@@ -376,7 +433,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                 {product.detailBlocks.map((block, idx) => (
                   <div key={idx} style={{width: '100%', maxWidth: '800px', margin: '0 auto'}}>
                     {block.type === 'image' && (
-                      <img src={block.content} alt={`상세 이미지 ${idx}`} style={{width: '100%', height: 'auto', display: 'block'}} />
+                      <img src={block.content} alt={`상세 이미지 ${idx}`} loading="lazy" style={{width: '100%', height: 'auto', display: 'block'}} />
                     )}
                     {block.type === 'text' && (
                       <p style={{whiteSpace: 'pre-wrap', lineHeight: '1.8', fontSize: '1.1rem', color: '#333', textAlign: 'left', padding: '0 1rem'}}>
@@ -404,7 +461,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.3rem' }}>구매 안내</h3>
             {product.purchaseInfoImageUrl ? (
               <div style={{textAlign: 'center'}}>
-                <img src={product.purchaseInfoImageUrl} alt="구매 안내" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}} />
+                <img src={product.purchaseInfoImageUrl} alt="구매 안내" loading="lazy" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}} />
               </div>
             ) : (
               <div style={{ padding: '2rem', background: '#f9f9f9', borderRadius: '8px' }}>
