@@ -8,6 +8,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('detail');
   const [selectedOption, setSelectedOption] = useState('');
+  const [displayImage, setDisplayImage] = useState('');
 
   const detailRef = useRef(null);
   const infoRef = useRef(null);
@@ -45,6 +46,13 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   }, [id]);
 
   const product = products.find(p => p._id === id || p.id === parseInt(id));
+
+  // 상품 변경 시 메인 이미지로 초기화
+  useEffect(() => {
+    if (product) {
+      setDisplayImage(product.imageUrl);
+    }
+  }, [product]);
 
   if (!product) {
     return (
@@ -187,12 +195,12 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           }
         `}
       </style>
-    <div className="page-container detail-page-container" style={{ width: '100%', maxWidth: 'var(--max-width)', margin: '0 auto', padding: '0 5%', boxSizing: 'border-box' }}>
+    <div className="page-container detail-page-container" style={{ width: '100%', maxWidth: 'var(--max-width)', margin: '0 auto', paddingTop: 'calc(var(--nav-height) + 60px)', paddingBottom: '5rem', paddingLeft: '5%', paddingRight: '5%', boxSizing: 'border-box' }}>
       <div className="product-detail-layout" style={{ width: '100%' }}>
         
         {/* 메인 이미지 영역 (왼쪽 상단) */}
         <div className="product-detail-img-wrapper" style={{ minWidth: 0, maxWidth: '100%' }}>
-          <img src={product.imageUrl} alt={product.name} className="product-detail-img" />
+          <img src={displayImage || product.imageUrl} alt={product.name} className="product-detail-img" />
           <div className="detail-image-badges">
             {product.isBest && <span className="badge badge-best">BEST</span>}
             {product.isNewProduct && <span className="badge badge-new">NEW</span>}
@@ -222,7 +230,9 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                   "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&q=80",
                   "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&q=80",
                   "https://images.unsplash.com/photo-1544025162-d76694265947?w=200&q=80",
-                  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&q=80"
+                  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&q=80",
+                  "https://images.unsplash.com/photo-1432139555190-58524dae6a55?w=200&q=80",
+                  "https://images.unsplash.com/photo-1560684352-8497838a2229?w=200&q=80"
                 ].map((mockUrl, idx) => (
                   <div key={idx} style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }}>
                     <img src={mockUrl} alt="포토리뷰 임시" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -262,9 +272,22 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
 
           {/* 서브 이미지 (최대 5개 나열) */}
           {product.subImageUrls && product.subImageUrls.length > 0 && (
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '0.5rem', justifyContent: 'center' }}>
+              {/* 메인 이미지 (썸네일) */}
+              <div 
+                onClick={() => setDisplayImage(product.imageUrl)}
+                style={{ flex: '0 0 auto', width: '70px', height: '70px', borderRadius: '8px', overflow: 'hidden', border: (displayImage || product.imageUrl) === product.imageUrl ? '2px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
+              >
+                <img src={product.imageUrl} alt="main thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+              
+              {/* 서브 이미지들 */}
               {product.subImageUrls.map((url, idx) => (
-                <div key={idx} style={{ flex: '0 0 auto', width: '70px', height: '70px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #eee' }}>
+                <div 
+                  key={idx} 
+                  onClick={() => setDisplayImage(url)}
+                  style={{ flex: '0 0 auto', width: '70px', height: '70px', borderRadius: '8px', overflow: 'hidden', border: displayImage === url ? '2px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                >
                   <img src={url} alt={`sub ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
               ))}
