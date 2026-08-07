@@ -143,9 +143,9 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
               overflow-wrap: break-word !important;
             }
             .product-description-section {
-              width: 100vw !important;
-              max-width: 100vw !important;
-              padding: 0 5% !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              padding: 0 !important;
               margin: 0 auto !important;
               box-sizing: border-box !important;
               display: flex !important;
@@ -187,8 +187,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           }
         `}
       </style>
-    <div className="page-container detail-page-container" style={{ overflowX: 'hidden', width: '100%', maxWidth: '100vw', boxSizing: 'border-box' }}>
-      <div className="product-detail-layout" style={{ maxWidth: '100%' }}>
+    <div className="page-container detail-page-container" style={{ width: '100%', maxWidth: 'var(--max-width)', margin: '0 auto', padding: '0 5%', boxSizing: 'border-box' }}>
+      <div className="product-detail-layout" style={{ width: '100%' }}>
         
         {/* 메인 이미지 영역 (왼쪽 상단) */}
         <div className="product-detail-img-wrapper" style={{ minWidth: 0, maxWidth: '100%' }}>
