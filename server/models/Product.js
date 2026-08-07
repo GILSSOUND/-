@@ -36,6 +36,10 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  subImageUrls: {
+    type: [String],
+    default: [],
+  },
   detailImageUrl: {
     type: String,
     required: false,

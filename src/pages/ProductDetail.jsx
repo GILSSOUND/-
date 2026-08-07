@@ -260,28 +260,39 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             </ul>
           </div>
 
-          {/* 옵션 선택 */}
-          {product.options && product.options.length > 0 && (
-            <div className="option-selector-container" style={{ marginBottom: '1rem' }}>
-              <span className="quantity-label" style={{ fontSize: '0.9rem' }}>옵션</span>
-              <select 
-                className="option-selector"
-                value={selectedOption}
-                onChange={(e) => setSelectedOption(e.target.value)}
-                style={{ padding: '0.6rem', fontSize: '0.95rem' }}
-              >
-                <option value="">옵션을 선택하세요</option>
-                {product.options.map((opt, idx) => (
-                  <option key={idx} value={opt.name}>
-                    {opt.name} {opt.additionalPrice > 0 ? `(+${formatPrice(opt.additionalPrice)}원)` : ''}
-                  </option>
-                ))}
-              </select>
+          {/* 서브 이미지 (최대 5개 나열) */}
+          {product.subImageUrls && product.subImageUrls.length > 0 && (
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+              {product.subImageUrls.map((url, idx) => (
+                <div key={idx} style={{ flex: '0 0 auto', width: '70px', height: '70px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #eee' }}>
+                  <img src={url} alt={`sub ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              ))}
             </div>
           )}
 
-          {/* 하단 영역 (수량 + 총액 + 버튼) */}
+          {/* 하단 영역 (옵션 + 수량 + 총액 + 버튼) */}
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+            
+            {/* 옵션 선택 (하단으로 이동됨) */}
+            {product.options && product.options.length > 0 && (
+              <div className="option-selector-container" style={{ margin: 0 }}>
+                <select 
+                  className="option-selector"
+                  value={selectedOption}
+                  onChange={(e) => setSelectedOption(e.target.value)}
+                  style={{ width: '100%', padding: '0.8rem', fontSize: '0.95rem', borderRadius: '8px', border: '1px solid #ddd' }}
+                >
+                  <option value="">옵션을 선택하세요</option>
+                  {product.options.map((opt, idx) => (
+                    <option key={idx} value={opt.name}>
+                      {opt.name} {opt.additionalPrice > 0 ? `(+${formatPrice(opt.additionalPrice)}원)` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             {/* 수량 선택 및 총 결제금액 */}
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '3rem', padding: '1.2rem 1.5rem', borderTop: '1px solid #eee', borderBottom: '1px solid #eee' }}>
               

@@ -41,6 +41,10 @@ function Admin({ refreshGlobalProducts }) {
   const [purchaseImagePreview, setPurchaseImagePreview] = useState(null);
   const [purchaseImageFile, setPurchaseImageFile] = useState(null);
 
+  // 서브 이미지 (최대 5개)
+  const [subImageFiles, setSubImageFiles] = useState([null, null, null, null, null]);
+  const [subImagePreviews, setSubImagePreviews] = useState([null, null, null, null, null]);
+
   // 다중 블록 (사진/글) 상태
   const [detailBlocks, setDetailBlocks] = useState([]); 
   // 구조: { type: 'text' | 'image', content: '...', file?: File, preview?: string }
@@ -280,6 +284,16 @@ function Admin({ refreshGlobalProducts }) {
     setPurchaseImageFile(null);
     setPurchaseImagePreview(product.purchaseInfoImageUrl || null);
     
+    // 서브 이미지
+    const previews = [null, null, null, null, null];
+    if (product.subImageUrls && product.subImageUrls.length > 0) {
+      product.subImageUrls.forEach((url, i) => {
+        if(i < 5) previews[i] = url;
+      });
+    }
+    setSubImageFiles([null, null, null, null, null]);
+    setSubImagePreviews(previews);
+
     // 블록 데이터
     if (product.detailBlocks && product.detailBlocks.length > 0) {
       setDetailBlocks(product.detailBlocks.map(b => ({
@@ -310,6 +324,8 @@ function Admin({ refreshGlobalProducts }) {
     setDetailImagePreview(null);
     setPurchaseImageFile(null);
     setPurchaseImagePreview(null);
+    setSubImageFiles([null, null, null, null, null]);
+    setSubImagePreviews([null, null, null, null, null]);
     setDetailBlocks([]);
     setOptions([]);
   };
@@ -335,6 +351,20 @@ function Admin({ refreshGlobalProducts }) {
       const file = e.target.files[0];
       setPurchaseImageFile(file);
       setPurchaseImagePreview(URL.createObjectURL(file)); 
+    }
+  };
+
+  const handleSubImageChange = (index, e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      
+      const newFiles = [...subImageFiles];
+      newFiles[index] = file;
+      setSubImageFiles(newFiles);
+      
+      const newPreviews = [...subImagePreviews];
+      newPreviews[index] = URL.createObjectURL(file);
+      setSubImagePreviews(newPreviews);
     }
   };
 
@@ -380,6 +410,18 @@ function Admin({ refreshGlobalProducts }) {
          oldPurchaseImageUrl = res.imageUrl;
       }
 
+      // 서브 이미지 처리
+      const processedSubImages = await Promise.all(
+        subImageFiles.map(async (file, index) => {
+          if (file) {
+            const res = await uploadImage(file);
+            return res.imageUrl;
+          }
+          return subImagePreviews[index];
+        })
+      );
+      const finalSubImageUrls = processedSubImages.filter(url => url !== null);
+
       let calculatedDiscount = '';
       if (formData.originalPrice && formData.price) {
         const orig = Number(formData.originalPrice);
@@ -397,6 +439,7 @@ function Admin({ refreshGlobalProducts }) {
         discount: calculatedDiscount,
         options: options.filter(o => o.name.trim() !== '').map(o => ({ name: o.name, additionalPrice: Number(o.additionalPrice) })),
         imageUrl,
+        subImageUrls: finalSubImageUrls,
         detailImageUrl: oldDetailImageUrl,
         purchaseInfoImageUrl: oldPurchaseImageUrl,
         detailBlocks: processedBlocks
@@ -563,6 +606,21 @@ function Admin({ refreshGlobalProducts }) {
                   <div>
                     <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>• 메인 썸네일 사진</label>
                     <input type="file" accept="image/*" onChange={handleFileChange} style={{width: '100%', padding: '0.5rem', border: '1px dashed #ccc', borderRadius: '8px'}} />
+                  </div>
+
+                  {/* 서브 이미지 (최대 5개) */}
+                  <div>
+                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>• 서브 이미지 (최대 5개)</label>
+                    <div style={{display: 'flex', gap: '0.5rem'}}>
+                      {[0, 1, 2, 3, 4].map(idx => (
+                        <div key={idx} style={{flex: 1, position: 'relative'}}>
+                          <input type="file" accept="image/*" onChange={(e) => handleSubImageChange(idx, e)} style={{width: '100%', padding: '0.5rem', border: '1px dashed #ccc', borderRadius: '8px', fontSize: '0.8rem'}} />
+                          {subImagePreviews[idx] && (
+                            <img src={subImagePreviews[idx]} alt="sub preview" style={{width: '100%', height: '50px', objectFit: 'cover', marginTop: '0.5rem', borderRadius: '4px'}} />
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   {/* 구매 안내 이미지 */}
