@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Heart, ShoppingCart, User, X, Utensils, Sparkles, MapPin, Truck, Percent } from 'lucide-react';
+import { Search, Heart, ShoppingCart, User, X, Utensils, Sparkles, MapPin, Truck, Percent, LogOut, LogIn } from 'lucide-react';
 import { storeConfig } from '../data/products';
+import { useAuth } from '../context/AuthContext';
 
 function Layout({ cartCount, products, wishlistCount }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
+  const { user, logout, requireAuth } = useAuth();
 
   const handleSearch = (e) => {
     const query = e.target.value;
@@ -66,9 +68,14 @@ function Layout({ cartCount, products, wishlistCount }) {
               </span>
             )}
           </Link>
-          <Link to="/mypage" className="icon-btn">
+          <div 
+            className="icon-btn" 
+            onClick={() => requireAuth(() => navigate('/mypage'))} 
+            style={{ cursor: 'pointer' }}
+          >
             <User size={24} />
-          </Link>
+          </div>
+          </div>
         </div>
       </nav>
 
@@ -120,6 +127,33 @@ function Layout({ cartCount, products, wishlistCount }) {
           <Link to="/admin" style={{ marginLeft: '1rem', color: 'inherit', textDecoration: 'underline' }}>운영자 페이지</Link>
         </p>
       </footer>
+
+      {/* Floating Login/Logout Button */}
+      <div 
+        onClick={user ? logout : () => requireAuth(() => {})}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          width: '56px',
+          height: '56px',
+          borderRadius: '50%',
+          backgroundColor: 'var(--primary-color)',
+          color: 'white',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          cursor: 'pointer',
+          zIndex: 1000,
+          transition: 'transform 0.2s',
+        }}
+        title={user ? "로그아웃" : "로그인"}
+        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        {user ? <LogOut size={26} /> : <LogIn size={26} />}
+      </div>
     </div>
   );
 }

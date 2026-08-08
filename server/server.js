@@ -6,14 +6,33 @@ const multer = require('multer');
 const axios = require('axios');
 const FormData = require('form-data');
 const path = require('path');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const passport = require('passport');
 const Product = require('./models/Product');
 const Config = require('./models/Config');
+const authRoutes = require('./routes/auth');
+require('./config/passport')();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'gilsmall_session_secret',
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+// 라우터 연결
+app.use('/api/auth', authRoutes);
 
 // 프론트엔드 빌드 폴더를 정적 파일로 서빙 (index.html은 동적 제공을 위해 제외)
 const fs = require('fs');

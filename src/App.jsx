@@ -9,6 +9,9 @@ import ProductDetail from './pages/ProductDetail';
 import Admin from './pages/Admin';
 import Wishlist from './pages/Wishlist';
 import { fetchProducts } from './api';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import LoginModal from './components/LoginModal';
+import RegisterModal from './components/RegisterModal';
 import './index.css';
 
 function ScrollToTop() {
@@ -19,11 +22,12 @@ function ScrollToTop() {
   return null;
 }
 
-function App() {
+function AppContent() {
   const [cartItems, setCartItems] = useState([]);
   const [wishlistItems, setWishlistItems] = useState([]);
   const [products, setProducts] = useState(window.__INITIAL_PRODUCTS__ || []);
   const [toastMessage, setToastMessage] = useState('');
+  const { requireAuth } = useAuth();
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -47,7 +51,8 @@ function App() {
 
   const handleAddToCart = (product, e, quantity = 1) => {
     if (e && e.stopPropagation) e.stopPropagation();
-    setCartItems(prev => {
+    requireAuth(() => {
+      setCartItems(prev => {
       const existingIndex = prev.findIndex(item => {
         const isSameId = (item._id && product._id && item._id === product._id) || (item.id && product.id && item.id === product.id);
         return isSameId && item.name === product.name;
@@ -57,9 +62,9 @@ function App() {
         newCart[existingIndex].quantity = (newCart[existingIndex].quantity || 1) + quantity;
         return newCart;
       }
-      return [...prev, { ...product, quantity }];
+      });
+      showToast(`장바구니에 담겼습니다!`);
     });
-    showToast(`장바구니에 담겼습니다!`);
   };
 
   const handleRemoveFromCart = (index) => {
@@ -100,7 +105,8 @@ function App() {
 
   const handleToggleWishlist = (product, e) => {
     if (e && e.stopPropagation) e.stopPropagation();
-    setWishlistItems(prev => {
+    requireAuth(() => {
+      setWishlistItems(prev => {
       const isExist = prev.some(item => {
         if (item._id && product._id && item._id === product._id) return true;
         if (item.id && product.id && item.id === product.id) return true;
@@ -114,8 +120,8 @@ function App() {
         });
       } else {
         showToast(`찜 목록에 추가되었습니다!`);
-        return [...prev, product];
-      }
+        }
+      });
     });
   };
 
@@ -136,7 +142,17 @@ function App() {
       <div className={`toast-notification ${toastMessage ? 'show' : ''}`}>
         {toastMessage}
       </div>
+      <LoginModal />
+      <RegisterModal />
     </BrowserRouter>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
