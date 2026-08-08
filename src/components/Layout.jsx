@@ -75,7 +75,6 @@ function Layout({ cartCount, products, wishlistCount }) {
           >
             <User size={24} />
           </div>
-          </div>
         </div>
       </nav>
 
