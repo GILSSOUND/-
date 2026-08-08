@@ -119,7 +119,7 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
                   alt={banner.title || '배너'} 
                   className="hero-slide-bg" 
                   loading={index === 0 ? "eager" : "lazy"}
-                  fetchpriority={index === 0 ? "high" : "auto"}
+                  fetchPriority={index === 0 ? "high" : "auto"}
                 />
                 {banner.title && (
                   <>
@@ -200,7 +200,7 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
                     src={banner.imageUrl} 
                     alt={banner.title || '배너'}
                     loading={index === 0 ? "eager" : "lazy"}
-                    fetchpriority={index === 0 ? "high" : "auto"}
+                    fetchPriority={index === 0 ? "high" : "auto"}
                     style={{
                       position: 'absolute',
                       top: 0,
@@ -248,7 +248,7 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
           {currentProducts.map(product => (
             <div key={product._id || product.id} className="product-card" onClick={() => navigate(`/product/${product._id || product.id}`)}>
               <div className="card-img-container">
-                <img src={product.imageUrl} alt={product.name} className="card-img" />
+                <img src={product.imageUrl} alt={product.name} loading="lazy" className="card-img" />
                 <div className="badges">
                   {product.isBest && <span className="badge badge-best">BEST</span>}
                   {product.isNewProduct && <span className="badge badge-new">NEW</span>}
