@@ -1093,6 +1093,19 @@ footer {
     --nav-height: 110px;
   }
   
+  .section {
+    padding: 2rem 5%;
+  }
+  
+  .dot-title {
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+  }
+  
+  .recommended-section {
+    margin-bottom: 2rem !important;
+  }
+  
   .navbar {
     padding: 10px 15px;
     flex-wrap: wrap;
