@@ -53,15 +53,17 @@ function AppContent() {
     if (e && e.stopPropagation) e.stopPropagation();
     requireAuth(() => {
       setCartItems(prev => {
-      const existingIndex = prev.findIndex(item => {
-        const isSameId = (item._id && product._id && item._id === product._id) || (item.id && product.id && item.id === product.id);
-        return isSameId && item.name === product.name;
-      });
-      if (existingIndex >= 0) {
-        const newCart = [...prev];
-        newCart[existingIndex].quantity = (newCart[existingIndex].quantity || 1) + quantity;
-        return newCart;
-      }
+        const existingIndex = prev.findIndex(item => {
+          const isSameId = (item._id && product._id && item._id === product._id) || (item.id && product.id && item.id === product.id);
+          return isSameId && item.name === product.name;
+        });
+        if (existingIndex >= 0) {
+          const newCart = [...prev];
+          newCart[existingIndex].quantity = (newCart[existingIndex].quantity || 1) + quantity;
+          return newCart;
+        } else {
+          return [...prev, { ...product, quantity }];
+        }
       });
       showToast(`장바구니에 담겼습니다!`);
     });
@@ -107,19 +109,20 @@ function AppContent() {
     if (e && e.stopPropagation) e.stopPropagation();
     requireAuth(() => {
       setWishlistItems(prev => {
-      const isExist = prev.some(item => {
-        if (item._id && product._id && item._id === product._id) return true;
-        if (item.id && product.id && item.id === product.id) return true;
-        return false;
-      });
-      if (isExist) {
-        return prev.filter(item => {
-          if (item._id && product._id && item._id === product._id) return false;
-          if (item.id && product.id && item.id === product.id) return false;
-          return true;
+        const isExist = prev.some(item => {
+          if (item._id && product._id && item._id === product._id) return true;
+          if (item.id && product.id && item.id === product.id) return true;
+          return false;
         });
-      } else {
-        showToast(`찜 목록에 추가되었습니다!`);
+        if (isExist) {
+          return prev.filter(item => {
+            if (item._id && product._id && item._id === product._id) return false;
+            if (item.id && product.id && item.id === product.id) return false;
+            return true;
+          });
+        } else {
+          showToast(`찜 목록에 추가되었습니다!`);
+          return [...prev, product];
         }
       });
     });

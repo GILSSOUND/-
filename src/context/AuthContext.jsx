@@ -64,6 +64,8 @@ export const AuthProvider = ({ children }) => {
     try {
       await axios.post(`/api/auth/logout`);
       setUser(null);
+      alert('성공적으로 로그아웃 되었습니다.');
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout error:', error);
     }
