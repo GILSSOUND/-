@@ -52,11 +52,15 @@ module.exports = () => {
 
   // Kakao Strategy
   if(process.env.KAKAO_CLIENT_ID) {
-    passport.use(new KakaoStrategy({
+    const kakaoOptions = {
       clientID: process.env.KAKAO_CLIENT_ID,
-      clientSecret: process.env.KAKAO_CLIENT_SECRET || '',
       callbackURL: '/api/auth/kakao/callback'
-    }, async (accessToken, refreshToken, profile, done) => {
+    };
+    if (process.env.KAKAO_CLIENT_SECRET) {
+      kakaoOptions.clientSecret = process.env.KAKAO_CLIENT_SECRET;
+    }
+
+    passport.use(new KakaoStrategy(kakaoOptions, async (accessToken, refreshToken, profile, done) => {
       try {
         const email = profile._json?.kakao_account?.email || `kakao_${profile.id}@gilsmall.com`;
         const name = profile.displayName || profile.username || '카카오유저';
