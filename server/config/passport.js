@@ -50,15 +50,14 @@ module.exports = () => {
     }
   }));
 
-  // Kakao Strategy
-  if(process.env.KAKAO_CLIENT_ID) {
+  // Kakao Strategy - Hardcoded to prevent ENV parsing issues on Render
+  if(process.env.KAKAO_CLIENT_ID || true) {
     const kakaoOptions = {
-      clientID: process.env.KAKAO_CLIENT_ID,
+      clientID: 'c21c91d1a765ccb82e186b4683aecd20', // Hardcoded from your consent screen URL
       callbackURL: '/api/auth/kakao/callback'
     };
-    if (process.env.KAKAO_CLIENT_SECRET) {
-      kakaoOptions.clientSecret = process.env.KAKAO_CLIENT_SECRET;
-    }
+    // Forcefully remove clientSecret to ensure no empty string or spaces are sent
+    delete kakaoOptions.clientSecret;
 
     passport.use(new KakaoStrategy(kakaoOptions, async (accessToken, refreshToken, profile, done) => {
       try {
