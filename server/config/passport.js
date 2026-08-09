@@ -58,7 +58,7 @@ module.exports = () => {
       callbackURL: '/api/auth/kakao/callback'
     }, async (accessToken, refreshToken, profile, done) => {
       try {
-        const email = profile._json.kakao_account.email;
+        const email = profile._json?.kakao_account?.email || `kakao_${profile.id}@gilsmall.com`;
         const name = profile.displayName || profile.username || '카카오유저';
         const snsId = profile.id;
 
@@ -97,7 +97,7 @@ module.exports = () => {
       callbackURL: '/api/auth/google/callback'
     }, async (accessToken, refreshToken, profile, done) => {
       try {
-        const email = profile.emails[0].value;
+        const email = (profile.emails && profile.emails.length > 0) ? profile.emails[0].value : `google_${profile.id}@gilsmall.com`;
         const name = profile.displayName || '구글유저';
         const snsId = profile.id;
 
@@ -135,8 +135,8 @@ module.exports = () => {
       callbackURL: '/api/auth/naver/callback'
     }, async (accessToken, refreshToken, profile, done) => {
       try {
-        const email = profile.email || profile._json.email;
-        const name = profile.name || profile._json.name || '네이버유저';
+        const email = profile.email || profile._json?.email || `naver_${profile.id}@gilsmall.com`;
+        const name = profile.name || profile._json?.name || '네이버유저';
         const snsId = profile.id;
 
         let user = await User.findOne({ email });
