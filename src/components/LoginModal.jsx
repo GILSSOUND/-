@@ -36,8 +36,8 @@ const LoginModal = () => {
     const height = 600;
     const left = window.innerWidth / 2 - width / 2;
     const top = window.innerHeight / 2 - height / 2;
-    // Backend URL should match proxy or direct
-    window.open(`http://localhost:5000/api/auth/${provider}`, '소셜로그인', `width=${width},height=${height},top=${top},left=${left}`);
+    // Use relative URL to work on both dev (via proxy) and production (same origin)
+    window.open(`/api/auth/${provider}`, '소셜로그인', `width=${width},height=${height},top=${top},left=${left}`);
   };
 
   return (
