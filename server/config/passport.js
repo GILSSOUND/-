@@ -63,18 +63,28 @@ module.exports = () => {
     passport.use(new KakaoStrategy(kakaoOptions, async (accessToken, refreshToken, profile, done) => {
       try {
         const email = profile._json?.kakao_account?.email || `kakao_${profile.id}@gilsmall.com`;
-        const name = profile.displayName || profile.username || '카카오유저';
+        const name = profile.displayName || profile.username || profile._json?.properties?.nickname || profile._json?.kakao_account?.profile?.nickname || '카카오유저';
         const snsId = profile.id;
 
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ snsId, provider: 'kakao' });
+        if (!user) {
+          user = await User.findOne({ email });
+        }
         if (user) {
+          let updated = false;
           // If already registered with another provider
           if(user.provider !== 'kakao' && !user.snsId) {
             user.provider = 'kakao';
             user.snsId = snsId;
             user.isVerified = true;
-            await user.save();
+            updated = true;
           }
+          // Auto-heal name if Kakao provided a new real name
+          if (name !== '카카오유저' && user.name !== name) {
+            user.name = name;
+            updated = true;
+          }
+          if(updated) await user.save();
           return done(null, user);
         }
 
