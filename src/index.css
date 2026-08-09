@@ -831,6 +831,9 @@ html {
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: calc(var(--nav-height) + 2rem);
+  height: fit-content;
 }
 
 .mypage-sidebar-profile {
@@ -899,7 +902,7 @@ html {
   border-radius: var(--radius-md);
   padding: 3rem;
   box-shadow: var(--shadow-sm);
-  min-height: 500px;
+  min-height: calc(100vh - var(--nav-height) - 4rem);
 }
 
 .mypage-tab-content h3 {
@@ -945,13 +948,41 @@ html {
 
 @media (max-width: 768px) {
   .mypage-layout {
-    flex-direction: column;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: stretch;
   }
   .mypage-sidebar {
-    width: 100%;
+    width: 120px;
+    top: calc(var(--nav-height) + 1rem);
+  }
+  .mypage-sidebar-profile {
+    padding: 1rem 0.5rem;
+  }
+  .mypage-sidebar-profile .avatar {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 0.5rem;
+  }
+  .mypage-sidebar-profile h2 {
+    font-size: 0.9rem;
+    word-break: keep-all;
+  }
+  .mypage-sidebar-profile p {
+    display: none;
+  }
+  .mypage-sidebar-menu .menu-btn {
+    padding: 1rem 0.5rem;
+    font-size: 0.85rem;
+    justify-content: center;
+  }
+  .mypage-sidebar-menu .menu-btn svg {
+    display: none;
   }
   .mypage-content {
     padding: 1.5rem;
+    min-height: calc(100vh - var(--nav-height) - 2rem);
+    width: calc(100% - 130px);
   }
 }
 
