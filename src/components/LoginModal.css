@@ -158,3 +158,34 @@
   margin-bottom: 1rem;
   font-size: 0.9rem;
 }
+
+/* Mobile Adjustments for Compact Screen Fit */
+@media (max-height: 800px), (max-width: 480px) {
+  .modal-content {
+    padding: 1.5rem 1.5rem;
+  }
+  .modal-subtitle {
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+  }
+  .input-group input {
+    padding: 0.6rem 1rem 0.6rem 2.5rem;
+  }
+  .primary-btn.login-btn {
+    padding: 0.8rem;
+    margin-top: 0.2rem;
+  }
+  .divider {
+    margin: 1rem 0;
+  }
+  .social-login-group {
+    gap: 0.5rem;
+  }
+  .social-btn {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+  .modal-footer {
+    margin-top: 1rem;
+  }
+}
