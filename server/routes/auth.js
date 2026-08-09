@@ -149,7 +149,22 @@ const handleSocialCallback = (req, res) => {
 
 // Kakao
 router.get('/kakao', passport.authenticate('kakao'));
-router.get('/kakao/callback', passport.authenticate('kakao', { failureRedirect: '/?error=kakao_login_failed' }), handleSocialCallback);
+router.get('/kakao/callback', (req, res, next) => {
+  passport.authenticate('kakao', (err, user, info) => {
+    if (err) {
+      return res.status(500).send(`<h2>카카오 로그인 서버 에러</h2><p>에러 내용: ${err.message || err}</p><p>전체 에러: ${JSON.stringify(err)}</p>`);
+    }
+    if (!user) {
+      return res.redirect('/?error=kakao_login_failed');
+    }
+    req.logIn(user, (loginErr) => {
+      if (loginErr) {
+        return res.status(500).send(`<h2>로그인 세션 에러</h2><p>${loginErr.message || loginErr}</p>`);
+      }
+      return handleSocialCallback(req, res);
+    });
+  })(req, res, next);
+});
 
 // Google
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
