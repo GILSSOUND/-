@@ -155,18 +155,13 @@ function Admin({ refreshGlobalProducts }) {
     try {
       setUploading(true);
       const compressedFile = await compressImage(file);
-      const url = await uploadImage(compressedFile);
-      return url;
+      const res = await uploadImage(compressedFile);
+      // res is { success: true, imageUrl: '...' }
+      return res.imageUrl;
     } catch (error) {
       console.error(error);
-      const errDetail = {
-        message: error.message,
-        name: error.name,
-        code: error.code,
-        status: error.response?.status,
-        data: error.response?.data
-      };
-      alert("업로드 상세 에러 정보:\n" + JSON.stringify(errDetail, null, 2));
+      alert("업로드 상세 에러 정보:\n" + error.message);
+      throw error;
     } finally {
       setUploading(false);
     }
@@ -217,14 +212,12 @@ function Admin({ refreshGlobalProducts }) {
 
   const handleModalImageUpload = async (e) => {
     if(!e.target.files || !e.target.files[0]) return;
-    setUploading(true);
     try {
-      const res = await uploadImage(e.target.files[0]);
-      setEditingBanner({...editingBanner, imageUrl: res.imageUrl});
+      const url = await handleImageUpload(e.target.files[0]);
+      setEditingBanner({...editingBanner, imageUrl: url});
     } catch(err) {
-      alert("이미지 업로드 실패: " + err.message);
+      // error is alerted in handleImageUpload
     } finally {
-      setUploading(false);
       e.target.value = '';
     }
   };
@@ -451,15 +444,14 @@ function Admin({ refreshGlobalProducts }) {
       
       let imageUrl = imagePreview; // 수정모드에서 변경안했으면 기존 URL 유지
       if (imageFile) {
-        const uploadRes = await uploadImage(imageFile);
-        imageUrl = uploadRes.imageUrl;
+        imageUrl = await handleImageUpload(imageFile);
       }
 
       // 블록 이미지 업로드 병렬 처리
       const processedBlocks = await Promise.all(detailBlocks.map(async (block) => {
         if (block.type === 'image' && block.file) {
-          const res = await uploadImage(block.file);
-          return { type: 'image', content: res.imageUrl };
+          const url = await handleImageUpload(block.file);
+          return { type: 'image', content: url };
         } else if (block.type === 'image' && block.content) {
           return { type: 'image', content: block.content }; // 기존 이미지 URL 유지
         } else {
@@ -470,23 +462,20 @@ function Admin({ refreshGlobalProducts }) {
       // 하위 호환 단일 디테일 이미지 처리 (선택사항)
       let oldDetailImageUrl = detailImagePreview;
       if (detailImageFile) {
-         const res = await uploadImage(detailImageFile);
-         oldDetailImageUrl = res.imageUrl;
+         oldDetailImageUrl = await handleImageUpload(detailImageFile);
       }
 
       // 구매 안내 이미지 처리
       let oldPurchaseImageUrl = purchaseImagePreview;
       if (purchaseImageFile) {
-         const res = await uploadImage(purchaseImageFile);
-         oldPurchaseImageUrl = res.imageUrl;
+         oldPurchaseImageUrl = await handleImageUpload(purchaseImageFile);
       }
 
       // 서브 이미지 처리
       const processedSubImages = await Promise.all(
         subImageFiles.map(async (file, index) => {
           if (file) {
-            const res = await uploadImage(file);
-            return res.imageUrl;
+            return await handleImageUpload(file);
           }
           return subImagePreviews[index];
         })
