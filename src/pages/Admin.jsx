@@ -159,7 +159,14 @@ function Admin({ refreshGlobalProducts }) {
       return url;
     } catch (error) {
       console.error(error);
-      alert("처리 실패: " + (error.response?.data?.error || error.message));
+      const errDetail = {
+        message: error.message,
+        name: error.name,
+        code: error.code,
+        status: error.response?.status,
+        data: error.response?.data
+      };
+      alert("업로드 상세 에러 정보:\n" + JSON.stringify(errDetail, null, 2));
     } finally {
       setUploading(false);
     }
