@@ -447,17 +447,18 @@ function Admin({ refreshGlobalProducts }) {
         imageUrl = await handleImageUpload(imageFile);
       }
 
-      // 블록 이미지 업로드 병렬 처리
-      const processedBlocks = await Promise.all(detailBlocks.map(async (block) => {
+      // 블록 이미지 업로드 순차 처리 (병렬 처리 시 ImgBB/Cloudflare 차단 방지)
+      const processedBlocks = [];
+      for (const block of detailBlocks) {
         if (block.type === 'image' && block.file) {
           const url = await handleImageUpload(block.file);
-          return { type: 'image', content: url };
+          processedBlocks.push({ type: 'image', content: url });
         } else if (block.type === 'image' && block.content) {
-          return { type: 'image', content: block.content }; // 기존 이미지 URL 유지
+          processedBlocks.push({ type: 'image', content: block.content });
         } else {
-          return { type: 'text', content: block.content };
+          processedBlocks.push({ type: 'text', content: block.content });
         }
-      }));
+      }
 
       // 하위 호환 단일 디테일 이미지 처리 (선택사항)
       let oldDetailImageUrl = detailImagePreview;
@@ -471,15 +472,17 @@ function Admin({ refreshGlobalProducts }) {
          oldPurchaseImageUrl = await handleImageUpload(purchaseImageFile);
       }
 
-      // 서브 이미지 처리
-      const processedSubImages = await Promise.all(
-        subImageFiles.map(async (file, index) => {
-          if (file) {
-            return await handleImageUpload(file);
-          }
-          return subImagePreviews[index];
-        })
-      );
+      // 서브 이미지 순차 처리
+      const processedSubImages = [];
+      for (let index = 0; index < subImageFiles.length; index++) {
+        const file = subImageFiles[index];
+        if (file) {
+          const url = await handleImageUpload(file);
+          processedSubImages.push(url);
+        } else {
+          processedSubImages.push(subImagePreviews[index]);
+        }
+      }
       const finalSubImageUrls = processedSubImages.filter(url => url !== null);
 
       let calculatedDiscount = '';
