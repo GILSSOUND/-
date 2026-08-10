@@ -14,6 +14,9 @@ function Admin({ refreshGlobalProducts }) {
   // 수정 모드 상태
   const [editingProductId, setEditingProductId] = useState(null);
   
+  // 선택된 상품 상태 (일괄 삭제용)
+  const [selectedProductIds, setSelectedProductIds] = useState([]);
+  
   // 폼 기본값
   const initialFormData = {
     name: '',
@@ -469,12 +472,33 @@ function Admin({ refreshGlobalProducts }) {
   const handleDelete = async (id) => {
     if (window.confirm("정말로 이 상품을 삭제하시겠습니까?")) {
       try {
+        // 즉시 반영을 위한 Optimistic UI 업데이트
+        setProducts(prev => prev.filter(p => (p._id || p.id) !== id));
         await deleteProduct(id);
         alert("삭제되었습니다.");
         loadProducts();
         if (refreshGlobalProducts) refreshGlobalProducts();
       } catch (error) {
         alert("삭제 실패");
+        loadProducts(); // 에러 시 복구
+      }
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedProductIds.length === 0) return alert("삭제할 상품을 선택해주세요.");
+    if (window.confirm(`선택한 ${selectedProductIds.length}개의 상품을 정말로 삭제하시겠습니까?`)) {
+      try {
+        // 즉시 반영
+        setProducts(prev => prev.filter(p => !selectedProductIds.includes(p._id || p.id)));
+        await Promise.all(selectedProductIds.map(id => deleteProduct(id)));
+        alert("선택한 상품이 삭제되었습니다.");
+        setSelectedProductIds([]);
+        loadProducts();
+        if (refreshGlobalProducts) refreshGlobalProducts();
+      } catch (error) {
+        alert("일부 상품 삭제에 실패했습니다.");
+        loadProducts();
       }
     }
   };
@@ -764,10 +788,36 @@ function Admin({ refreshGlobalProducts }) {
         {/* ========================================================================================= */}
         {activeTab === 'list' && (
           <div>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem'}}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
               <h2 style={{fontSize: '1.8rem', fontWeight: '800'}}>등록된 상품 목록 ({products.length}개)</h2>
-              <button className="primary-btn" onClick={() => {resetForm(); setActiveTab('register');}}>+ 새 상품 등록</button>
+              <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
+                {selectedProductIds.length > 0 && (
+                  <button onClick={handleBulkDelete} style={{padding: '0.6rem 1.2rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>
+                    선택 삭제 ({selectedProductIds.length})
+                  </button>
+                )}
+                <button className="primary-btn" onClick={() => {resetForm(); setActiveTab('register');}}>+ 새 상품 등록</button>
+              </div>
             </div>
+            
+            {products.length > 0 && (
+              <div style={{display: 'flex', alignItems: 'center', marginBottom: '1rem', paddingLeft: '1.5rem'}}>
+                <input 
+                  type="checkbox"
+                  id="selectAll"
+                  style={{marginRight: '0.8rem', width: '18px', height: '18px', cursor: 'pointer'}}
+                  checked={currentProducts.length > 0 && selectedProductIds.length === currentProducts.length}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedProductIds(currentProducts.map(p => p._id || p.id));
+                    } else {
+                      setSelectedProductIds([]);
+                    }
+                  }}
+                />
+                <label htmlFor="selectAll" style={{cursor: 'pointer', fontWeight: '600'}}>현재 페이지 전체 선택</label>
+              </div>
+            )}
             
             {products.length === 0 ? (
               <div style={{textAlign: 'center', padding: '5rem', background: 'white', borderRadius: '16px', color: '#888'}}>
@@ -777,6 +827,19 @@ function Admin({ refreshGlobalProducts }) {
               <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
                 {currentProducts.map(p => (
                   <div key={p._id || p.id} style={{display: 'flex', alignItems: 'center', background: 'white', padding: '1rem 1.5rem', borderRadius: '12px', border: '1px solid #eee', boxShadow: '0 2px 8px rgba(0,0,0,0.02)'}}>
+                    <input 
+                      type="checkbox" 
+                      style={{marginRight: '1.5rem', width: '18px', height: '18px', cursor: 'pointer', flexShrink: 0}}
+                      checked={selectedProductIds.includes(p._id || p.id)}
+                      onChange={(e) => {
+                        const id = p._id || p.id;
+                        if (e.target.checked) {
+                          setSelectedProductIds(prev => [...prev, id]);
+                        } else {
+                          setSelectedProductIds(prev => prev.filter(item => item !== id));
+                        }
+                      }}
+                    />
                     <img src={p.imageUrl} alt={p.name} style={{width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', marginRight: '1.5rem', background: '#f8f9fa'}} />
                     
                     <div style={{flex: 2}}>
