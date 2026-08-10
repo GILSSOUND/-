@@ -140,7 +140,7 @@ function AppContent() {
           <Route path="wishlist" element={<Wishlist wishlistItems={wishlistItems} handleAddToCart={handleAddToCart} handleToggleWishlist={handleToggleWishlist} />} />
           <Route path="mypage" element={<MyPage />} />
           <Route path="admin" element={<Admin refreshGlobalProducts={loadProducts} />} />
-          <Route path="register" element={<RegisterPage />} />
+          <Route path="register" element={<RegisterPage showToast={showToast} />} />
         </Route>
       </Routes>
       <div className={`toast-notification ${toastMessage ? 'show' : ''}`}>

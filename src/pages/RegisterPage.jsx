@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { User, Lock, Mail, Phone } from 'lucide-react';
 
-const RegisterPage = () => {
+const RegisterPage = ({ showToast }) => {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, login } = useAuth();
   
   const [formData, setFormData] = useState({
     loginId: '',
@@ -73,7 +73,8 @@ const RegisterPage = () => {
     setLoading(false);
 
     if (res.success) {
-      alert('회원가입이 완료되었습니다! 로그인해주세요.');
+      await login(formData.loginId, formData.password);
+      if (showToast) showToast('로그인되었습니다!');
       navigate('/');
     } else {
       setError(res.error);
@@ -81,7 +82,7 @@ const RegisterPage = () => {
   };
 
   return (
-    <div style={{ maxWidth: '500px', margin: '4rem auto', padding: '0 1rem' }}>
+    <div style={{ maxWidth: '500px', margin: '8rem auto 4rem auto', padding: '0 1rem' }}>
       <h2 style={{ textAlign: 'center', fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '2rem' }}>회원가입</h2>
       
       {error && <div style={{ background: '#fdf2f2', color: '#e74c3c', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', textAlign: 'center' }}>{error}</div>}
@@ -90,7 +91,7 @@ const RegisterPage = () => {
         
         {/* 아이디 */}
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>아이디 (영문/숫자)</label>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>아이디 (영문/숫자) <span style={{color: '#ff4757'}}>*</span></label>
           <div style={{ position: 'relative' }}>
             <User size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
             <input type="text" name="loginId" value={formData.loginId} onChange={handleChange} placeholder="아이디를 입력해주세요" style={{ width: '100%', padding: '0.8rem 1rem 0.8rem 2.5rem', border: '1px solid #ddd', borderRadius: '8px', outline: 'none' }} />
@@ -99,7 +100,7 @@ const RegisterPage = () => {
 
         {/* 비밀번호 */}
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>비밀번호 (10자리 이상)</label>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>비밀번호 (10자리 이상) <span style={{color: '#ff4757'}}>*</span></label>
           <div style={{ position: 'relative' }}>
             <Lock size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
             <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="비밀번호 10자리 이상" style={{ width: '100%', padding: '0.8rem 1rem 0.8rem 2.5rem', border: '1px solid #ddd', borderRadius: '8px', outline: 'none' }} />
@@ -108,7 +109,7 @@ const RegisterPage = () => {
 
         {/* 비밀번호 확인 */}
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>비밀번호 확인</label>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>비밀번호 확인 <span style={{color: '#ff4757'}}>*</span></label>
           <div style={{ position: 'relative' }}>
             <Lock size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
             <input type="password" name="passwordConfirm" value={formData.passwordConfirm} onChange={handleChange} placeholder="비밀번호를 한번 더 입력해주세요" style={{ width: '100%', padding: '0.8rem 1rem 0.8rem 2.5rem', border: '1px solid #ddd', borderRadius: '8px', outline: 'none' }} />
@@ -117,7 +118,7 @@ const RegisterPage = () => {
 
         {/* 이름 */}
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>이름</label>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>이름 <span style={{color: '#ff4757'}}>*</span></label>
           <div style={{ position: 'relative' }}>
             <User size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
             <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="이름을 입력해주세요" style={{ width: '100%', padding: '0.8rem 1rem 0.8rem 2.5rem', border: '1px solid #ddd', borderRadius: '8px', outline: 'none' }} />
@@ -126,7 +127,7 @@ const RegisterPage = () => {
 
         {/* 전화번호 */}
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>전화번호</label>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>전화번호 <span style={{color: '#ff4757'}}>*</span></label>
           <div style={{ position: 'relative' }}>
             <Phone size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
             <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="전화번호를 입력해주세요 (예: 010-1234-5678)" style={{ width: '100%', padding: '0.8rem 1rem 0.8rem 2.5rem', border: '1px solid #ddd', borderRadius: '8px', outline: 'none' }} />
@@ -135,7 +136,7 @@ const RegisterPage = () => {
 
         {/* 이메일 */}
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>이메일</label>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>이메일 <span style={{color: '#ff4757'}}>*</span></label>
           <div style={{ position: 'relative' }}>
             <Mail size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
             <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="이메일 주소를 입력해주세요" style={{ width: '100%', padding: '0.8rem 1rem 0.8rem 2.5rem', border: '1px solid #ddd', borderRadius: '8px', outline: 'none' }} />
