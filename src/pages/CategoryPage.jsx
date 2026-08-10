@@ -82,7 +82,7 @@ function CategoryPage({ handleAddToCart, handleToggleWishlist, products }) {
             {currentProducts.map(product => (
             <div key={product._id || product.id} className="product-card" onClick={() => navigate(`/product/${product._id || product.id}`)}>
               <div className="card-img-container">
-                <img src={product.imageUrl} alt={product.name} className="card-img" />
+                <img src={product.imageUrl} alt={product.name} loading="lazy" decoding="async" className="card-img" />
                 <div className="badges">
                   {product.isBest && <span className="badge badge-best">BEST</span>}
                   {product.isNewProduct && <span className="badge badge-new">NEW</span>}
