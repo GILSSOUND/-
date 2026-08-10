@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { X, User, Lock } from 'lucide-react';
+import { X } from 'lucide-react';
 import './LoginModal.css';
 
 const KakaoIcon = () => (
@@ -74,12 +74,10 @@ const LoginModal = () => {
 
         <form onSubmit={handleLogin} className="auth-form">
           <div className="input-group">
-            <User size={20} className="input-icon" />
-            <input type="text" placeholder="아이디 또는 이메일" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div className="input-group">
-            <Lock size={20} className="input-icon" />
-            <input type="password" placeholder="비밀번호" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
           <button type="submit" className="primary-btn login-btn">로그인</button>
         </form>

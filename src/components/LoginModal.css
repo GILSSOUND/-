@@ -21,7 +21,8 @@
   position: relative;
   box-shadow: 0 20px 40px rgba(0,0,0,0.15);
   text-align: center;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Jua', 'Pretendard', sans-serif;
+  color: #111;
   border: 1px solid rgba(0,0,0,0.05);
 }
 
@@ -59,17 +60,14 @@
   display: flex;
   align-items: center;
 }
-.input-icon {
-  position: absolute;
-  left: 1rem;
-  color: #aaa;
-}
 .input-group input {
   width: 100%;
-  padding: 0.8rem 1rem 0.8rem 3rem;
+  padding: 1rem 1rem;
   border: 1px solid #eaeaea;
   border-radius: 12px;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  font-family: 'Jua', 'Pretendard', sans-serif;
+  color: #111;
   outline: none;
   transition: all 0.3s;
   background-color: #fcfcfc;
@@ -174,7 +172,7 @@
     font-size: 0.85rem;
   }
   .input-group input {
-    padding: 0.6rem 1rem 0.6rem 2.5rem;
+    padding: 0.8rem 1rem;
   }
   .primary-btn.login-btn {
     padding: 0.8rem;
