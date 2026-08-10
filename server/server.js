@@ -58,8 +58,6 @@ if (!mongoUri) {
 // Multer Setup (Memory Storage for ImgBB upload)
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
-// Trigger restart
-const sharp = require('sharp');
 
 // --- Image Upload Route (ImgBB) ---
 app.post('/api/upload', upload.single('image'), async (req, res) => {
@@ -73,14 +71,8 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
        return res.status(500).json({ error: 'ImgBB API key is not configured' });
     }
 
-    // Use sharp to compress and resize the image
-    const compressedImageBuffer = await sharp(req.file.buffer)
-      .resize({ width: 1200, withoutEnlargement: true }) // Max width 1200px
-      .webp({ quality: 80 }) // Convert to WebP with 80% quality
-      .toBuffer();
-
     // ImgBB requires base64 string
-    const base64Image = compressedImageBuffer.toString('base64');
+    const base64Image = req.file.buffer.toString('base64');
     
     // form-data 패키지 대신 네이티브 URLSearchParams 사용 (안정성 강화)
     const params = new URLSearchParams();

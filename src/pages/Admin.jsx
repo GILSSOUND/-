@@ -104,6 +104,67 @@ function Admin({ refreshGlobalProducts }) {
     setEditorType(null);
   };
 
+  // -------------------------------------------------------------
+  // 프론트엔드 이미지 압축 엔진 (WebP 변환, 최대 1200px)
+  // -------------------------------------------------------------
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      if (!file.type.startsWith('image/')) return resolve(file);
+      
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const max = 1200;
+          
+          if (width > max || height > max) {
+            if (width > height) {
+              height = Math.round((height *= max / width));
+              width = max;
+            } else {
+              width = Math.round((width *= max / height));
+              height = max;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          canvas.toBlob((blob) => {
+            if (!blob) return resolve(file);
+            resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".webp", {
+              type: 'image/webp',
+              lastModified: Date.now()
+            }));
+          }, 'image/webp', 0.8);
+        };
+        img.onerror = () => resolve(file);
+      };
+    });
+  };
+
+  // 공통 이미지 업로드 핸들러
+  const handleImageUpload = async (file) => {
+    try {
+      setUploading(true);
+      const compressedFile = await compressImage(file);
+      const url = await uploadImage(compressedFile);
+      return url;
+    } catch (error) {
+      console.error(error);
+      alert("처리 실패: " + (error.response?.data?.error || error.message));
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleDragStart = (e) => {
     e.preventDefault();
     const container = e.currentTarget.parentElement;
