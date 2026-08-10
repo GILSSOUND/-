@@ -11,7 +11,7 @@ import Wishlist from './pages/Wishlist';
 import { fetchProducts } from './api';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginModal from './components/LoginModal';
-import RegisterModal from './components/RegisterModal';
+import RegisterPage from './pages/RegisterPage';
 import './index.css';
 
 function ScrollToTop() {
@@ -140,13 +140,13 @@ function AppContent() {
           <Route path="wishlist" element={<Wishlist wishlistItems={wishlistItems} handleAddToCart={handleAddToCart} handleToggleWishlist={handleToggleWishlist} />} />
           <Route path="mypage" element={<MyPage />} />
           <Route path="admin" element={<Admin refreshGlobalProducts={loadProducts} />} />
+          <Route path="register" element={<RegisterPage />} />
         </Route>
       </Routes>
       <div className={`toast-notification ${toastMessage ? 'show' : ''}`}>
         {toastMessage}
       </div>
       <LoginModal />
-      <RegisterModal />
     </BrowserRouter>
   );
 }

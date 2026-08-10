@@ -1,6 +1,13 @@
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
+  loginId: {
+    type: String,
+    unique: true,
+    sparse: true,
+    trim: true,
+    lowercase: true
+  },
   email: {
     type: String,
     required: true,
@@ -25,9 +32,16 @@ const UserSchema = new mongoose.Schema({
     type: String,
     // ID from social login provider
   },
+  phone: {
+    type: String,
+  },
+  agreements: {
+    privacy: { type: Boolean, default: false },
+    sns: { type: Boolean, default: false }
+  },
   isVerified: {
     type: Boolean,
-    default: false // Set to true after email verification or if social login
+    default: true // Set to true as email verification is removed
   },
   verificationToken: {
     type: String,

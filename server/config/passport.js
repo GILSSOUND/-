@@ -22,21 +22,19 @@ module.exports = () => {
 
   // Local Strategy
   passport.use(new LocalStrategy({
-    usernameField: 'email',
+    usernameField: 'email', // Still named 'email' from frontend but holds loginId
     passwordField: 'password'
   }, async (email, password, done) => {
     try {
-      const user = await User.findOne({ email });
+      const user = await User.findOne({ 
+        $or: [ { loginId: email }, { email: email } ] 
+      });
       if (!user) {
-        return done(null, false, { message: '가입되지 않은 이메일입니다.' });
+        return done(null, false, { message: '가입되지 않은 아이디 또는 이메일입니다.' });
       }
       
       if (!user.password) {
         return done(null, false, { message: '소셜 로그인으로 가입된 계정입니다. 소셜 로그인을 이용해주세요.' });
-      }
-
-      if (!user.isVerified) {
-        return done(null, false, { message: '이메일 인증이 완료되지 않았습니다.' });
       }
 
       const isMatch = await bcrypt.compare(password, user.password);

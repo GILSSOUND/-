@@ -16,72 +16,44 @@ const generateToken = (userId) => {
 
 // --- Local Register ---
 router.post('/register', async (req, res) => {
-  const { email, password, name } = req.body;
+  const { loginId, email, password, name, phone, agreements } = req.body;
   try {
-    let user = await User.findOne({ email });
-    if (user) {
-      if (user.provider !== 'local') {
+    // Check if loginId is taken
+    let userByLoginId = await User.findOne({ loginId });
+    if (userByLoginId) {
+      return res.status(400).json({ error: '이미 사용 중인 아이디입니다.' });
+    }
+
+    // Check if email is taken
+    let userByEmail = await User.findOne({ email });
+    if (userByEmail) {
+      if (userByEmail.provider !== 'local') {
         return res.status(400).json({ error: '소셜 로그인으로 이미 가입된 이메일입니다.' });
       }
-      return res.status(400).json({ error: '이미 존재하는 이메일입니다.' });
+      return res.status(400).json({ error: '이미 사용 중인 이메일입니다.' });
     }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create a verification token
-    const verificationToken = crypto.randomBytes(20).toString('hex');
-
-    user = new User({
+    const user = new User({
+      loginId,
       email,
       password: hashedPassword,
       name,
-      verificationToken
+      phone,
+      agreements,
+      isVerified: true
     });
     await user.save();
 
-    // Send Verification Email
-    const verificationUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/api/auth/verify-email?token=${verificationToken}`;
-    const message = `
-      <h1>길스몰 이메일 인증</h1>
-      <p>회원가입을 완료하려면 아래 링크를 클릭해주세요.</p>
-      <a href="${verificationUrl}" target="_blank">이메일 인증하기</a>
-    `;
-
-    try {
-      await sendEmail({
-        to: user.email,
-        subject: '길스몰 회원가입 이메일 인증',
-        html: message
-      });
-      res.status(200).json({ success: true, message: '회원가입 성공. 인증 이메일을 확인해주세요.' });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: '이메일 발송에 실패했습니다. 관리자에게 문의하세요.' });
-    }
+    res.status(200).json({ success: true, message: '회원가입이 완료되었습니다.' });
   } catch (error) {
-    res.status(500).json({ error: '서버 오류' });
+    console.error(error);
+    res.status(500).json({ error: '서버 오류가 발생했습니다.' });
   }
 });
 
-// --- Email Verification ---
-router.get('/verify-email', async (req, res) => {
-  const { token } = req.query;
-  try {
-    const user = await User.findOne({ verificationToken: token });
-    if (!user) {
-      return res.status(400).send('유효하지 않거나 만료된 인증 토큰입니다.');
-    }
-    user.isVerified = true;
-    user.verificationToken = undefined;
-    await user.save();
-
-    // Redirect to login on frontend
-    res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}?verified=true`);
-  } catch (error) {
-    res.status(500).send('서버 오류');
-  }
-});
 
 // --- Local Login ---
 router.post('/login', (req, res, next) => {

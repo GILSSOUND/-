@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { X, Mail, Lock } from 'lucide-react';
+import { X, User, Lock } from 'lucide-react';
 import './LoginModal.css';
 
 const KakaoIcon = () => (
@@ -25,7 +26,8 @@ const GoogleIcon = () => (
 );
 
 const LoginModal = () => {
-  const { showLoginModal, setShowLoginModal, setShowRegisterModal, login } = useAuth();
+  const navigate = useNavigate();
+  const { showLoginModal, setShowLoginModal, login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -41,7 +43,7 @@ const LoginModal = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    if (!email || !password) return setError('이메일과 비밀번호를 입력해주세요.');
+    if (!email || !password) return setError('아이디(이메일)와 비밀번호를 입력해주세요.');
 
     const res = await login(email, password);
     if (res.success) {
@@ -72,8 +74,8 @@ const LoginModal = () => {
 
         <form onSubmit={handleLogin} className="auth-form">
           <div className="input-group">
-            <Mail size={20} className="input-icon" />
-            <input type="email" placeholder="이메일 주소" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <User size={20} className="input-icon" />
+            <input type="text" placeholder="아이디 또는 이메일" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div className="input-group">
             <Lock size={20} className="input-icon" />
@@ -103,7 +105,7 @@ const LoginModal = () => {
           아직 회원이 아니신가요? 
           <span className="text-link" onClick={() => {
             setShowLoginModal(false);
-            setShowRegisterModal(true);
+            navigate('/register');
           }}>회원가입</span>
         </div>
       </div>

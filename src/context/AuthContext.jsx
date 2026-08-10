@@ -12,7 +12,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   useEffect(() => {
     checkUserLoggedIn();
@@ -51,9 +50,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (email, password, name) => {
+  const register = async (userData) => {
     try {
-      const { data } = await axios.post(`/api/auth/register`, { email, password, name });
+      const { data } = await axios.post(`/api/auth/register`, userData);
       return { success: true, message: data.message };
     } catch (error) {
       return { success: false, error: error.response?.data?.error || '회원가입 실패' };
@@ -88,9 +87,7 @@ export const AuthProvider = ({ children }) => {
       logout,
       requireAuth,
       showLoginModal,
-      setShowLoginModal,
-      showRegisterModal,
-      setShowRegisterModal
+      setShowLoginModal
     }}>
       {children}
     </AuthContext.Provider>
