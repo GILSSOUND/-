@@ -66,7 +66,7 @@ function MyPage() {
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container mypage-container">
       <div className="mypage-layout">
         {/* Left Sidebar */}
         <aside className="mypage-sidebar">
