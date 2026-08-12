@@ -56,3 +56,24 @@ export const fetchUsers = async () => {
   const res = await axios.get(`${API_URL}/auth/users`);
   return res.data;
 };
+
+// --- Order API ---
+export const createOrder = async (orderData) => {
+  const res = await axios.post(`${API_URL}/orders/complete`, orderData);
+  return res.data;
+};
+
+export const fetchMyOrders = async (userId) => {
+  const res = await axios.get(`${API_URL}/orders/my/${userId}`);
+  return res.data;
+};
+
+export const fetchAllOrders = async () => {
+  const res = await axios.get(`${API_URL}/orders`);
+  return res.data;
+};
+
+export const updateOrderStatus = async (orderId, status) => {
+  const res = await axios.put(`${API_URL}/orders/${orderId}/status`, { status });
+  return res.data;
+};

@@ -37,6 +37,9 @@ app.use(passport.session());
 // 라우터 연결
 app.use('/api/auth', authRoutes);
 
+const orderRoutes = require('./routes/order');
+app.use('/api/orders', orderRoutes);
+
 // 프론트엔드 빌드 폴더를 정적 파일로 서빙 (index.html은 동적 제공을 위해 제외)
 const fs = require('fs');
 app.use(express.static(path.join(__dirname, '../dist'), { index: false }));

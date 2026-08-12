@@ -12,6 +12,9 @@ function Admin({ refreshGlobalProducts }) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   
+  const [currentUsersPage, setCurrentUsersPage] = useState(1);
+  const usersPerPage = 10;
+  
   // 수정 모드 상태
   const [editingProductId, setEditingProductId] = useState(null);
   
@@ -579,12 +582,21 @@ function Admin({ refreshGlobalProducts }) {
     return Number(price).toLocaleString('ko-KR');
   };
 
-  // Pagination Logic
+  // Pagination Logic (Products)
   const totalPages = Math.ceil(products.length / itemsPerPage);
   const currentProducts = products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Pagination Logic (Users)
+  const totalUsersPages = Math.ceil(users.length / usersPerPage);
+  const currentUsers = users.slice((currentUsersPage - 1) * usersPerPage, currentUsersPage * usersPerPage);
+
+  const handleUsersPageChange = (page) => {
+    setCurrentUsersPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -1088,13 +1100,13 @@ function Admin({ refreshGlobalProducts }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.length === 0 ? (
+                  {currentUsers.length === 0 ? (
                     <tr>
                       <td colSpan="6" style={{padding: '3rem', textAlign: 'center', color: '#777'}}>가입한 회원이 없습니다.</td>
                     </tr>
                   ) : (
-                    users.map(u => (
-                      <tr key={u._id} style={{borderBottom: '1px solid #eee'}}>
+                    currentUsers.map(u => (
+                      <tr key={u._id} style={{borderBottom: '1px solid #eee', cursor: 'pointer', transition: 'background 0.2s'}} onMouseEnter={(e) => e.currentTarget.style.background='#f9f9f9'} onMouseLeave={(e) => e.currentTarget.style.background='transparent'}>
                         <td style={{padding: '1rem'}}>{u.name} {u.role === 'admin' ? '(관리자)' : ''}</td>
                         <td style={{padding: '1rem'}}>{u.provider !== 'local' ? `${u.provider.toUpperCase()} 로그인` : u.loginId}</td>
                         <td style={{padding: '1rem'}}>{u.email}</td>
@@ -1113,6 +1125,43 @@ function Admin({ refreshGlobalProducts }) {
                 </tbody>
               </table>
             </div>
+
+            {/* 회원관리 페이징 */}
+            {totalUsersPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem', gap: '0.5rem' }}>
+                <button 
+                  onClick={() => handleUsersPageChange(Math.max(1, currentUsersPage - 1))}
+                  disabled={currentUsersPage === 1}
+                  style={{ padding: '0.5rem 1rem', border: '1px solid #ddd', background: currentUsersPage === 1 ? '#f8f9fa' : 'white', cursor: currentUsersPage === 1 ? 'not-allowed' : 'pointer', borderRadius: '8px' }}
+                >
+                  이전
+                </button>
+                {[...Array(totalUsersPages)].map((_, i) => (
+                  <button
+                    key={i + 1}
+                    onClick={() => handleUsersPageChange(i + 1)}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      border: currentUsersPage === i + 1 ? 'none' : '1px solid #ddd',
+                      background: currentUsersPage === i + 1 ? '#000' : 'white',
+                      color: currentUsersPage === i + 1 ? 'white' : '#333',
+                      cursor: 'pointer',
+                      borderRadius: '8px',
+                      fontWeight: currentUsersPage === i + 1 ? 'bold' : 'normal'
+                    }}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+                <button 
+                  onClick={() => handleUsersPageChange(Math.min(totalUsersPages, currentUsersPage + 1))}
+                  disabled={currentUsersPage === totalUsersPages}
+                  style={{ padding: '0.5rem 1rem', border: '1px solid #ddd', background: currentUsersPage === totalUsersPages ? '#f8f9fa' : 'white', cursor: currentUsersPage === totalUsersPages ? 'not-allowed' : 'pointer', borderRadius: '8px' }}
+                >
+                  다음
+                </button>
+              </div>
+            )}
           </div>
         )}
 
