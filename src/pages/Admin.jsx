@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { fetchProducts, createProduct, updateProduct, deleteProduct, uploadImage, fetchConfig, updateConfig } from '../api';
+import { fetchProducts, createProduct, updateProduct, deleteProduct, uploadImage, fetchConfig, updateConfig, fetchUsers } from '../api';
 import { LayoutDashboard, PackagePlus, List, Image as ImageIcon, Bell, Edit, Trash2, ChevronLeft, ChevronRight, Plus, X, Image as ImgIcon, Type } from 'lucide-react';
 
 function Admin({ refreshGlobalProducts }) {
   const [activeTab, setActiveTab] = useState('register'); // register, list, banner, notice
   const [products, setProducts] = useState([]);
+  const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   
   // 페이징 (목록용)
@@ -66,7 +67,17 @@ function Admin({ refreshGlobalProducts }) {
   useEffect(() => {
     loadProducts();
     loadBanners();
+    loadUsers();
   }, []);
+
+  const loadUsers = async () => {
+    try {
+      const data = await fetchUsers();
+      setUsers(data);
+    } catch (e) {
+      console.error('Failed to load users');
+    }
+  };
 
   const loadBanners = async () => {
     try {
@@ -595,7 +606,7 @@ function Admin({ refreshGlobalProducts }) {
             { id: 'rec_banner', label: '추천상품 배너 관리', icon: <ImageIcon size={20} /> },
             { id: 'notice', label: '공지사항 관리', icon: <Bell size={20} /> },
             { id: 'order', label: '발주 관리 (준비중)', icon: <LayoutDashboard size={20} /> },
-            { id: 'member', label: '회원 관리 (준비중)', icon: <LayoutDashboard size={20} /> },
+            { id: 'member', label: '회원 관리', icon: <LayoutDashboard size={20} /> },
           ].map(tab => (
             <li key={tab.id} 
                 onClick={() => {
@@ -1052,13 +1063,56 @@ function Admin({ refreshGlobalProducts }) {
           </div>
         )}
 
-        {(activeTab === 'notice' || activeTab === 'order' || activeTab === 'member') && (
+        {(activeTab === 'notice' || activeTab === 'order') && (
           <div style={{textAlign: 'center', padding: '5rem', background: 'white', borderRadius: '16px', color: '#888'}}>
             <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '1rem'}}>
-               {activeTab === 'notice' ? '공지사항 관리' : 
-                activeTab === 'order' ? '발주 관리' : '회원 관리'}
+               {activeTab === 'notice' ? '공지사항 관리' : '발주 관리'}
             </h2>
             <p>이 기능은 추후 업데이트 될 예정입니다.</p>
+          </div>
+        )}
+
+        {activeTab === 'member' && (
+          <div style={{background: 'white', borderRadius: '16px', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.05)'}}>
+            <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '2rem'}}>회원 관리 ({users.length}명)</h2>
+            <div style={{overflowX: 'auto'}}>
+              <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px'}}>
+                <thead>
+                  <tr style={{background: '#f8f9fa', borderBottom: '2px solid #ddd'}}>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>이름</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>아이디(소셜)</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>이메일</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>전화번호</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>마케팅수신동의</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>가입일</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" style={{padding: '3rem', textAlign: 'center', color: '#777'}}>가입한 회원이 없습니다.</td>
+                    </tr>
+                  ) : (
+                    users.map(u => (
+                      <tr key={u._id} style={{borderBottom: '1px solid #eee'}}>
+                        <td style={{padding: '1rem'}}>{u.name} {u.role === 'admin' ? '(관리자)' : ''}</td>
+                        <td style={{padding: '1rem'}}>{u.provider !== 'local' ? `${u.provider.toUpperCase()} 로그인` : u.loginId}</td>
+                        <td style={{padding: '1rem'}}>{u.email}</td>
+                        <td style={{padding: '1rem'}}>{u.phone || '-'}</td>
+                        <td style={{padding: '1rem'}}>
+                          {u.agreements?.sns ? (
+                            <span style={{background: '#e8f5e9', color: '#2e7d32', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.85rem'}}>동의</span>
+                          ) : (
+                            <span style={{background: '#ffebee', color: '#c62828', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.85rem'}}>미동의</span>
+                          )}
+                        </td>
+                        <td style={{padding: '1rem'}}>{new Date(u.createdAt).toLocaleDateString()}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 

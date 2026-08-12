@@ -120,6 +120,12 @@ o 로그 기록
 
 ※ 동의를 거부할 수 있으나 거부시 회원 가입이 불가능합니다.`;
 
+const SNS_TEXT = `할인쿠폰 및 혜택, 이벤트, 신상품 소식 등 쇼핑몰에서 제공하는 유익한 쇼핑정보를 SMS나 이메일로 받아보실 수 있습니다.
+
+단, 주문/거래 정보 및 주요 정책과 관련된 내용은 수신동의 여부와 관계없이 발송됩니다.
+
+선택 약관에 동의하지 않으셔도 회원가입은 가능하며, 회원가입 후 회원정보수정 페이지에서 언제든지 수신여부를 변경하실 수 있습니다.`;
+
 const RegisterPage = ({ showToast }) => {
   const navigate = useNavigate();
   const { register, login } = useAuth();
@@ -144,6 +150,7 @@ const RegisterPage = ({ showToast }) => {
   const [loading, setLoading] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+  const [isSnsModalOpen, setIsSnsModalOpen] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -281,10 +288,13 @@ const RegisterPage = ({ showToast }) => {
               </label>
               <button type="button" onClick={() => setIsPrivacyModalOpen(true)} style={{ background: 'transparent', border: '1px solid #ccc', borderRadius: '4px', padding: '0.2rem 0.5rem', fontSize: '0.85rem', cursor: 'pointer', color: '#666', fontFamily: '"Jua", sans-serif' }}>[내용확인]</button>
             </div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#555', cursor: 'pointer' }}>
-              <input type="checkbox" name="sns" checked={agreements.sns} onChange={handleAgreementChange} style={{ width: '16px', height: '16px' }} />
-              [선택] SMS/이메일 마케팅 수신 동의
-            </label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#555', cursor: 'pointer' }}>
+                <input type="checkbox" name="sns" checked={agreements.sns} onChange={handleAgreementChange} style={{ width: '16px', height: '16px' }} />
+                [선택] SMS/이메일 마케팅 수신 동의
+              </label>
+              <button type="button" onClick={() => setIsSnsModalOpen(true)} style={{ background: 'transparent', border: '1px solid #ccc', borderRadius: '4px', padding: '0.2rem 0.5rem', fontSize: '0.85rem', cursor: 'pointer', color: '#666', fontFamily: '"Jua", sans-serif' }}>[내용확인]</button>
+            </div>
           </div>
         </div>
 
@@ -324,6 +334,24 @@ const RegisterPage = ({ showToast }) => {
             </div>
             <div style={{ padding: '1rem', borderTop: '1px solid #eee', textAlign: 'center', background: '#f8f9fa' }}>
               <button type="button" onClick={() => setIsPrivacyModalOpen(false)} style={{ padding: '0.8rem 3rem', background: '#000', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.1rem', fontFamily: '"Jua", sans-serif' }}>확인</button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* SNS/마케팅 모달 */}
+      {isSnsModalOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div style={{ background: 'white', width: '90%', maxWidth: '600px', borderRadius: '12px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ padding: '1.2rem 1.5rem', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8f9fa' }}>
+              <h3 style={{ margin: 0, fontSize: '1.4rem' }}>마케팅 정보 수신 동의</h3>
+              <button type="button" onClick={() => setIsSnsModalOpen(false)} style={{ background: 'transparent', border: 'none', fontSize: '1.8rem', cursor: 'pointer', lineHeight: '1' }}>&times;</button>
+            </div>
+            <div style={{ padding: '1.5rem', overflowY: 'auto', maxHeight: '50vh', fontSize: '0.95rem', lineHeight: '1.7', color: '#444', whiteSpace: 'pre-wrap', fontFamily: 'sans-serif' }}>
+              {SNS_TEXT}
+            </div>
+            <div style={{ padding: '1rem', borderTop: '1px solid #eee', textAlign: 'center', background: '#f8f9fa' }}>
+              <button type="button" onClick={() => setIsSnsModalOpen(false)} style={{ padding: '0.8rem 3rem', background: '#000', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.1rem', fontFamily: '"Jua", sans-serif' }}>확인</button>
             </div>
           </div>
         </div>

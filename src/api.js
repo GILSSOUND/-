@@ -51,3 +51,8 @@ export const updateConfig = async (key, value) => {
   const res = await axios.post(`${API_URL}/config/${key}`, { value });
   return res.data;
 };
+
+export const fetchUsers = async () => {
+  const res = await axios.get(`${API_URL}/auth/users`);
+  return res.data;
+};
