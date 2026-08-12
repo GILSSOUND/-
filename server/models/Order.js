@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const OrderItemSchema = new mongoose.Schema({
-  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+  productId: { type: String }, // ObjectId 대신 String으로 변경하여 더미 데이터 호환
   name: { type: String, required: true },
   selectedOptionName: { type: String, default: '' },
   price: { type: Number, required: true },

@@ -96,7 +96,7 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
         try {
           // 결제 성공 시 서버에 내역 저장
           const orderData = {
-            userId: user?._id,
+            userId: user?._id || user?.id,
             imp_uid: response.imp_uid,
             merchant_uid: response.merchant_uid,
             items: cartItems.map(item => ({
