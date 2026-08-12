@@ -79,6 +79,7 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
     const amount = totalPrice + finalShippingFee;
 
     const data = {
+      pg: 'kakaopay', // 설정된 카카오페이 테스트 채널 지정
       pay_method: 'card',
       merchant_uid: merchant_uid,
       name: cartItems.length > 1 ? `${cartItems[0].name} 외 ${cartItems.length - 1}건` : cartItems[0].name,
