@@ -79,7 +79,6 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
     const amount = totalPrice + finalShippingFee;
 
     const data = {
-      pg: 'html5_inicis', // 테스트 결제용
       pay_method: 'card',
       merchant_uid: merchant_uid,
       name: cartItems.length > 1 ? `${cartItems[0].name} 외 ${cartItems.length - 1}건` : cartItems[0].name,
