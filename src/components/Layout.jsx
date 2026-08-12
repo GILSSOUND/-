@@ -9,7 +9,10 @@ function Layout({ cartCount, products, wishlistCount }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout, requireAuth } = useAuth();
+  
+  const isProductPage = location.pathname.startsWith('/product/');
 
   const handleSearch = (e) => {
     const query = e.target.value;
@@ -132,7 +135,7 @@ function Layout({ cartCount, products, wishlistCount }) {
         onClick={user ? logout : () => requireAuth(() => {})}
         style={{
           position: 'fixed',
-          bottom: '20px',
+          bottom: isProductPage ? '100px' : '20px',
           right: '20px',
           width: '56px',
           height: '56px',
