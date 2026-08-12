@@ -72,7 +72,8 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
     }
 
     const IMP = window.IMP;
-    // 하위 상점 티어코드 초기화
+    // 아임포트 초기화 및 하위상점 티어코드 적용
+    IMP.init('imp28885142'); 
     IMP.agency('imp28885142', '002'); 
 
     const merchant_uid = `order_${new Date().getTime()}`;

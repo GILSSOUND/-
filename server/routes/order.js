@@ -19,7 +19,7 @@ router.post('/complete', async (req, res) => {
     const getPaymentData = await axios.get(`https://api.iamport.kr/payments/${imp_uid}`, {
       headers: { 
         Authorization: access_token,
-        Tier: process.env.PORTONE_TIER_CODE || '002'
+        tier: process.env.PORTONE_TIER_CODE || '002'
       }
     });
     const paymentData = getPaymentData.data.response;
