@@ -17,7 +17,10 @@ router.post('/complete', async (req, res) => {
 
     // 2. 포트원 결제 내역 단건조회
     const getPaymentData = await axios.get(`https://api.iamport.kr/payments/${imp_uid}`, {
-      headers: { Authorization: access_token }
+      headers: { 
+        Authorization: access_token,
+        Tier: process.env.PORTONE_TIER_CODE 
+      }
     });
     const paymentData = getPaymentData.data.response;
 
