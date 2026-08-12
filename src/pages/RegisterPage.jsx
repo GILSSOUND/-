@@ -80,9 +80,9 @@ const TERMS_TEXT = `** 해당 서식은 공정거래위원회에서 제공하는
 제16조(개인정보보호)
 “몰”은 최소한의 개인정보를 수집하며, 동의 없이 제3자에게 제공하지 않습니다.
 
-부 칙(시행일) 이 약관은 2025년 1월 1일부터 시행합니다.\`;
+부 칙(시행일) 이 약관은 2025년 1월 1일부터 시행합니다.`;
 
-const PRIVACY_TEXT = \`** 본 양식은 쇼핑몰 운영에 도움을 드리고자 샘플로 제공되는 서식으로 쇼핑몰 운영형태에 따른 수정이 필요합니다. 쇼핑몰에 적용하시기 전, 쇼핑몰 운영 사항 등을 확인하시고 적절한 내용을 반영하여 사용하시기 바랍니다. **
+const PRIVACY_TEXT = `** 본 양식은 쇼핑몰 운영에 도움을 드리고자 샘플로 제공되는 서식으로 쇼핑몰 운영형태에 따른 수정이 필요합니다. 쇼핑몰에 적용하시기 전, 쇼핑몰 운영 사항 등을 확인하시고 적절한 내용을 반영하여 사용하시기 바랍니다. **
 
 1. 개인정보 수집목적 및 이용목적
 
@@ -118,7 +118,7 @@ o 로그 기록
 -보존이유: 통신비밀보호법
 -보존기간 : 3개월
 
-※ 동의를 거부할 수 있으나 거부시 회원 가입이 불가능합니다.\`;
+※ 동의를 거부할 수 있으나 거부시 회원 가입이 불가능합니다.`;
 
 const RegisterPage = ({ showToast }) => {
   const navigate = useNavigate();
@@ -310,6 +310,7 @@ const RegisterPage = ({ showToast }) => {
             </div>
           </div>
         </div>
+      )}
       {/* 개인정보 모달 */}
       {isPrivacyModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
