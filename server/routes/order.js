@@ -15,10 +15,10 @@ router.post('/complete', async (req, res) => {
     });
     const { access_token } = getTokenResponse.data.response;
 
-    // 2. 포트원 결제 내역 단건조회 (하위 상점 조회 시도)
+    // 2. 포트원 결제 내역 단건조회 (하위 상점 조회 시도 - merchant_uid 사용)
     let paymentResponse;
     try {
-      paymentResponse = await axios.get(`https://api.iamport.kr/payments/${imp_uid}`, {
+      paymentResponse = await axios.get(`https://api.iamport.kr/payments/find/${merchant_uid}`, {
         headers: { 
           Authorization: access_token,
           Tier: process.env.PORTONE_TIER_CODE || '002'
@@ -27,7 +27,7 @@ router.post('/complete', async (req, res) => {
     } catch (firstError) {
       // 404 등 에러 발생 시, 상위(대표) 상점으로 한 번 더 시도
       try {
-        paymentResponse = await axios.get(`https://api.iamport.kr/payments/${imp_uid}`, {
+        paymentResponse = await axios.get(`https://api.iamport.kr/payments/find/${merchant_uid}`, {
           headers: { Authorization: access_token }
         });
       } catch (secondError) {
