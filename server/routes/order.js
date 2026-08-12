@@ -15,14 +15,27 @@ router.post('/complete', async (req, res) => {
     });
     const { access_token } = getTokenResponse.data.response;
 
-    // 2. 포트원 결제 내역 단건조회
-    const getPaymentData = await axios.get(`https://api.iamport.kr/payments/${imp_uid}`, {
+    // 2. 포트원 결제 내역 단건조회 (하위 상점 조회 시도)
+    let paymentResponse = await axios.get(`https://api.iamport.kr/payments/${imp_uid}`, {
       headers: { 
         Authorization: access_token,
-        tier: process.env.PORTONE_TIER_CODE || '002'
+        Tier: process.env.PORTONE_TIER_CODE || '002'
       }
     });
-    const paymentData = getPaymentData.data.response;
+
+    // 조회 실패 시 (code !== 0), 상위(대표) 상점으로 한 번 더 시도
+    if (paymentResponse.data.code !== 0) {
+      paymentResponse = await axios.get(`https://api.iamport.kr/payments/${imp_uid}`, {
+        headers: { Authorization: access_token }
+      });
+    }
+
+    // 두 번 다 실패한 경우
+    if (paymentResponse.data.code !== 0) {
+      throw new Error(paymentResponse.data.message || '결제 내역을 찾을 수 없습니다.');
+    }
+
+    const paymentData = paymentResponse.data.response;
 
     // 3. 결제 금액 검증
     const amountToBePaid = totalAmount + shippingFee; // 프론트에서 계산한 총액
