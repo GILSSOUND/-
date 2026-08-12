@@ -122,7 +122,7 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
           }
         } catch (error) {
           console.error(error);
-          alert('주문 저장 중 오류가 발생했습니다.');
+          alert('주문 저장 중 오류가 발생했습니다: ' + (error.response?.data?.message || error.message));
         }
       } else {
         alert(`결제 실패: ${response.error_msg}`);

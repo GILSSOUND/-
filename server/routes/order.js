@@ -46,8 +46,9 @@ router.post('/complete', async (req, res) => {
       res.status(400).json({ status: 'forgery', message: '위조된 결제시도' });
     }
   } catch (error) {
-    console.error('Order Complete Error:', error.response ? error.response.data : error.message);
-    res.status(500).json({ status: 'error', message: '결제 검증 및 저장 실패' });
+    console.error('Order Complete Error:', error);
+    const errorMessage = error.response ? JSON.stringify(error.response.data) : error.message;
+    res.status(500).json({ status: 'error', message: `결제 검증 및 저장 실패: ${errorMessage}` });
   }
 });
 
