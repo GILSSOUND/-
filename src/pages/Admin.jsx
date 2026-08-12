@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { fetchProducts, createProduct, updateProduct, deleteProduct, uploadImage, fetchConfig, updateConfig, fetchUsers } from '../api';
-import { LayoutDashboard, PackagePlus, List, Image as ImageIcon, Bell, Edit, Trash2, ChevronLeft, ChevronRight, Plus, X, Image as ImgIcon, Type } from 'lucide-react';
+import { fetchProducts, createProduct, updateProduct, deleteProduct, uploadImage, fetchConfig, updateConfig, fetchUsers, fetchAllOrders, updateOrderStatus } from '../api';
+import { LayoutDashboard, PackagePlus, List, Image as ImageIcon, Bell, Edit, Trash2, ChevronLeft, ChevronRight, Plus, X, Image as ImgIcon, Type, ShoppingCart } from 'lucide-react';
 
 function Admin({ refreshGlobalProducts }) {
-  const [activeTab, setActiveTab] = useState('register'); // register, list, banner, notice
+  const [activeTab, setActiveTab] = useState('register'); // register, list, banner, notice, order
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
+  const [allOrders, setAllOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   
   // 페이징 (목록용)
@@ -20,6 +21,11 @@ function Admin({ refreshGlobalProducts }) {
   
   // 선택된 상품 상태 (일괄 삭제용)
   const [selectedProductIds, setSelectedProductIds] = useState([]);
+  
+  // 관리자 회원 주문 내역 모달 상태
+  const [selectedUserForOrders, setSelectedUserForOrders] = useState(null);
+  const [selectedUserOrders, setSelectedUserOrders] = useState([]);
+
   
   // 폼 기본값
   const initialFormData = {
@@ -67,10 +73,20 @@ function Admin({ refreshGlobalProducts }) {
   const [editingBanner, setEditingBanner] = useState(null);
   const [editorType, setEditorType] = useState(null); // 'hero' | 'rec'
 
+  const loadAllOrders = async () => {
+    try {
+      const data = await fetchAllOrders();
+      setAllOrders(data);
+    } catch (e) {
+      console.error('Failed to load all orders');
+    }
+  };
+
   useEffect(() => {
     loadProducts();
     loadBanners();
     loadUsers();
+    loadAllOrders();
   }, []);
 
   const loadUsers = async () => {
@@ -81,6 +97,19 @@ function Admin({ refreshGlobalProducts }) {
       console.error('Failed to load users');
     }
   };
+
+  const handleUserClick = async (user) => {
+    try {
+      import('../api').then(async (api) => {
+        const orders = await api.fetchMyOrders(user._id || user.id);
+        setSelectedUserOrders(orders);
+        setSelectedUserForOrders(user);
+      });
+    } catch (e) {
+      alert('주문 내역을 불러오는데 실패했습니다.');
+    }
+  };
+
 
   const loadBanners = async () => {
     try {
@@ -617,7 +646,7 @@ function Admin({ refreshGlobalProducts }) {
             { id: 'banner', label: '메인 상단 배너 관리', icon: <ImageIcon size={20} /> },
             { id: 'rec_banner', label: '추천상품 배너 관리', icon: <ImageIcon size={20} /> },
             { id: 'notice', label: '공지사항 관리', icon: <Bell size={20} /> },
-            { id: 'order', label: '발주 관리 (준비중)', icon: <LayoutDashboard size={20} /> },
+            { id: 'order', label: '주문 관리', icon: <ShoppingCart size={20} /> },
             { id: 'member', label: '회원 관리', icon: <LayoutDashboard size={20} /> },
           ].map(tab => (
             <li key={tab.id} 
@@ -1075,12 +1104,93 @@ function Admin({ refreshGlobalProducts }) {
           </div>
         )}
 
-        {(activeTab === 'notice' || activeTab === 'order') && (
+        {activeTab === 'notice' && (
           <div style={{textAlign: 'center', padding: '5rem', background: 'white', borderRadius: '16px', color: '#888'}}>
             <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '1rem'}}>
-               {activeTab === 'notice' ? '공지사항 관리' : '발주 관리'}
+               공지사항 관리
             </h2>
             <p>이 기능은 추후 업데이트 될 예정입니다.</p>
+          </div>
+        )}
+
+        {activeTab === 'order' && (
+          <div style={{background: 'white', borderRadius: '16px', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.05)'}}>
+            <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '2rem'}}>주문 관리 ({allOrders.length}건)</h2>
+            <div style={{overflowX: 'auto'}}>
+              <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1000px'}}>
+                <thead>
+                  <tr style={{background: '#f8f9fa', borderBottom: '2px solid #ddd'}}>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>주문일시</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>주문번호(아임포트)</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>주문자</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>상품명</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>결제금액</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>주문상태</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allOrders.map(order => (
+                    <tr key={order._id} style={{borderBottom: '1px solid #eee'}}>
+                      <td style={{padding: '1rem', color: '#666'}}>
+                        {new Date(order.createdAt).toLocaleString()}
+                      </td>
+                      <td style={{padding: '1rem', color: '#333', fontSize: '0.9rem'}}>
+                        <div style={{fontWeight: 'bold'}}>{order.merchant_uid}</div>
+                        <div style={{color: '#999', fontSize: '0.8rem'}}>{order.imp_uid}</div>
+                      </td>
+                      <td style={{padding: '1rem'}}>
+                        <div style={{fontWeight: 'bold', color: '#333'}}>{order.userId?.name || order.shippingInfo?.receiverName || '알 수 없음'}</div>
+                        <div style={{color: '#666', fontSize: '0.9rem'}}>{order.userId?.phone || order.shippingInfo?.receiverPhone || ''}</div>
+                      </td>
+                      <td style={{padding: '1rem', color: '#333'}}>
+                        {order.items.length > 0 ? (
+                          order.items.length > 1 
+                            ? `${order.items[0].name} 외 ${order.items.length - 1}건` 
+                            : order.items[0].name
+                        ) : '상품 없음'}
+                      </td>
+                      <td style={{padding: '1rem', fontWeight: 'bold', color: 'var(--primary-color)'}}>
+                        {(order.totalAmount + order.shippingFee).toLocaleString()}원
+                      </td>
+                      <td style={{padding: '1rem'}}>
+                        <select 
+                          value={order.status || '결제완료'} 
+                          onChange={async (e) => {
+                            try {
+                              await updateOrderStatus(order._id, e.target.value);
+                              loadAllOrders(); // reload
+                            } catch (error) {
+                              alert('상태 변경 실패');
+                            }
+                          }}
+                          style={{
+                            padding: '0.5rem',
+                            borderRadius: '8px',
+                            border: '1px solid #ddd',
+                            outline: 'none',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <option value="결제대기">결제대기</option>
+                          <option value="결제완료">결제완료</option>
+                          <option value="상품준비중">상품준비중</option>
+                          <option value="배송중">배송중</option>
+                          <option value="배송완료">배송완료</option>
+                          <option value="취소됨">취소됨</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                  {allOrders.length === 0 && (
+                    <tr>
+                      <td colSpan="6" style={{padding: '2rem', textAlign: 'center', color: '#999'}}>
+                        주문 내역이 없습니다.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
@@ -1106,7 +1216,8 @@ function Admin({ refreshGlobalProducts }) {
                     </tr>
                   ) : (
                     currentUsers.map(u => (
-                      <tr key={u._id} style={{borderBottom: '1px solid #eee', cursor: 'pointer', transition: 'background 0.2s'}} onMouseEnter={(e) => e.currentTarget.style.background='#f9f9f9'} onMouseLeave={(e) => e.currentTarget.style.background='transparent'}>
+                      <tr key={u._id} onClick={() => handleUserClick(u)} style={{borderBottom: '1px solid #eee', cursor: 'pointer', transition: 'background 0.2s'}} onMouseEnter={(e) => e.currentTarget.style.background='#f9f9f9'} onMouseLeave={(e) => e.currentTarget.style.background='transparent'}>
+
                         <td style={{padding: '1rem'}}>{u.name} {u.role === 'admin' ? '(관리자)' : ''}</td>
                         <td style={{padding: '1rem'}}>{u.provider !== 'local' ? `${u.provider.toUpperCase()} 로그인` : u.loginId}</td>
                         <td style={{padding: '1rem'}}>{u.email}</td>
@@ -1358,7 +1469,49 @@ function Admin({ refreshGlobalProducts }) {
         </div>
       </div>
     )}
-    </>
+      {selectedUserForOrders && (
+      <div className="modal-overlay" onClick={() => setSelectedUserForOrders(null)}>
+        <div className="modal-content" onClick={e => e.stopPropagation()} style={{maxWidth: '800px', maxHeight: '80vh', overflowY: 'auto'}}>
+          <button className="modal-close-btn" onClick={() => setSelectedUserForOrders(null)}>&times;</button>
+          <h2 style={{fontSize: '1.5rem', fontWeight: '800', marginBottom: '1.5rem', color: '#333'}}>
+            {selectedUserForOrders.name} 님의 주문 내역
+          </h2>
+          {selectedUserOrders.length === 0 ? (
+            <p style={{textAlign: 'center', padding: '2rem', color: '#666'}}>주문 내역이 없습니다.</p>
+          ) : (
+            <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+              {selectedUserOrders.map(order => (
+                <div key={order._id} style={{border: '1px solid #eee', borderRadius: '8px', padding: '1.5rem'}}>
+                  <div style={{display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '0.8rem', marginBottom: '0.8rem'}}>
+                    <div>
+                      <span style={{fontWeight: 'bold', marginRight: '1rem'}}>{new Date(order.createdAt).toLocaleDateString()}</span>
+                      <span style={{color: '#666', fontSize: '0.9rem'}}>주문번호: {order.merchant_uid}</span>
+                    </div>
+                    <div>
+                      <strong style={{color: 'var(--primary-color)'}}>{order.status}</strong>
+                    </div>
+                  </div>
+                  {order.items.map((item, idx) => (
+                    <div key={idx} style={{display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '1rem'}}>
+                      {item.imageUrl && <img src={item.imageUrl} alt={item.name} style={{width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px'}} />}
+                      <div style={{flex: 1}}>
+                        <div style={{fontWeight: 'bold'}}>{item.name}</div>
+                        {item.selectedOptionName && <div style={{fontSize: '0.85rem', color: '#666'}}>옵션: {item.selectedOptionName}</div>}
+                        <div style={{fontSize: '0.9rem'}}>{item.price.toLocaleString()}원 x {item.quantity}개</div>
+                      </div>
+                    </div>
+                  ))}
+                  <div style={{marginTop: '1.5rem', textAlign: 'right', fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--primary-color)'}}>
+                    총 결제금액: {order.totalAmount.toLocaleString()}원
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+  </>
   );
 }
 
