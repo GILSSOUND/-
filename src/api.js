@@ -57,6 +57,11 @@ export const fetchUsers = async () => {
   return res.data;
 };
 
+export const updateMyInfo = async (data) => {
+  const res = await axios.put(`${API_URL}/auth/me`, data);
+  return res.data;
+};
+
 // --- Order API ---
 export const createOrder = async (orderData) => {
   const res = await axios.post(`${API_URL}/orders/complete`, orderData);

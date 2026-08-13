@@ -99,6 +99,45 @@ router.get('/me', async (req, res) => {
   }
 });
 
+// --- Update Current User ---
+router.put('/me', async (req, res) => {
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ error: '인증되지 않았습니다.' });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'gilsmall_secret_key');
+    const { name, phone, email, zonecode, address, detailAddress } = req.body;
+    
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(401).json({ error: '사용자를 찾을 수 없습니다.' });
+
+    if (name) user.name = name;
+    if (phone !== undefined) user.phone = phone;
+    
+    if (email && email !== user.email) {
+      if (user.provider !== 'local') {
+        return res.status(400).json({ error: '소셜 로그인 회원은 이메일을 변경할 수 없습니다.' });
+      }
+      const existing = await User.findOne({ email });
+      if (existing) return res.status(400).json({ error: '이미 사용 중인 이메일입니다.' });
+      user.email = email;
+    }
+    
+    if (zonecode !== undefined) user.zonecode = zonecode;
+    if (address !== undefined) user.address = address;
+    if (detailAddress !== undefined) user.detailAddress = detailAddress;
+
+    await user.save();
+    
+    // Return updated user without password
+    const updatedUser = await User.findById(user._id).select('-password');
+    res.json({ success: true, user: updatedUser });
+  } catch (error) {
+    console.error('Update user error:', error);
+    res.status(500).json({ error: '정보 수정에 실패했습니다.' });
+  }
+});
+
 // --- Get All Users (Admin) ---
 router.get('/users', async (req, res) => {
   try {

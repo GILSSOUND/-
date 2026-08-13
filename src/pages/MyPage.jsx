@@ -2,13 +2,35 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { ShoppingBag, RefreshCcw, RotateCcw, User, ChevronRight } from 'lucide-react';
-import { fetchMyOrders } from '../api';
+import { fetchMyOrders, updateMyInfo } from '../api';
 
 function MyPage() {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('orders');
+  const { user, setUser } = useAuth();
+  const [activeTab, setActiveTab] = useState('profile');
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [profileForm, setProfileForm] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    zonecode: '',
+    address: '',
+    detailAddress: ''
+  });
+
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        name: user.name || '',
+        phone: user.phone || '',
+        email: user.email || '',
+        zonecode: user.zonecode || '',
+        address: user.address || '',
+        detailAddress: user.detailAddress || ''
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user && activeTab === 'orders') {
@@ -101,19 +123,60 @@ function MyPage() {
           </div>
         );
       case 'profile':
+        const handleProfileChange = (e) => setProfileForm(prev => ({...prev, [e.target.name]: e.target.value}));
+        const handlePostcode = () => {
+          new window.daum.Postcode({
+            oncomplete: (data) => {
+              let fullAddr = data.address;
+              let extraAddr = '';
+              if (data.addressType === 'R') {
+                if (data.bname !== '') extraAddr += data.bname;
+                if (data.buildingName !== '') extraAddr += extraAddr !== '' ? `, ${data.buildingName}` : data.buildingName;
+                fullAddr += extraAddr !== '' ? ` (${extraAddr})` : '';
+              }
+              setProfileForm(prev => ({...prev, zonecode: data.zonecode, address: fullAddr}));
+            }
+          }).open();
+        };
+        const handleSave = async () => {
+          try {
+            const data = await updateMyInfo(profileForm);
+            setUser(data.user);
+            alert('개인정보가 성공적으로 수정되었습니다.');
+          } catch(e) {
+            alert(e.response?.data?.error || e.message);
+          }
+        };
+
         return (
           <div className="mypage-tab-content">
-            <h3>개인정보수정</h3>
-            <div className="profile-edit-form">
-              <div className="form-group">
-                <label>이름</label>
-                <input type="text" value={user.name} disabled />
+            <h3>나의 정보</h3>
+            <div className="profile-edit-form" style={{display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)'}}>
+              <div className="form-group" style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
+                <label style={{fontWeight: 'bold', color: '#555'}}>이름</label>
+                <input type="text" name="name" value={profileForm.name} onChange={handleProfileChange} style={{padding: '0.8rem', border: '1px solid #ddd', borderRadius: '6px', fontSize: '1rem'}} />
               </div>
-              <div className="form-group">
-                <label>이메일</label>
-                <input type="email" value={user.email} disabled />
+              <div className="form-group" style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
+                <label style={{fontWeight: 'bold', color: '#555'}}>전화번호</label>
+                <input type="text" name="phone" value={profileForm.phone} onChange={handleProfileChange} style={{padding: '0.8rem', border: '1px solid #ddd', borderRadius: '6px', fontSize: '1rem'}} />
               </div>
-              <button className="primary-btn" style={{marginTop: '1rem'}}>수정하기</button>
+              <div className="form-group" style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
+                <label style={{fontWeight: 'bold', color: '#555'}}>이메일</label>
+                <input type="email" name="email" value={profileForm.email} onChange={handleProfileChange} disabled={user.provider !== 'local'} style={{padding: '0.8rem', border: '1px solid #ddd', borderRadius: '6px', fontSize: '1rem', background: user.provider !== 'local' ? '#f5f5f5' : 'white'}} />
+                {user.provider !== 'local' && <small style={{color: '#888'}}>소셜 로그인 회원은 이메일을 변경할 수 없습니다.</small>}
+              </div>
+              
+              <div className="form-group" style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
+                <label style={{fontWeight: 'bold', color: '#555'}}>주소</label>
+                <div style={{display: 'flex', gap: '0.5rem'}}>
+                  <input type="text" name="zonecode" value={profileForm.zonecode} readOnly placeholder="우편번호" style={{flex: 1, padding: '0.8rem', border: '1px solid #ddd', borderRadius: '6px', fontSize: '1rem', background: '#f9f9f9'}} />
+                  <button type="button" onClick={handlePostcode} style={{padding: '0 1.5rem', background: '#333', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 'bold'}}>주소찾기</button>
+                </div>
+                <input type="text" name="address" value={profileForm.address} readOnly placeholder="기본주소" style={{padding: '0.8rem', border: '1px solid #ddd', borderRadius: '6px', fontSize: '1rem', background: '#f9f9f9'}} />
+                <input type="text" name="detailAddress" value={profileForm.detailAddress} onChange={handleProfileChange} placeholder="상세주소를 입력해주세요" style={{padding: '0.8rem', border: '1px solid #ddd', borderRadius: '6px', fontSize: '1rem'}} />
+              </div>
+
+              <button onClick={handleSave} style={{marginTop: '1rem', padding: '1rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'inherit'}}>수정하기</button>
             </div>
           </div>
         );
@@ -123,6 +186,14 @@ function MyPage() {
   };
 
   return (
+    <>
+    <style>
+      {`
+        .mypage-container * {
+          font-family: "Jua", "Pretendard", sans-serif !important;
+        }
+      `}
+    </style>
     <div className="page-container mypage-container">
       <div className="mypage-layout">
         {/* Left Sidebar */}
@@ -135,6 +206,9 @@ function MyPage() {
             </div>
           </div>
           <nav className="mypage-sidebar-menu">
+            <button className={`menu-btn ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>
+              나의정보 <ChevronRight size={18} />
+            </button>
             <button className={`menu-btn ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
               주문내역 <ChevronRight size={18} />
             </button>
@@ -143,9 +217,6 @@ function MyPage() {
             </button>
             <button className={`menu-btn ${activeTab === 'exchanges' ? 'active' : ''}`} onClick={() => setActiveTab('exchanges')}>
               교환내역 <ChevronRight size={18} />
-            </button>
-            <button className={`menu-btn ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>
-              개인정보수정 <ChevronRight size={18} />
             </button>
           </nav>
         </aside>
@@ -156,6 +227,7 @@ function MyPage() {
         </main>
       </div>
     </div>
+    </>
   );
 }
 

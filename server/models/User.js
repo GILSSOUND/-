@@ -35,6 +35,15 @@ const UserSchema = new mongoose.Schema({
   phone: {
     type: String,
   },
+  zonecode: {
+    type: String,
+  },
+  address: {
+    type: String,
+  },
+  detailAddress: {
+    type: String,
+  },
   agreements: {
     privacy: { type: Boolean, default: false },
     sns: { type: Boolean, default: false }
