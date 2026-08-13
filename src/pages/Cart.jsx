@@ -12,12 +12,14 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
   const [useDefaultShipping, setUseDefaultShipping] = useState(false);
   
   const [shippingInfo, setShippingInfo] = useState({
-    receiverName: user?.name || '',
-    receiverPhone: user?.phone || '',
+    receiverName: '',
+    receiverPhone: '',
     zonecode: '',
     address: '',
     detailAddress: '',
-    memo: ''
+    memo: '',
+    doorPassword: '',
+    extraMemo: ''
   });
 
   const handleUseDefaultShipping = (e) => {
@@ -231,7 +233,7 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
                 {user && (
                   <div style={{marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '1rem', background: '#f5f5f5', borderRadius: '8px', border: '1px solid #eee'}}>
                     <input type="checkbox" id="default-shipping-check" checked={useDefaultShipping} onChange={handleUseDefaultShipping} style={{width: '18px', height: '18px', cursor: 'pointer'}} />
-                    <label htmlFor="default-shipping-check" style={{fontSize: '1.1rem', cursor: 'pointer', color: '#333', fontWeight: 'bold'}}>마이페이지 주소지(기본정보) 불러오기</label>
+                    <label htmlFor="default-shipping-check" style={{fontSize: '1.1rem', cursor: 'pointer', color: '#333', fontWeight: 'bold'}}>기본주소지로 자동입력</label>
                   </div>
                 )}
 
@@ -256,6 +258,14 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
                   <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>배송 메모 (선택)</label>
                     <input type="text" name="memo" value={shippingInfo.memo} onChange={handleInputChange} placeholder="문 앞에 놓아주세요" style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', border: '1px solid #ddd' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>기타 메모 (선택)</label>
+                    <input type="text" name="extraMemo" value={shippingInfo.extraMemo} onChange={handleInputChange} placeholder="추가 전달사항" style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', border: '1px solid #ddd' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>현관 출입비밀번호 (선택)</label>
+                    <input type="text" name="doorPassword" value={shippingInfo.doorPassword} onChange={handleInputChange} placeholder="예: *1234* 또는 공동현관 비밀번호 없음" style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', border: '1px solid #ddd' }} />
                   </div>
                 </div>
               </div>

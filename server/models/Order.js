@@ -25,7 +25,9 @@ const OrderSchema = new mongoose.Schema({
     zonecode: { type: String, required: true },
     address: { type: String, required: true },
     detailAddress: { type: String, required: true },
-    memo: { type: String, default: '' }
+    memo: { type: String, default: '' },
+    doorPassword: { type: String, default: '' },
+    extraMemo: { type: String, default: '' }
   },
   
   // 송장 정보
