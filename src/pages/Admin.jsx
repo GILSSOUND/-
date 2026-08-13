@@ -26,6 +26,11 @@ function Admin({ refreshGlobalProducts }) {
   const [selectedUserForOrders, setSelectedUserForOrders] = useState(null);
   const [selectedUserOrders, setSelectedUserOrders] = useState([]);
   
+  // 주문 관리 페이지네이션 및 상세 모달 상태
+  const [currentOrdersPage, setCurrentOrdersPage] = useState(1);
+  const ordersPerPage = 20;
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
+  
   // 주문 관리 서브 탭 & 송장 입력 상태
   const [orderSubTab, setOrderSubTab] = useState('결제완료');
   const [trackingInputs, setTrackingInputs] = useState({});
@@ -633,6 +638,16 @@ function Admin({ refreshGlobalProducts }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Pagination Logic (Orders)
+  const filteredOrders = allOrders.filter(o => o.status === orderSubTab);
+  const totalOrdersPages = Math.ceil(filteredOrders.length / ordersPerPage);
+  const currentOrders = filteredOrders.slice((currentOrdersPage - 1) * ordersPerPage, currentOrdersPage * ordersPerPage);
+
+  const handleOrdersPageChange = (page) => {
+    setCurrentOrdersPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <>
     <style>
@@ -1133,7 +1148,10 @@ function Admin({ refreshGlobalProducts }) {
               {['결제완료', '상품준비중', '배송중', '배송완료'].map(status => (
                 <button
                   key={status}
-                  onClick={() => setOrderSubTab(status)}
+                  onClick={() => {
+                    setOrderSubTab(status);
+                    setCurrentOrdersPage(1);
+                  }}
                   style={{
                     padding: '0.8rem 1.5rem',
                     background: orderSubTab === status ? 'var(--primary-color)' : '#f1f2f6',
@@ -1168,8 +1186,8 @@ function Admin({ refreshGlobalProducts }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {allOrders.filter(o => o.status === orderSubTab).map(order => (
-                    <tr key={order._id} style={{borderBottom: '1px solid #eee'}}>
+                  {currentOrders.map(order => (
+                    <tr key={order._id} style={{borderBottom: '1px solid #eee', cursor: 'pointer', transition: 'background 0.2s'}} onMouseEnter={(e) => e.currentTarget.style.background='#f9f9f9'} onMouseLeave={(e) => e.currentTarget.style.background='transparent'} onClick={() => setSelectedOrderDetails(order)}>
                       <td style={{padding: '1rem', color: '#666'}}>
                         {new Date(order.createdAt).toLocaleString()}
                       </td>
@@ -1187,7 +1205,7 @@ function Admin({ refreshGlobalProducts }) {
                       <td style={{padding: '1rem', fontWeight: 'bold', color: 'var(--primary-color)'}}>
                         {(order.totalAmount + order.shippingFee).toLocaleString()}원
                       </td>
-                      <td style={{padding: '1rem'}}>
+                      <td style={{padding: '1rem'}} onClick={e => e.stopPropagation()}>
                         {orderSubTab === '상품준비중' ? (
                           <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
                             <input 
@@ -1214,19 +1232,21 @@ function Admin({ refreshGlobalProducts }) {
                           <span style={{color: '#aaa'}}>-</span>
                         )}
                       </td>
-                      <td style={{padding: '1rem'}}>
+                      <td style={{padding: '1rem'}} onClick={e => e.stopPropagation()}>
                         {orderSubTab === '결제완료' && (
-                          <button onClick={async () => {
+                          <button onClick={async (e) => {
+                            e.stopPropagation();
                             try {
                               await updateOrderStatus(order._id, { status: '상품준비중' });
                               loadAllOrders();
-                            } catch (e) { alert('변경 실패'); }
+                            } catch (err) { alert('변경 실패'); }
                           }} style={{padding: '0.6rem 1rem', background: '#34495e', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit'}}>
                             배송처리(준비중)로 이동
                           </button>
                         )}
                         {orderSubTab === '상품준비중' && (
-                          <button onClick={async () => {
+                          <button onClick={async (e) => {
+                            e.stopPropagation();
                             const trackingInfo = trackingInputs[order._id];
                             if (!trackingInfo?.courier || !trackingInfo?.trackingNumber) {
                               if (!window.confirm('택배사나 송장번호가 입력되지 않았습니다. 그래도 배송중으로 이동하시겠습니까?')) return;
@@ -1238,17 +1258,18 @@ function Admin({ refreshGlobalProducts }) {
                                 trackingNumber: trackingInfo?.trackingNumber || ''
                               });
                               loadAllOrders();
-                            } catch (e) { alert('변경 실패'); }
+                            } catch (err) { alert('변경 실패'); }
                           }} style={{padding: '0.6rem 1rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit'}}>
                             송장입력 후 배송중 이동
                           </button>
                         )}
                         {orderSubTab === '배송중' && (
-                          <button onClick={async () => {
+                          <button onClick={async (e) => {
+                            e.stopPropagation();
                             try {
                               await updateOrderStatus(order._id, { status: '배송완료' });
                               loadAllOrders();
-                            } catch (e) { alert('변경 실패'); }
+                            } catch (err) { alert('변경 실패'); }
                           }} style={{padding: '0.6rem 1rem', background: '#27ae60', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit'}}>
                             배송완료 처리
                           </button>
@@ -1259,7 +1280,7 @@ function Admin({ refreshGlobalProducts }) {
                       </td>
                     </tr>
                   ))}
-                  {allOrders.filter(o => o.status === orderSubTab).length === 0 && (
+                  {currentOrders.length === 0 && (
                     <tr>
                       <td colSpan="6" style={{padding: '3rem', textAlign: 'center', color: '#999', fontSize: '1.1rem'}}>
                         주문 내역이 없습니다.
@@ -1269,6 +1290,43 @@ function Admin({ refreshGlobalProducts }) {
                 </tbody>
               </table>
             </div>
+
+            {/* 주문 페이징 */}
+            {totalOrdersPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem', gap: '0.5rem' }}>
+                <button
+                  onClick={() => handleOrdersPageChange(currentOrdersPage - 1)}
+                  disabled={currentOrdersPage === 1}
+                  style={{ padding: '0.5rem 1rem', background: '#fff', border: '1px solid #ddd', borderRadius: '4px', cursor: currentOrdersPage === 1 ? 'not-allowed' : 'pointer' }}
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                {Array.from({ length: totalOrdersPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    onClick={() => handleOrdersPageChange(page)}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      background: currentOrdersPage === page ? 'var(--primary-color)' : '#fff',
+                      color: currentOrdersPage === page ? '#fff' : '#333',
+                      border: '1px solid',
+                      borderColor: currentOrdersPage === page ? 'var(--primary-color)' : '#ddd',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  onClick={() => handleOrdersPageChange(currentOrdersPage + 1)}
+                  disabled={currentOrdersPage === totalOrdersPages}
+                  style={{ padding: '0.5rem 1rem', background: '#fff', border: '1px solid #ddd', borderRadius: '4px', cursor: currentOrdersPage === totalOrdersPages ? 'not-allowed' : 'pointer' }}
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -1589,6 +1647,50 @@ function Admin({ refreshGlobalProducts }) {
         </div>
       </div>
     )}
+
+      {/* 주문 상세(배송지 정보) 모달 */}
+      {selectedOrderDetails && (
+        <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000}} onClick={() => setSelectedOrderDetails(null)}>
+          <div style={{background: 'white', borderRadius: '16px', padding: '2rem', width: '90%', maxWidth: '500px', maxHeight: '80vh', overflowY: 'auto'}} onClick={e => e.stopPropagation()}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem'}}>
+              <h2 style={{fontSize: '1.5rem', fontWeight: 'bold'}}>배송지 상세 정보</h2>
+              <button onClick={() => setSelectedOrderDetails(null)} style={{background: 'none', border: 'none', cursor: 'pointer'}}><X size={24} /></button>
+            </div>
+            
+            <div style={{marginBottom: '2rem', padding: '1.5rem', background: '#f8f9fa', borderRadius: '8px'}}>
+              <p style={{marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between'}}>
+                <strong style={{color: '#555'}}>수령인</strong> 
+                <span>{selectedOrderDetails.shippingInfo?.receiverName || '정보 없음'}</span>
+              </p>
+              <p style={{marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between'}}>
+                <strong style={{color: '#555'}}>연락처</strong> 
+                <span>{selectedOrderDetails.shippingInfo?.receiverPhone || '정보 없음'}</span>
+              </p>
+              <p style={{marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between'}}>
+                <strong style={{color: '#555'}}>우편번호</strong> 
+                <span>{selectedOrderDetails.shippingInfo?.zonecode || '정보 없음'}</span>
+              </p>
+              <div style={{marginBottom: '0.8rem'}}>
+                <strong style={{color: '#555', display: 'block', marginBottom: '0.3rem'}}>주소</strong> 
+                <div style={{background: 'white', padding: '0.8rem', borderRadius: '6px', border: '1px solid #ddd'}}>
+                  {selectedOrderDetails.shippingInfo?.address || '정보 없음'}<br/>
+                  {selectedOrderDetails.shippingInfo?.detailAddress || ''}
+                </div>
+              </div>
+              <div>
+                <strong style={{color: '#555', display: 'block', marginBottom: '0.3rem'}}>배송 메모</strong> 
+                <div style={{background: 'white', padding: '0.8rem', borderRadius: '6px', border: '1px solid #ddd', minHeight: '60px'}}>
+                  {selectedOrderDetails.shippingInfo?.memo || '없음'}
+                </div>
+              </div>
+            </div>
+
+            <button onClick={() => setSelectedOrderDetails(null)} style={{width: '100%', padding: '1rem', background: '#333', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.1rem', fontFamily: 'inherit'}}>
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
   </>
   );
 }
