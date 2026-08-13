@@ -28,6 +28,10 @@ const OrderSchema = new mongoose.Schema({
     memo: { type: String, default: '' }
   },
   
+  // 송장 정보
+  courier: { type: String, default: '' },
+  trackingNumber: { type: String, default: '' },
+  
   status: { 
     type: String, 
     enum: ['결제대기', '결제완료', '상품준비중', '배송중', '배송완료', '취소됨', '환불됨'],

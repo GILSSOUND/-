@@ -90,11 +90,15 @@ router.get('/', async (req, res) => {
   }
 });
 
-// --- 주문 상태 변경 (관리자용) ---
+// --- 주문 상태 및 송장 변경 (관리자용) ---
 router.put('/:id/status', async (req, res) => {
   try {
-    const { status } = req.body;
-    const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    const { status, courier, trackingNumber } = req.body;
+    const updateData = { status };
+    if (courier !== undefined) updateData.courier = courier;
+    if (trackingNumber !== undefined) updateData.trackingNumber = trackingNumber;
+
+    const order = await Order.findByIdAndUpdate(req.params.id, updateData, { new: true });
     res.json(order);
   } catch (error) {
     res.status(500).json({ error: 'Failed to update order status' });

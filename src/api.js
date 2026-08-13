@@ -73,7 +73,7 @@ export const fetchAllOrders = async () => {
   return res.data;
 };
 
-export const updateOrderStatus = async (orderId, status) => {
-  const res = await axios.put(`${API_URL}/orders/${orderId}/status`, { status });
+export const updateOrderStatus = async (orderId, payload) => {
+  const res = await axios.put(`${API_URL}/orders/${orderId}/status`, payload);
   return res.data;
 };

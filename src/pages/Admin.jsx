@@ -25,6 +25,10 @@ function Admin({ refreshGlobalProducts }) {
   // 관리자 회원 주문 내역 모달 상태
   const [selectedUserForOrders, setSelectedUserForOrders] = useState(null);
   const [selectedUserOrders, setSelectedUserOrders] = useState([]);
+  
+  // 주문 관리 서브 탭 & 송장 입력 상태
+  const [orderSubTab, setOrderSubTab] = useState('결제완료');
+  const [trackingInputs, setTrackingInputs] = useState({});
 
   
   // 폼 기본값
@@ -1122,32 +1126,56 @@ function Admin({ refreshGlobalProducts }) {
 
         {activeTab === 'order' && (
           <div style={{background: 'white', borderRadius: '16px', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.05)'}}>
-            <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '2rem'}}>주문 관리 ({allOrders.length}건)</h2>
+            <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '1.5rem'}}>주문 관리 ({allOrders.length}건)</h2>
+            
+            {/* 소메뉴 (서브 탭) */}
+            <div style={{display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '2px solid #eee', paddingBottom: '1rem'}}>
+              {['결제완료', '상품준비중', '배송중', '배송완료'].map(status => (
+                <button
+                  key={status}
+                  onClick={() => setOrderSubTab(status)}
+                  style={{
+                    padding: '0.8rem 1.5rem',
+                    background: orderSubTab === status ? 'var(--primary-color)' : '#f1f2f6',
+                    color: orderSubTab === status ? 'white' : '#555',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: orderSubTab === status ? 'bold' : 'normal',
+                    fontSize: '1.1rem'
+                  }}
+                >
+                  {status === '결제완료' ? '1. 주문완료' : status === '상품준비중' ? '2. 배송처리' : status === '배송중' ? '3. 배송중' : '4. 배송완료'}
+                  <span style={{marginLeft: '0.5rem', background: 'rgba(255,255,255,0.2)', padding: '0.2rem 0.5rem', borderRadius: '12px', fontSize: '0.9rem'}}>
+                    {allOrders.filter(o => o.status === status).length}
+                  </span>
+                </button>
+              ))}
+            </div>
+
             <div style={{overflowX: 'auto'}}>
               <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1000px'}}>
                 <thead>
                   <tr style={{background: '#f8f9fa', borderBottom: '2px solid #ddd'}}>
                     <th style={{padding: '1rem', fontWeight: 'bold'}}>주문일시</th>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>주문번호(아임포트)</th>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>주문자</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>주문번호/주문자</th>
                     <th style={{padding: '1rem', fontWeight: 'bold'}}>상품명</th>
                     <th style={{padding: '1rem', fontWeight: 'bold'}}>결제금액</th>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>주문상태</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>
+                      {orderSubTab === '상품준비중' ? '송장입력' : orderSubTab === '배송중' || orderSubTab === '배송완료' ? '송장정보' : '관리'}
+                    </th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>상태변경</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {allOrders.map(order => (
+                  {allOrders.filter(o => o.status === orderSubTab).map(order => (
                     <tr key={order._id} style={{borderBottom: '1px solid #eee'}}>
                       <td style={{padding: '1rem', color: '#666'}}>
                         {new Date(order.createdAt).toLocaleString()}
                       </td>
-                      <td style={{padding: '1rem', color: '#333', fontSize: '0.9rem'}}>
-                        <div style={{fontWeight: 'bold'}}>{order.merchant_uid}</div>
-                        <div style={{color: '#999', fontSize: '0.8rem'}}>{order.imp_uid}</div>
-                      </td>
                       <td style={{padding: '1rem'}}>
                         <div style={{fontWeight: 'bold', color: '#333'}}>{order.userId?.name || order.shippingInfo?.receiverName || '알 수 없음'}</div>
-                        <div style={{color: '#666', fontSize: '0.9rem'}}>{order.userId?.phone || order.shippingInfo?.receiverPhone || ''}</div>
+                        <div style={{color: '#666', fontSize: '0.85rem'}}>{order.merchant_uid}</div>
                       </td>
                       <td style={{padding: '1rem', color: '#333'}}>
                         {order.items.length > 0 ? (
@@ -1160,37 +1188,80 @@ function Admin({ refreshGlobalProducts }) {
                         {(order.totalAmount + order.shippingFee).toLocaleString()}원
                       </td>
                       <td style={{padding: '1rem'}}>
-                        <select 
-                          value={order.status || '결제완료'} 
-                          onChange={async (e) => {
+                        {orderSubTab === '상품준비중' ? (
+                          <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
+                            <input 
+                              type="text" 
+                              placeholder="택배사 (예: CJ대한통운)"
+                              value={trackingInputs[order._id]?.courier || ''}
+                              onChange={e => setTrackingInputs(prev => ({...prev, [order._id]: {...prev[order._id], courier: e.target.value}}))}
+                              style={{padding: '0.4rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '0.9rem'}}
+                            />
+                            <input 
+                              type="text" 
+                              placeholder="송장번호 입력"
+                              value={trackingInputs[order._id]?.trackingNumber || ''}
+                              onChange={e => setTrackingInputs(prev => ({...prev, [order._id]: {...prev[order._id], trackingNumber: e.target.value}}))}
+                              style={{padding: '0.4rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '0.9rem'}}
+                            />
+                          </div>
+                        ) : (orderSubTab === '배송중' || orderSubTab === '배송완료') ? (
+                          <div style={{fontSize: '0.95rem'}}>
+                            <div style={{fontWeight: 'bold', color: '#555'}}>{order.courier || '택배사 미상'}</div>
+                            <div style={{color: '#888'}}>{order.trackingNumber || '송장번호 없음'}</div>
+                          </div>
+                        ) : (
+                          <span style={{color: '#aaa'}}>-</span>
+                        )}
+                      </td>
+                      <td style={{padding: '1rem'}}>
+                        {orderSubTab === '결제완료' && (
+                          <button onClick={async () => {
                             try {
-                              await updateOrderStatus(order._id, e.target.value);
-                              loadAllOrders(); // reload
-                            } catch (error) {
-                              alert('상태 변경 실패');
+                              await updateOrderStatus(order._id, { status: '상품준비중' });
+                              loadAllOrders();
+                            } catch (e) { alert('변경 실패'); }
+                          }} style={{padding: '0.6rem 1rem', background: '#34495e', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit'}}>
+                            배송처리(준비중)로 이동
+                          </button>
+                        )}
+                        {orderSubTab === '상품준비중' && (
+                          <button onClick={async () => {
+                            const trackingInfo = trackingInputs[order._id];
+                            if (!trackingInfo?.courier || !trackingInfo?.trackingNumber) {
+                              if (!window.confirm('택배사나 송장번호가 입력되지 않았습니다. 그래도 배송중으로 이동하시겠습니까?')) return;
                             }
-                          }}
-                          style={{
-                            padding: '0.5rem',
-                            borderRadius: '8px',
-                            border: '1px solid #ddd',
-                            outline: 'none',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          <option value="결제대기">결제대기</option>
-                          <option value="결제완료">결제완료</option>
-                          <option value="상품준비중">상품준비중</option>
-                          <option value="배송중">배송중</option>
-                          <option value="배송완료">배송완료</option>
-                          <option value="취소됨">취소됨</option>
-                        </select>
+                            try {
+                              await updateOrderStatus(order._id, { 
+                                status: '배송중', 
+                                courier: trackingInfo?.courier || '',
+                                trackingNumber: trackingInfo?.trackingNumber || ''
+                              });
+                              loadAllOrders();
+                            } catch (e) { alert('변경 실패'); }
+                          }} style={{padding: '0.6rem 1rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit'}}>
+                            송장입력 후 배송중 이동
+                          </button>
+                        )}
+                        {orderSubTab === '배송중' && (
+                          <button onClick={async () => {
+                            try {
+                              await updateOrderStatus(order._id, { status: '배송완료' });
+                              loadAllOrders();
+                            } catch (e) { alert('변경 실패'); }
+                          }} style={{padding: '0.6rem 1rem', background: '#27ae60', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit'}}>
+                            배송완료 처리
+                          </button>
+                        )}
+                        {orderSubTab === '배송완료' && (
+                          <span style={{color: '#27ae60', fontWeight: 'bold'}}>배송완료 됨</span>
+                        )}
                       </td>
                     </tr>
                   ))}
-                  {allOrders.length === 0 && (
+                  {allOrders.filter(o => o.status === orderSubTab).length === 0 && (
                     <tr>
-                      <td colSpan="6" style={{padding: '2rem', textAlign: 'center', color: '#999'}}>
+                      <td colSpan="6" style={{padding: '3rem', textAlign: 'center', color: '#999', fontSize: '1.1rem'}}>
                         주문 내역이 없습니다.
                       </td>
                     </tr>
