@@ -161,11 +161,6 @@ function MyPage() {
           <div className="mypage-tab-content">
             <h3>나의 정보</h3>
 
-            <div style={{marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', paddingLeft: '0.5rem'}}>
-              <input type="checkbox" id="default-shipping-check" defaultChecked style={{width: '18px', height: '18px', cursor: 'pointer'}} />
-              <label htmlFor="default-shipping-check" style={{fontSize: '1.1rem', cursor: 'pointer', color: '#333', fontWeight: 'bold'}}>기본 배송정보로 입력</label>
-            </div>
-
             <div className="profile-edit-form" style={{display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)'}}>
               <div className="form-group" style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
                 <label style={{fontWeight: 'bold', color: '#555'}}>이름</label>

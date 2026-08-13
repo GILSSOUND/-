@@ -9,6 +9,8 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
   const navigate = useNavigate();
   
   const [checkoutMode, setCheckoutMode] = useState(false);
+  const [useDefaultShipping, setUseDefaultShipping] = useState(false);
+  
   const [shippingInfo, setShippingInfo] = useState({
     receiverName: user?.name || '',
     receiverPhone: user?.phone || '',
@@ -17,6 +19,25 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
     detailAddress: '',
     memo: ''
   });
+
+  const handleUseDefaultShipping = (e) => {
+    const isChecked = e.target.checked;
+    setUseDefaultShipping(isChecked);
+    
+    if (isChecked && user) {
+      if (!user.zonecode || !user.address) {
+        alert('마이페이지에 등록된 기본 주소가 없습니다. 주소를 입력해주세요.');
+      }
+      setShippingInfo(prev => ({
+        ...prev,
+        receiverName: user.name || prev.receiverName,
+        receiverPhone: user.phone || prev.receiverPhone,
+        zonecode: user.zonecode || prev.zonecode,
+        address: user.address || prev.address,
+        detailAddress: user.detailAddress || prev.detailAddress,
+      }));
+    }
+  };
 
   const formatPrice = (price) => {
     return price.toLocaleString('ko-KR');
@@ -206,6 +227,14 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
             ) : (
               <div className="shipping-info-form" style={{ background: 'white', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
                 <h3 style={{ marginBottom: '1.5rem', borderBottom: '2px solid #333', paddingBottom: '0.8rem' }}>배송지 정보</h3>
+                
+                {user && (
+                  <div style={{marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '1rem', background: '#f5f5f5', borderRadius: '8px', border: '1px solid #eee'}}>
+                    <input type="checkbox" id="default-shipping-check" checked={useDefaultShipping} onChange={handleUseDefaultShipping} style={{width: '18px', height: '18px', cursor: 'pointer'}} />
+                    <label htmlFor="default-shipping-check" style={{fontSize: '1.1rem', cursor: 'pointer', color: '#333', fontWeight: 'bold'}}>마이페이지 주소지(기본정보) 불러오기</label>
+                  </div>
+                )}
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
                   <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>받으시는 분</label>
