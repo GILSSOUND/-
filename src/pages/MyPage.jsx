@@ -9,6 +9,7 @@ function MyPage() {
   const [activeTab, setActiveTab] = useState('profile');
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
 
   const [profileForm, setProfileForm] = useState({
     name: '',
@@ -142,41 +143,61 @@ function MyPage() {
           try {
             const data = await updateMyInfo(profileForm);
             setUser(data.user);
+            setIsEditingProfile(false);
             alert('개인정보가 성공적으로 수정되었습니다.');
           } catch(e) {
             alert(e.response?.data?.error || e.message);
           }
         };
 
+        const inputStyle = {
+          padding: '0.8rem', border: '1px solid #ddd', borderRadius: '6px', fontSize: '1rem',
+          background: isEditingProfile ? 'white' : '#f5f5f5',
+          color: isEditingProfile ? '#333' : '#666',
+          fontFamily: 'inherit'
+        };
+
         return (
           <div className="mypage-tab-content">
             <h3>나의 정보</h3>
+
+            <div style={{marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', paddingLeft: '0.5rem'}}>
+              <input type="checkbox" id="default-shipping-check" defaultChecked style={{width: '18px', height: '18px', cursor: 'pointer'}} />
+              <label htmlFor="default-shipping-check" style={{fontSize: '1.1rem', cursor: 'pointer', color: '#333', fontWeight: 'bold'}}>기본 배송정보로 입력</label>
+            </div>
+
             <div className="profile-edit-form" style={{display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)'}}>
               <div className="form-group" style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
                 <label style={{fontWeight: 'bold', color: '#555'}}>이름</label>
-                <input type="text" name="name" value={profileForm.name} onChange={handleProfileChange} style={{padding: '0.8rem', border: '1px solid #ddd', borderRadius: '6px', fontSize: '1rem'}} />
+                <input type="text" name="name" value={profileForm.name} onChange={handleProfileChange} disabled={!isEditingProfile} style={inputStyle} />
               </div>
               <div className="form-group" style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
                 <label style={{fontWeight: 'bold', color: '#555'}}>전화번호</label>
-                <input type="text" name="phone" value={profileForm.phone} onChange={handleProfileChange} style={{padding: '0.8rem', border: '1px solid #ddd', borderRadius: '6px', fontSize: '1rem'}} />
+                <input type="text" name="phone" value={profileForm.phone} onChange={handleProfileChange} disabled={!isEditingProfile} style={inputStyle} />
               </div>
               <div className="form-group" style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
                 <label style={{fontWeight: 'bold', color: '#555'}}>이메일</label>
-                <input type="email" name="email" value={profileForm.email} onChange={handleProfileChange} disabled={user.provider !== 'local'} style={{padding: '0.8rem', border: '1px solid #ddd', borderRadius: '6px', fontSize: '1rem', background: user.provider !== 'local' ? '#f5f5f5' : 'white'}} />
-                {user.provider !== 'local' && <small style={{color: '#888'}}>소셜 로그인 회원은 이메일을 변경할 수 없습니다.</small>}
+                <input type="email" name="email" value={profileForm.email} onChange={handleProfileChange} disabled={!isEditingProfile || user.provider !== 'local'} style={{...inputStyle, background: (!isEditingProfile || user.provider !== 'local') ? '#f5f5f5' : 'white'}} />
+                {user.provider !== 'local' && isEditingProfile && <small style={{color: '#888'}}>소셜 로그인 회원은 이메일을 변경할 수 없습니다.</small>}
               </div>
               
               <div className="form-group" style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
                 <label style={{fontWeight: 'bold', color: '#555'}}>주소</label>
                 <div style={{display: 'flex', gap: '0.5rem'}}>
-                  <input type="text" name="zonecode" value={profileForm.zonecode} readOnly placeholder="우편번호" style={{flex: 1, padding: '0.8rem', border: '1px solid #ddd', borderRadius: '6px', fontSize: '1rem', background: '#f9f9f9'}} />
-                  <button type="button" onClick={handlePostcode} style={{padding: '0 1.5rem', background: '#333', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 'bold'}}>주소찾기</button>
+                  <input type="text" name="zonecode" value={profileForm.zonecode} readOnly placeholder="우편번호" style={{...inputStyle, flex: 1, background: '#f5f5f5'}} />
+                  {isEditingProfile && (
+                    <button type="button" onClick={handlePostcode} style={{padding: '0 1.5rem', background: '#333', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 'bold'}}>주소찾기</button>
+                  )}
                 </div>
-                <input type="text" name="address" value={profileForm.address} readOnly placeholder="기본주소" style={{padding: '0.8rem', border: '1px solid #ddd', borderRadius: '6px', fontSize: '1rem', background: '#f9f9f9'}} />
-                <input type="text" name="detailAddress" value={profileForm.detailAddress} onChange={handleProfileChange} placeholder="상세주소를 입력해주세요" style={{padding: '0.8rem', border: '1px solid #ddd', borderRadius: '6px', fontSize: '1rem'}} />
+                <input type="text" name="address" value={profileForm.address} readOnly placeholder="기본주소" style={{...inputStyle, background: '#f5f5f5'}} />
+                <input type="text" name="detailAddress" value={profileForm.detailAddress} onChange={handleProfileChange} disabled={!isEditingProfile} placeholder="상세주소를 입력해주세요" style={inputStyle} />
               </div>
 
-              <button onClick={handleSave} style={{marginTop: '1rem', padding: '1rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'inherit'}}>수정하기</button>
+              {!isEditingProfile ? (
+                <button onClick={() => setIsEditingProfile(true)} style={{marginTop: '1rem', padding: '1rem', background: '#333', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'inherit'}}>기본정보 수정하기</button>
+              ) : (
+                <button onClick={handleSave} style={{marginTop: '1rem', padding: '1rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'inherit'}}>수정완료</button>
+              )}
             </div>
           </div>
         );
