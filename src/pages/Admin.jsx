@@ -631,7 +631,14 @@ function Admin({ refreshGlobalProducts }) {
 
   return (
     <>
-    <div style={{display: 'flex', minHeight: '100vh', background: '#f8f9fa'}}>
+    <style>
+      {`
+        .admin-page * {
+          font-family: "Jua", "Pretendard", sans-serif !important;
+        }
+      `}
+    </style>
+    <div className="admin-page" style={{display: 'flex', minHeight: '100vh', background: '#f8f9fa'}}>
       
       {/* 1. 왼쪽 사이드바 메뉴 */}
       <div style={{width: '260px', background: 'white', padding: '2rem 0', borderRight: '1px solid #eee', position: 'fixed', height: '100vh', top: '80px'}}>

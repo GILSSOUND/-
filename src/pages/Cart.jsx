@@ -131,7 +131,15 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
   };
 
   return (
-    <div className="page-container">
+    <>
+    <style>
+      {`
+        #cart-page-wrapper * {
+          font-family: "Jua", "Pretendard", sans-serif !important;
+        }
+      `}
+    </style>
+    <div id="cart-page-wrapper" className="page-container">
       <h2 className="page-title">{checkoutMode ? '주문/결제' : '장바구니'}</h2>
       
       {cartItems.length === 0 ? (
@@ -245,14 +253,11 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
             ) : (
               <button className="primary-btn checkout-btn" onClick={requestPay} style={{ background: '#e53935' }}>{formatPrice(totalPrice + finalShippingFee)}원 결제하기</button>
             )}
-            
-            {checkoutMode && (
-              <button className="outline-btn checkout-btn" onClick={() => setCheckoutMode(false)} style={{ marginTop: '0.5rem' }}>장바구니로 돌아가기</button>
-            )}
           </div>
         </div>
       )}
     </div>
+    </>
   );
 }
 
