@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Navigate } from 'react-router-dom';
-import { ShoppingBag, RefreshCcw, RotateCcw, User, ChevronRight } from 'lucide-react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { ShoppingBag, RefreshCcw, RotateCcw, User, ChevronRight, X } from 'lucide-react';
 import { fetchMyOrders, updateMyInfo } from '../api';
 
 function MyPage() {
   const { user, setUser } = useAuth();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('profile');
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const [profileForm, setProfileForm] = useState({
     name: '',
@@ -20,6 +22,13 @@ function MyPage() {
     detailAddress: '',
     doorPassword: ''
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('tab') === 'orders') {
+      setActiveTab('orders');
+    }
+  }, [location]);
 
   useEffect(() => {
     if (user) {
@@ -76,7 +85,7 @@ function MyPage() {
             ) : (
               <div className="orders-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {orders.map((order) => (
-                  <div key={order._id} style={{ border: '1px solid #eee', borderRadius: '8px', padding: '1.5rem' }}>
+                  <div key={order._id} style={{ border: '1px solid #eee', borderRadius: '8px', padding: '1.5rem', cursor: 'pointer', transition: 'box-shadow 0.2s' }} onClick={() => setSelectedOrder(order)} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '0.8rem', marginBottom: '1rem' }}>
                       <div>
                         <span style={{ fontWeight: 'bold' }}>{formatDate(order.createdAt)}</span>
@@ -245,6 +254,65 @@ function MyPage() {
           {renderContent()}
         </main>
       </div>
+      
+      {/* 주문 상세 팝업 */}
+      {selectedOrder && (
+        <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000}} onClick={() => setSelectedOrder(null)}>
+          <div style={{background: 'white', borderRadius: '16px', padding: '2.5rem', width: '90%', maxWidth: '600px', maxHeight: '85vh', overflowY: 'auto', fontFamily: '"Jua", "Pretendard", sans-serif'}} onClick={e => e.stopPropagation()}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
+              <h2 style={{fontSize: '1.6rem', fontWeight: 'bold'}}>주문 상세 정보</h2>
+              <button onClick={() => setSelectedOrder(null)} style={{background: 'none', border: 'none', cursor: 'pointer'}}><X size={28} /></button>
+            </div>
+            
+            <div style={{marginBottom: '2rem'}}>
+              <h3 style={{fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--primary-color)', borderBottom: '2px solid #eee', paddingBottom: '0.8rem', marginBottom: '1rem'}}>배송지 정보</h3>
+              <div style={{padding: '1.5rem', background: '#f8f9fa', borderRadius: '8px', fontSize: '1.1rem'}}>
+                <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
+                  <strong style={{color: '#555', minWidth: '100px'}}>수령인</strong> 
+                  <span style={{textAlign: 'right'}}>{selectedOrder.shippingInfo?.receiverName || '정보 없음'}</span>
+                </p>
+                <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
+                  <strong style={{color: '#555', minWidth: '100px'}}>연락처</strong> 
+                  <span style={{textAlign: 'right'}}>{selectedOrder.shippingInfo?.receiverPhone || '정보 없음'}</span>
+                </p>
+                <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
+                  <strong style={{color: '#555', minWidth: '100px'}}>우편번호</strong> 
+                  <span style={{textAlign: 'right'}}>{selectedOrder.shippingInfo?.zonecode || '정보 없음'}</span>
+                </p>
+                <div style={{marginBottom: '1rem'}}>
+                  <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>배송 주소</strong> 
+                  <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', lineHeight: '1.5'}}>
+                    {selectedOrder.shippingInfo?.address || '정보 없음'}<br/>
+                    {selectedOrder.shippingInfo?.detailAddress || ''}
+                  </div>
+                </div>
+                <div style={{marginBottom: '1rem'}}>
+                  <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>현관 출입비밀번호</strong> 
+                  <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', color: 'var(--primary-color)', fontWeight: 'bold'}}>
+                    {selectedOrder.shippingInfo?.doorPassword || '없음'}
+                  </div>
+                </div>
+                <div style={{marginBottom: '1rem'}}>
+                  <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>배송 메모</strong> 
+                  <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', minHeight: '60px'}}>
+                    {selectedOrder.shippingInfo?.memo || '없음'}
+                  </div>
+                </div>
+                <div>
+                  <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>기타 메모</strong> 
+                  <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', minHeight: '60px'}}>
+                    {selectedOrder.shippingInfo?.extraMemo || '없음'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button onClick={() => setSelectedOrder(null)} style={{width: '100%', padding: '1rem', background: '#333', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontFamily: 'inherit'}}>
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
     </>
   );

@@ -141,7 +141,7 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
             alert('결제가 완료되었습니다!');
             // 장바구니 비우기
             localStorage.removeItem('gilsmall_cart');
-            window.location.href = '/mypage'; 
+            window.location.href = '/mypage?tab=orders'; 
           } else {
             alert('결제 검증에 실패했습니다. 관리자에게 문의하세요.');
           }
