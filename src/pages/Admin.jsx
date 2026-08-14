@@ -34,6 +34,10 @@ function Admin({ refreshGlobalProducts }) {
   // 주문 관리 서브 탭 & 송장 입력 상태
   const [orderSubTab, setOrderSubTab] = useState('결제완료');
   const [trackingInputs, setTrackingInputs] = useState({});
+  const defaultEndDate = new Date().toISOString().split('T')[0];
+  const defaultStartDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const [orderStartDate, setOrderStartDate] = useState(defaultStartDate);
+  const [orderEndDate, setOrderEndDate] = useState(defaultEndDate);
 
   
   // 폼 기본값
@@ -639,7 +643,16 @@ function Admin({ refreshGlobalProducts }) {
   };
 
   // Pagination Logic (Orders)
-  const filteredOrders = allOrders.filter(o => o.status === orderSubTab);
+  const filteredOrders = allOrders.filter(o => {
+    if (o.status !== orderSubTab) return false;
+    if (orderSubTab === '배송완료') {
+      const orderDate = new Date(o.createdAt).toISOString().split('T')[0];
+      if (orderDate < orderStartDate || orderDate > orderEndDate) {
+        return false;
+      }
+    }
+    return true;
+  });
   const totalOrdersPages = Math.ceil(filteredOrders.length / ordersPerPage);
   const currentOrders = filteredOrders.slice((currentOrdersPage - 1) * ordersPerPage, currentOrdersPage * ordersPerPage);
 
@@ -672,7 +685,7 @@ function Admin({ refreshGlobalProducts }) {
             { id: 'banner', label: '메인 상단 배너 관리', icon: <ImageIcon size={20} /> },
             { id: 'rec_banner', label: '추천상품 배너 관리', icon: <ImageIcon size={20} /> },
             { id: 'notice', label: '공지사항 관리', icon: <Bell size={20} /> },
-            { id: 'order', label: '주문 관리', icon: <ShoppingCart size={20} /> },
+            { id: 'order', label: '주문 관리', icon: <ShoppingCart size={20} />, badge: allOrders.filter(o => o.status === '결제완료').length },
             { id: 'member', label: '회원 관리', icon: <LayoutDashboard size={20} /> },
           ].map(tab => (
             <li key={tab.id} 
@@ -681,14 +694,28 @@ function Admin({ refreshGlobalProducts }) {
                   if (tab.id !== 'register') resetForm();
                 }}
                 style={{
-                  padding: '1rem 2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem',
+                  padding: '1rem 2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   background: activeTab === tab.id ? '#f1f2f6' : 'transparent',
                   color: activeTab === tab.id ? 'var(--primary-color)' : '#333',
                   fontWeight: activeTab === tab.id ? '700' : '500',
                   borderRight: activeTab === tab.id ? '4px solid var(--primary-color)' : '4px solid transparent',
                   transition: 'all 0.2s'
                 }}>
-              {tab.icon} {tab.label}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                {tab.icon} {tab.label}
+              </div>
+              {tab.badge > 0 && (
+                <span style={{
+                  background: 'red',
+                  color: 'white',
+                  borderRadius: '12px',
+                  padding: '0.1rem 0.6rem',
+                  fontSize: '0.85rem',
+                  fontWeight: 'bold'
+                }}>
+                  {tab.badge}
+                </span>
+              )}
             </li>
           ))}
         </ul>
@@ -1170,6 +1197,25 @@ function Admin({ refreshGlobalProducts }) {
                 </button>
               ))}
             </div>
+
+            {orderSubTab === '배송완료' && (
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '8px' }}>
+                <span style={{ fontWeight: 'bold', color: '#555' }}>조회 기간:</span>
+                <input 
+                  type="date" 
+                  value={orderStartDate} 
+                  onChange={(e) => { setOrderStartDate(e.target.value); setCurrentOrdersPage(1); }}
+                  style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
+                <span style={{color: '#888'}}>~</span>
+                <input 
+                  type="date" 
+                  value={orderEndDate} 
+                  onChange={(e) => { setOrderEndDate(e.target.value); setCurrentOrdersPage(1); }}
+                  style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
+              </div>
+            )}
 
             <div style={{overflowX: 'auto'}}>
               <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1000px'}}>
