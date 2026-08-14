@@ -91,7 +91,14 @@ function MyPage() {
                         <span style={{ fontWeight: 'bold' }}>{formatDate(order.createdAt)}</span>
                         <span style={{ color: '#888', marginLeft: '0.5rem', fontSize: '0.9rem' }}>주문번호: {order.merchant_uid}</span>
                       </div>
-                      <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>{order.status}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                        {order.trackingNumber && (
+                          <span style={{ color: '#555', fontSize: '0.95rem' }}>
+                            {order.courier ? `${order.courier} ` : ''}송장번호: {order.trackingNumber}
+                          </span>
+                        )}
+                        <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>{order.status}</span>
+                      </div>
                     </div>
                     
                     {order.items.map((item, idx) => (
