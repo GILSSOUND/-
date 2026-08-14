@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { fetchProducts, createProduct, updateProduct, deleteProduct, uploadImage, fetchConfig, updateConfig, fetchUsers, fetchAllOrders, updateOrderStatus } from '../api';
-import { LayoutDashboard, PackagePlus, List, Image as ImageIcon, Bell, Edit, Trash2, ChevronLeft, ChevronRight, Plus, X, Image as ImgIcon, Type, ShoppingCart } from 'lucide-react';
+import { LayoutDashboard, PackagePlus, List, Image as ImageIcon, Bell, Edit, Trash2, ChevronLeft, ChevronRight, Plus, X, Image as ImgIcon, Type, ShoppingCart, Menu } from 'lucide-react';
 
 function Admin({ refreshGlobalProducts }) {
   const [activeTab, setActiveTab] = useState('register'); // register, list, banner, notice, order
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
   const [allOrders, setAllOrders] = useState([]);
@@ -681,7 +682,10 @@ function Admin({ refreshGlobalProducts }) {
     <div className="admin-page" style={{display: 'flex', minHeight: '100vh', background: '#f8f9fa'}}>
       
       {/* 1. 왼쪽 사이드바 메뉴 */}
-      <div style={{width: '260px', background: 'white', padding: '2rem 0', borderRight: '1px solid #eee', position: 'fixed', height: '100vh', top: '80px'}}>
+      {isSidebarOpen && (
+        <div className="admin-sidebar-overlay" onClick={() => setIsSidebarOpen(false)} style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999}}></div>
+      )}
+      <div className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <h2 style={{padding: '0 2rem', marginBottom: '2rem', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-color)'}}>
           <LayoutDashboard /> 관리자 홈
         </h2>
@@ -699,6 +703,7 @@ function Admin({ refreshGlobalProducts }) {
             <li key={tab.id} 
                 onClick={() => {
                   setActiveTab(tab.id);
+                  setIsSidebarOpen(false);
                   if (tab.id !== 'register') resetForm();
                 }}
                 style={{
@@ -730,8 +735,14 @@ function Admin({ refreshGlobalProducts }) {
       </div>
 
       {/* 2. 메인 컨텐츠 영역 */}
-      <div style={{flex: 1, marginLeft: '260px', padding: '3rem 5%', marginTop: '80px', maxWidth: '1400px'}}>
+      <div className="admin-main-content">
         
+        <div className="admin-mobile-header" style={{ display: 'none', alignItems: 'center', padding: '1rem', background: 'white', borderBottom: '1px solid #eee', marginBottom: '1rem' }}>
+          <button onClick={() => setIsSidebarOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+            <Menu size={24} />
+          </button>
+          <span style={{ marginLeft: '1rem', fontWeight: 'bold', fontSize: '1.2rem' }}>관리자 페이지</span>
+        </div>
         {/* ========================================================================================= */}
         {/* 상품 등록/수정 탭 */}
         {/* ========================================================================================= */}

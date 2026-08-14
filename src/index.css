@@ -1647,3 +1647,17 @@ footer {
   justify-content: center;
   align-items: center;
 }
+
+/* Admin Page Layout */
+.admin-sidebar { width: 260px; background: white; padding: 2rem 0; border-right: 1px solid #eee; position: fixed; height: 100vh; top: 80px; z-index: 1000; transition: transform 0.3s ease; }
+.admin-main-content { flex: 1; margin-left: 260px; padding: 3rem 5%; margin-top: 80px; max-width: 1400px; }
+@media (max-width: 768px) {
+  .admin-sidebar { transform: translateX(-100%); top: 0; padding-top: 2rem; }
+  .admin-sidebar.open { transform: translateX(0); }
+  .admin-main-content { margin-left: 0; padding: 1rem; margin-top: 0; }
+  .admin-mobile-header { display: flex !important; }
+}
+
+@media (max-width: 768px) { .admin-main-content { margin-top: var(--nav-height); } }
+
+@media (max-width: 768px) { .admin-sidebar { z-index: 1001; } }
