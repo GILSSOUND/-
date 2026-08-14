@@ -981,14 +981,7 @@ html {
     border-top: none;
   }
   .mypage-sidebar-profile {
-    padding: 0.8rem 1rem;
-    border-bottom: 1px solid var(--border-color);
-    border-right: 1px solid var(--border-color);
-    background: white;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-shrink: 0;
+    display: none;
   }
   .mypage-sidebar-profile .avatar {
     width: 32px;
@@ -1028,6 +1021,7 @@ html {
     border-left: none;
     border-bottom: 3px solid var(--primary-color);
     color: var(--primary-color);
+    background: transparent;
   }
   .mypage-sidebar-menu .menu-btn svg {
     display: none;
@@ -1040,6 +1034,9 @@ html {
     border: none;
     margin-top: 0;
     box-shadow: none;
+  }
+  .mypage-tab-content h3 {
+    text-align: center;
   }
 }
 

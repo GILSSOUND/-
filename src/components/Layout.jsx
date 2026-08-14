@@ -52,6 +52,11 @@ function Layout({ cartCount, products, wishlistCount }) {
           <Link to="/category/sale" style={{display: 'flex', alignItems: 'center', gap: '0.3rem'}}><Percent size={18} />특가할인</Link>
         </div>
         <div className="nav-actions">
+          {user && (
+            <span style={{ fontSize: '0.9rem', fontWeight: 'bold', marginRight: '0.3rem', color: 'var(--text-main)' }}>
+              {user.name}님
+            </span>
+          )}
           <button className="icon-btn" onClick={() => setIsSearchOpen(true)}>
             <Search size={24} />
           </button>
