@@ -90,17 +90,12 @@ function MyPage() {
               <div className="orders-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {orders.map((order) => (
                   <div key={order._id} style={{ border: '1px solid #eee', borderRadius: '8px', padding: '1.5rem', cursor: 'pointer', transition: 'box-shadow 0.2s' }} onClick={() => setSelectedOrder(order)} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '0.8rem', marginBottom: '1rem' }}>
-                      <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '0.8rem', marginBottom: '1rem' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                         <span style={{ fontWeight: 'bold' }}>{formatDate(order.createdAt)}</span>
-                        <span style={{ color: '#888', marginLeft: '0.5rem', fontSize: '0.9rem' }}>주문번호: {order.merchant_uid}</span>
+                        <span style={{ color: '#888', fontSize: '0.85rem' }}>주문번호: {order.merchant_uid}</span>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                        {order.trackingNumber && (
-                          <span style={{ color: '#555', fontSize: '0.95rem' }}>
-                            {order.courier ? `${order.courier} ` : ''}송장번호: {order.trackingNumber}
-                          </span>
-                        )}
+                      <div style={{ whiteSpace: 'nowrap' }}>
                         <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>{order.status}</span>
                       </div>
                     </div>
@@ -116,8 +111,15 @@ function MyPage() {
                       </div>
                     ))}
                     
-                    <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px dashed #eee', textAlign: 'right', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                      총 결제 금액: {formatPrice(order.totalAmount + order.shippingFee)}원
+                    <div style={{ display: 'flex', flexDirection: 'column', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px dashed #eee' }}>
+                      {order.trackingNumber && (
+                        <div style={{ color: '#555', fontSize: '0.95rem', textAlign: 'left', marginBottom: '0.5rem' }}>
+                          {order.courier ? `${order.courier} ` : ''}송장번호: <span style={{ fontWeight: 'bold', color: 'var(--text-main)' }}>{order.trackingNumber}</span>
+                        </div>
+                      )}
+                      <div style={{ textAlign: 'right', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                        총 결제 금액: <span style={{ color: 'var(--primary-color)' }}>{formatPrice(order.totalAmount + order.shippingFee)}원</span>
+                      </div>
                     </div>
                   </div>
                 ))}
