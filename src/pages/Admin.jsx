@@ -646,7 +646,7 @@ function Admin({ refreshGlobalProducts }) {
   const filteredOrders = allOrders.filter(o => {
     if (o.status !== orderSubTab) return false;
     if (orderSubTab === '배송완료') {
-      const orderDate = new Date(o.createdAt).toISOString().split('T')[0];
+      const orderDate = new Date(o.updatedAt || o.createdAt).toISOString().split('T')[0];
       if (orderDate < orderStartDate || orderDate > orderEndDate) {
         return false;
       }
