@@ -5,7 +5,7 @@ import { ShoppingBag, RefreshCcw, RotateCcw, User, ChevronRight, X } from 'lucid
 import { fetchMyOrders, updateMyInfo } from '../api';
 
 function MyPage() {
-  const { user, setUser } = useAuth();
+  const { user, setUser, loading: authLoading } = useAuth();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('profile');
   const [orders, setOrders] = useState([]);
@@ -64,6 +64,10 @@ function MyPage() {
 
   const formatPrice = (price) => price.toLocaleString('ko-KR');
   const formatDate = (dateString) => new Date(dateString).toLocaleDateString('ko-KR');
+
+  if (authLoading) {
+    return <div style={{ padding: '5rem', textAlign: 'center' }}>사용자 정보를 불러오는 중입니다...</div>;
+  }
 
   if (!user) {
     return <Navigate to="/" replace />;

@@ -646,10 +646,16 @@ function Admin({ refreshGlobalProducts }) {
   const filteredOrders = allOrders.filter(o => {
     if (o.status !== orderSubTab) return false;
     if (orderSubTab === '배송완료') {
-      const dateObj = new Date(o.updatedAt || o.createdAt);
-      const kstDate = new Date(dateObj.getTime() + 9 * 60 * 60 * 1000);
-      const orderDate = kstDate.toISOString().split('T')[0];
-      if (orderDate < orderStartDate || orderDate > orderEndDate) {
+      let orderDate = '';
+      try {
+        const dateObj = new Date(o.updatedAt || o.createdAt);
+        if (!isNaN(dateObj.getTime())) {
+          const kstDate = new Date(dateObj.getTime() + 9 * 60 * 60 * 1000);
+          orderDate = kstDate.toISOString().split('T')[0];
+        }
+      } catch (e) {}
+      
+      if (orderDate && (orderDate < orderStartDate || orderDate > orderEndDate)) {
         return false;
       }
     }

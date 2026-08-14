@@ -132,7 +132,15 @@ function Layout({ cartCount, products, wishlistCount }) {
 
       {/* Floating Login/Logout Button */}
       <div 
-        onClick={user ? logout : () => requireAuth(() => {})}
+        onClick={() => {
+          if (user) {
+            if (window.confirm("로그아웃하시겠습니까?")) {
+              logout();
+            }
+          } else {
+            requireAuth(() => {});
+          }
+        }}
         style={{
           position: 'fixed',
           bottom: isProductPage ? '100px' : '20px',
