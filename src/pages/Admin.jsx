@@ -1191,9 +1191,11 @@ function Admin({ refreshGlobalProducts }) {
                   }}
                 >
                   {status === '결제완료' ? '1. 주문완료' : status === '상품준비중' ? '2. 배송처리' : status === '배송중' ? '3. 배송중' : '4. 배송완료'}
-                  <span style={{marginLeft: '0.5rem', background: 'rgba(255,255,255,0.2)', padding: '0.2rem 0.5rem', borderRadius: '12px', fontSize: '0.9rem'}}>
-                    {allOrders.filter(o => o.status === status).length}
-                  </span>
+                  {status !== '배송완료' && (
+                    <span style={{marginLeft: '0.5rem', background: 'rgba(255,255,255,0.2)', padding: '0.2rem 0.5rem', borderRadius: '12px', fontSize: '0.9rem'}}>
+                      {allOrders.filter(o => o.status === status).length}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
@@ -1214,6 +1216,9 @@ function Admin({ refreshGlobalProducts }) {
                   onChange={(e) => { setOrderEndDate(e.target.value); setCurrentOrdersPage(1); }}
                   style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
+                <span style={{ marginLeft: 'auto', fontWeight: 'bold', color: 'var(--primary-color)' }}>
+                  기간 내 배송완료: {filteredOrders.length}건
+                </span>
               </div>
             )}
 
