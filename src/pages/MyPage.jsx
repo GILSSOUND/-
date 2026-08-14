@@ -117,7 +117,7 @@ function MyPage() {
                           {order.courier ? `${order.courier} ` : ''}송장번호: <span style={{ fontWeight: 'bold', color: 'var(--text-main)' }}>{order.trackingNumber}</span>
                         </div>
                       )}
-                      <div style={{ textAlign: 'right', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                      <div style={{ textAlign: 'left', fontWeight: 'bold', fontSize: '1.1rem' }}>
                         총 결제 금액: <span style={{ color: 'var(--primary-color)' }}>{formatPrice(order.totalAmount + order.shippingFee)}원</span>
                       </div>
                     </div>
@@ -277,45 +277,42 @@ function MyPage() {
               <button onClick={() => setSelectedOrder(null)} style={{background: 'none', border: 'none', cursor: 'pointer'}}><X size={28} /></button>
             </div>
             
-            <div style={{marginBottom: '2rem'}}>
-              <h3 style={{fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--primary-color)', borderBottom: '2px solid #eee', paddingBottom: '0.8rem', marginBottom: '1rem'}}>배송지 정보</h3>
-              <div style={{padding: '1.5rem', background: '#f8f9fa', borderRadius: '8px', fontSize: '1.1rem'}}>
-                <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
-                  <strong style={{color: '#555', minWidth: '100px'}}>수령인</strong> 
-                  <span style={{textAlign: 'right'}}>{selectedOrder.shippingInfo?.receiverName || '정보 없음'}</span>
-                </p>
-                <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
-                  <strong style={{color: '#555', minWidth: '100px'}}>연락처</strong> 
-                  <span style={{textAlign: 'right'}}>{selectedOrder.shippingInfo?.receiverPhone || '정보 없음'}</span>
-                </p>
-                <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
-                  <strong style={{color: '#555', minWidth: '100px'}}>우편번호</strong> 
-                  <span style={{textAlign: 'right'}}>{selectedOrder.shippingInfo?.zonecode || '정보 없음'}</span>
-                </p>
-                <div style={{marginBottom: '1rem'}}>
-                  <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>배송 주소</strong> 
-                  <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', lineHeight: '1.5'}}>
-                    {selectedOrder.shippingInfo?.address || '정보 없음'}<br/>
-                    {selectedOrder.shippingInfo?.detailAddress || ''}
-                  </div>
+            <div style={{marginBottom: '2rem', fontSize: '1.1rem'}}>
+              <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
+                <strong style={{color: '#555', minWidth: '100px'}}>수령인</strong> 
+                <span style={{textAlign: 'right'}}>{selectedOrder.shippingInfo?.receiverName || '정보 없음'}</span>
+              </p>
+              <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
+                <strong style={{color: '#555', minWidth: '100px'}}>연락처</strong> 
+                <span style={{textAlign: 'right'}}>{selectedOrder.shippingInfo?.receiverPhone || '정보 없음'}</span>
+              </p>
+              <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
+                <strong style={{color: '#555', minWidth: '100px'}}>우편번호</strong> 
+                <span style={{textAlign: 'right'}}>{selectedOrder.shippingInfo?.zonecode || '정보 없음'}</span>
+              </p>
+              <div style={{marginBottom: '1rem'}}>
+                <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>배송 주소</strong> 
+                <div style={{background: '#f8f9fa', padding: '1rem', borderRadius: '6px', border: '1px solid #eee', lineHeight: '1.5'}}>
+                  {selectedOrder.shippingInfo?.address || '정보 없음'}<br/>
+                  {selectedOrder.shippingInfo?.detailAddress || ''}
                 </div>
-                <div style={{marginBottom: '1rem'}}>
-                  <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>현관 출입비밀번호</strong> 
-                  <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', color: 'var(--primary-color)', fontWeight: 'bold'}}>
-                    {selectedOrder.shippingInfo?.doorPassword || '없음'}
-                  </div>
+              </div>
+              <div style={{marginBottom: '1rem'}}>
+                <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>현관 출입비밀번호</strong> 
+                <div style={{background: '#f8f9fa', padding: '1rem', borderRadius: '6px', border: '1px solid #eee', color: 'var(--primary-color)', fontWeight: 'bold'}}>
+                  {selectedOrder.shippingInfo?.doorPassword || '없음'}
                 </div>
-                <div style={{marginBottom: '1rem'}}>
-                  <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>배송 메모</strong> 
-                  <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', minHeight: '60px'}}>
-                    {selectedOrder.shippingInfo?.memo || '없음'}
-                  </div>
+              </div>
+              <div style={{marginBottom: '1rem'}}>
+                <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>배송 메모</strong> 
+                <div style={{background: '#f8f9fa', padding: '1rem', borderRadius: '6px', border: '1px solid #eee', minHeight: '60px'}}>
+                  {selectedOrder.shippingInfo?.memo || '없음'}
                 </div>
-                <div>
-                  <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>기타 메모</strong> 
-                  <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', minHeight: '60px'}}>
-                    {selectedOrder.shippingInfo?.extraMemo || '없음'}
-                  </div>
+              </div>
+              <div>
+                <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>기타 메모</strong> 
+                <div style={{background: '#f8f9fa', padding: '1rem', borderRadius: '6px', border: '1px solid #eee', minHeight: '60px'}}>
+                  {selectedOrder.shippingInfo?.extraMemo || '없음'}
                 </div>
               </div>
             </div>

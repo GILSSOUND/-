@@ -999,6 +999,7 @@ html {
   .mypage-sidebar-menu {
     display: flex;
     flex-direction: row;
+    justify-content: center;
     overflow-x: auto;
     white-space: nowrap;
     width: 100%;
