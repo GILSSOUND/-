@@ -23,7 +23,10 @@ function ScrollToTop() {
 }
 
 function AppContent() {
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    const saved = localStorage.getItem('gilsmall_cart');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [wishlistItems, setWishlistItems] = useState([]);
   const [products, setProducts] = useState(window.__INITIAL_PRODUCTS__ || []);
   const [toastMessage, setToastMessage] = useState('');
@@ -39,6 +42,10 @@ function AppContent() {
   useEffect(() => {
     loadProducts();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('gilsmall_cart', JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const loadProducts = async () => {
     try {

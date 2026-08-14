@@ -1701,21 +1701,21 @@ function Admin({ refreshGlobalProducts }) {
                   </div>
                 </div>
                 <div style={{marginBottom: '1rem'}}>
+                  <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>현관 출입비밀번호</strong> 
+                  <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', color: 'var(--primary-color)', fontWeight: 'bold'}}>
+                    {selectedOrderDetails.shippingInfo?.doorPassword || '없음'}
+                  </div>
+                </div>
+                <div style={{marginBottom: '1rem'}}>
                   <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>배송 메모</strong> 
                   <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', minHeight: '60px'}}>
                     {selectedOrderDetails.shippingInfo?.memo || '없음'}
                   </div>
                 </div>
-                <div style={{marginBottom: '1rem'}}>
+                <div>
                   <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>기타 메모</strong> 
                   <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', minHeight: '60px'}}>
                     {selectedOrderDetails.shippingInfo?.extraMemo || '없음'}
-                  </div>
-                </div>
-                <div>
-                  <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>현관 출입비밀번호</strong> 
-                  <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', color: 'var(--primary-color)', fontWeight: 'bold'}}>
-                    {selectedOrderDetails.shippingInfo?.doorPassword || '없음'}
                   </div>
                 </div>
               </div>

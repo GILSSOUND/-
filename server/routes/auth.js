@@ -61,7 +61,7 @@ router.post('/login', (req, res, next) => {
     if (err) return next(err);
     if (!user) return res.status(400).json({ error: info.message });
 
-    req.logIn(user, (err) => {
+    req.logIn(user, async (err) => {
       if (err) return next(err);
       
       const token = generateToken(user._id);
@@ -71,7 +71,8 @@ router.post('/login', (req, res, next) => {
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
       
-      res.json({ success: true, user: { id: user._id, email: user.email, name: user.name, role: user.role, provider: user.provider } });
+      const userWithoutPassword = await User.findById(user._id).select('-password');
+      res.json({ success: true, user: userWithoutPassword });
     });
   })(req, res, next);
 });
@@ -106,7 +107,7 @@ router.put('/me', async (req, res) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'gilsmall_secret_key');
-    const { name, phone, email, zonecode, address, detailAddress } = req.body;
+    const { name, phone, email, zonecode, address, detailAddress, doorPassword } = req.body;
     
     const user = await User.findById(decoded.id);
     if (!user) return res.status(401).json({ error: '사용자를 찾을 수 없습니다.' });
@@ -126,6 +127,7 @@ router.put('/me', async (req, res) => {
     if (zonecode !== undefined) user.zonecode = zonecode;
     if (address !== undefined) user.address = address;
     if (detailAddress !== undefined) user.detailAddress = detailAddress;
+    if (doorPassword !== undefined) user.doorPassword = doorPassword;
 
     await user.save();
     
@@ -152,17 +154,19 @@ router.get('/users', async (req, res) => {
 // Social Login Routes
 // ==========================================
 
-const handleSocialCallback = (req, res) => {
+const handleSocialCallback = async (req, res) => {
   const token = generateToken(req.user._id);
   res.cookie('token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     maxAge: 7 * 24 * 60 * 60 * 1000
   });
+  
+  const userWithoutPassword = await User.findById(req.user._id).select('-password');
   // Send message to parent window to close popup and update state
   res.send(`
     <script>
-      window.opener.postMessage({ type: 'SOCIAL_LOGIN_SUCCESS', user: ${JSON.stringify({ id: req.user._id, email: req.user.email, name: req.user.name, role: req.user.role, provider: req.user.provider })} }, '*');
+      window.opener.postMessage({ type: 'SOCIAL_LOGIN_SUCCESS', user: ${JSON.stringify(userWithoutPassword)} }, '*');
       window.close();
     </script>
   `);

@@ -17,7 +17,8 @@ function MyPage() {
     email: '',
     zonecode: '',
     address: '',
-    detailAddress: ''
+    detailAddress: '',
+    doorPassword: ''
   });
 
   useEffect(() => {
@@ -28,7 +29,8 @@ function MyPage() {
         email: user.email || '',
         zonecode: user.zonecode || '',
         address: user.address || '',
-        detailAddress: user.detailAddress || ''
+        detailAddress: user.detailAddress || '',
+        doorPassword: user.doorPassword || ''
       });
     }
   }, [user]);
@@ -186,6 +188,7 @@ function MyPage() {
                 </div>
                 <input type="text" name="address" value={profileForm.address} readOnly placeholder="기본주소" style={{...inputStyle, background: '#f5f5f5'}} />
                 <input type="text" name="detailAddress" value={profileForm.detailAddress} onChange={handleProfileChange} disabled={!isEditingProfile} placeholder="상세주소를 입력해주세요" style={inputStyle} />
+                <input type="text" name="doorPassword" value={profileForm.doorPassword} onChange={handleProfileChange} disabled={!isEditingProfile} placeholder="현관 출입비밀번호 (선택)" style={inputStyle} />
               </div>
 
               {!isEditingProfile ? (

@@ -37,6 +37,7 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
         zonecode: user.zonecode || prev.zonecode,
         address: user.address || prev.address,
         detailAddress: user.detailAddress || prev.detailAddress,
+        doorPassword: user.doorPassword || prev.doorPassword,
       }));
     }
   };
@@ -138,7 +139,8 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
           const result = await createOrder(orderData);
           if (result.status === 'success') {
             alert('결제가 완료되었습니다!');
-            // 장바구니 비우기 처리(App.js에서 localStorage 초기화 필요)
+            // 장바구니 비우기
+            localStorage.removeItem('gilsmall_cart');
             window.location.href = '/mypage'; 
           } else {
             alert('결제 검증에 실패했습니다. 관리자에게 문의하세요.');
@@ -288,9 +290,9 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
             </div>
             
             {!checkoutMode ? (
-              <button className="primary-btn checkout-btn" onClick={() => setCheckoutMode(true)}>구매하기</button>
+              <button className="primary-btn checkout-btn" onClick={() => setCheckoutMode(true)} style={{ width: '100%', padding: '1.2rem', marginTop: '1.5rem', fontSize: '1.2rem', fontWeight: 'bold', display: 'block', margin: '1.5rem auto 0', textAlign: 'center', boxSizing: 'border-box' }}>구매하기</button>
             ) : (
-              <button className="primary-btn checkout-btn" onClick={requestPay} style={{ background: '#e53935' }}>{formatPrice(totalPrice + finalShippingFee)}원 결제하기</button>
+              <button className="primary-btn checkout-btn" onClick={requestPay} style={{ background: '#e53935', width: '100%', padding: '1.2rem', marginTop: '1.5rem', fontSize: '1.2rem', fontWeight: 'bold', display: 'block', margin: '1.5rem auto 0', textAlign: 'center', boxSizing: 'border-box' }}>{formatPrice(totalPrice + finalShippingFee)}원 결제하기</button>
             )}
           </div>
         </div>

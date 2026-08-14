@@ -44,6 +44,9 @@ const UserSchema = new mongoose.Schema({
   detailAddress: {
     type: String,
   },
+  doorPassword: {
+    type: String,
+  },
   agreements: {
     privacy: { type: Boolean, default: false },
     sns: { type: Boolean, default: false }
