@@ -646,7 +646,9 @@ function Admin({ refreshGlobalProducts }) {
   const filteredOrders = allOrders.filter(o => {
     if (o.status !== orderSubTab) return false;
     if (orderSubTab === '배송완료') {
-      const orderDate = new Date(o.updatedAt || o.createdAt).toISOString().split('T')[0];
+      const dateObj = new Date(o.updatedAt || o.createdAt);
+      const kstDate = new Date(dateObj.getTime() + 9 * 60 * 60 * 1000);
+      const orderDate = kstDate.toISOString().split('T')[0];
       if (orderDate < orderStartDate || orderDate > orderEndDate) {
         return false;
       }
@@ -1216,7 +1218,7 @@ function Admin({ refreshGlobalProducts }) {
                   onChange={(e) => { setOrderEndDate(e.target.value); setCurrentOrdersPage(1); }}
                   style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
-                <span style={{ marginLeft: 'auto', fontWeight: 'bold', color: 'var(--primary-color)' }}>
+                <span style={{ marginLeft: '1rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>
                   기간 내 배송완료: {filteredOrders.length}건
                 </span>
               </div>

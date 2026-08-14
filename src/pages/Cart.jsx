@@ -8,6 +8,46 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
   const { user } = useAuth();
   const navigate = useNavigate();
   
+  // 모바일 결제 리디렉션 처리
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const imp_uid = urlParams.get('imp_uid');
+    const imp_success = urlParams.get('imp_success');
+    const error_msg = urlParams.get('error_msg');
+    
+    if (imp_uid) {
+      if (imp_success === 'true' || imp_success === true) {
+        const savedOrderStr = localStorage.getItem('pendingOrder');
+        if (savedOrderStr) {
+          try {
+            const pendingOrder = JSON.parse(savedOrderStr);
+            pendingOrder.imp_uid = imp_uid;
+            
+            createOrder(pendingOrder).then(result => {
+              if (result.status === 'success') {
+                alert('결제가 완료되었습니다!');
+                localStorage.removeItem('pendingOrder');
+                localStorage.removeItem('gilsmall_cart');
+                window.location.href = '/mypage?tab=orders';
+              } else {
+                alert('주문 처리 실패: ' + (result.message || '알 수 없는 오류'));
+              }
+            }).catch(e => {
+              console.error(e);
+              alert('주문 처리 중 오류 발생');
+            });
+          } catch (e) {
+            console.error('Failed to parse pendingOrder', e);
+          }
+        }
+      } else {
+        alert(`결제에 실패하였습니다. ${error_msg || ''}`);
+        localStorage.removeItem('pendingOrder');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }, []);
+  
   const [checkoutMode, setCheckoutMode] = useState(false);
   const [useDefaultShipping, setUseDefaultShipping] = useState(false);
   
@@ -112,8 +152,27 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
       buyer_name: user?.name || shippingInfo.receiverName,
       buyer_tel: user?.phone || shippingInfo.receiverPhone,
       buyer_addr: `${shippingInfo.address} ${shippingInfo.detailAddress}`,
-      buyer_postcode: shippingInfo.zonecode
+      buyer_postcode: shippingInfo.zonecode,
+      m_redirect_url: window.location.origin + '/cart'
     };
+
+    // 모바일 리디렉션을 대비해 주문 정보를 임시 저장
+    const orderDataToSave = {
+      userId: user?._id || user?.id,
+      merchant_uid: merchant_uid,
+      items: cartItems.map(item => ({
+        productId: item._originalId || item._id || item.id,
+        name: item.name,
+        selectedOptionName: item.selectedOptionName || '',
+        price: item.price,
+        quantity: item.quantity || 1,
+        imageUrl: item.imageUrl
+      })),
+      totalAmount: totalPrice,
+      shippingFee: finalShippingFee,
+      shippingInfo
+    };
+    localStorage.setItem('pendingOrder', JSON.stringify(orderDataToSave));
 
     IMP.request_pay(data, async (response) => {
       if (response.success) {
