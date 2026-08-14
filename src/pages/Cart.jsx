@@ -258,16 +258,16 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
                     <input type="text" name="detailAddress" value={shippingInfo.detailAddress} onChange={handleInputChange} placeholder="상세 주소 입력" style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', border: '1px solid #ddd' }} />
                   </div>
                   <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>현관 출입비밀번호 (선택)</label>
+                    <input type="text" name="doorPassword" value={shippingInfo.doorPassword} onChange={handleInputChange} placeholder="예: *1234* 또는 공동현관 비밀번호 없음" style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', border: '1px solid #ddd' }} />
+                  </div>
+                  <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>배송 메모 (선택)</label>
                     <input type="text" name="memo" value={shippingInfo.memo} onChange={handleInputChange} placeholder="문 앞에 놓아주세요" style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', border: '1px solid #ddd' }} />
                   </div>
                   <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>기타 메모 (선택)</label>
                     <input type="text" name="extraMemo" value={shippingInfo.extraMemo} onChange={handleInputChange} placeholder="추가 전달사항" style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', border: '1px solid #ddd' }} />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>현관 출입비밀번호 (선택)</label>
-                    <input type="text" name="doorPassword" value={shippingInfo.doorPassword} onChange={handleInputChange} placeholder="예: *1234* 또는 공동현관 비밀번호 없음" style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', border: '1px solid #ddd' }} />
                   </div>
                 </div>
               </div>
