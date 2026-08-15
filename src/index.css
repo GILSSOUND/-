@@ -1661,3 +1661,5 @@ footer {
 @media (max-width: 768px) { .admin-main-content { margin-top: var(--nav-height); } }
 
 @media (max-width: 768px) { .admin-sidebar { z-index: 1001; } }
+
+@media (max-width: 768px) { .admin-list-item { flex-wrap: wrap; gap: 0.5rem; padding: 1rem !important; } .admin-list-item > div:nth-child(4) { flex: unset !important; width: 100%; text-align: left !important; margin-right: 0 !important; font-size: 1.2rem !important; margin-top: 0.5rem; } .admin-list-item > div:nth-child(5) { width: 100%; justify-content: flex-end; margin-top: 0.5rem; } .admin-list-item > div:nth-child(3) { flex: 1 !important; min-width: 150px; } }
