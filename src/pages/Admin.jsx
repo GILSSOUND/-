@@ -1108,8 +1108,8 @@ function Admin({ refreshGlobalProducts }) {
               {heroBanners.length === 0 ? (
                 <p style={{color: '#888'}}>등록된 상단 배너가 없습니다.</p>
               ) : heroBanners.map((banner, idx) => (
-                <div key={banner.id} style={{border: '1px solid #ddd', borderRadius: '12px', padding: '1.5rem', background: '#fafafa', position: 'relative'}}>
-                  <div style={{display: 'flex', gap: '1.5rem', alignItems: 'center'}}>
+                <div key={banner.id} className="admin-banner-card" style={{border: '1px solid #ddd', borderRadius: '12px', padding: '1.5rem', background: '#fafafa', position: 'relative'}}>
+                  <div className="admin-banner-item" style={{display: 'flex', gap: '1.5rem', alignItems: 'center'}}>
                     <span style={{fontWeight: '900', fontSize: '1.5rem', color: 'var(--primary-color)'}}>{idx + 1}</span>
                     <img src={banner.imageUrl} alt="banner" style={{width: '240px', height: '62px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ccc'}} />
                     <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '0.3rem', justifyContent: 'center'}}>
@@ -1148,8 +1148,8 @@ function Admin({ refreshGlobalProducts }) {
               {recBanners.length === 0 ? (
                 <p style={{color: '#888'}}>등록된 추천상품 배너가 없습니다.</p>
               ) : recBanners.map((banner, idx) => (
-                <div key={banner.id} style={{border: '1px solid #ddd', borderRadius: '12px', padding: '1.5rem', background: '#fafafa', position: 'relative'}}>
-                  <div style={{display: 'flex', gap: '1.5rem', alignItems: 'center'}}>
+                <div key={banner.id} className="admin-banner-card" style={{border: '1px solid #ddd', borderRadius: '12px', padding: '1.5rem', background: '#fafafa', position: 'relative'}}>
+                  <div className="admin-banner-item" style={{display: 'flex', gap: '1.5rem', alignItems: 'center'}}>
                     <span style={{fontWeight: '900', fontSize: '1.5rem', color: 'var(--primary-color)'}}>{idx + 1}</span>
                     <img src={banner.imageUrl} alt="banner" style={{width: '240px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ccc'}} />
                     <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '0.3rem', justifyContent: 'center'}}>
