@@ -1244,7 +1244,7 @@ function Admin({ refreshGlobalProducts }) {
             )}
 
             <div style={{overflowX: 'auto'}}>
-              <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1000px'}}>
+              <table className="admin-orders-table" style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1000px'}}>
                 <thead>
                   <tr style={{background: '#f8f9fa', borderBottom: '2px solid #ddd'}}>
                     <th style={{padding: '1rem', fontWeight: 'bold'}}>주문일시</th>
@@ -1268,11 +1268,20 @@ function Admin({ refreshGlobalProducts }) {
                         <div style={{color: '#666', fontSize: '0.85rem'}}>{order.merchant_uid}</div>
                       </td>
                       <td style={{padding: '1rem', color: '#333'}}>
-                        {order.items.length > 0 ? (
-                          order.items.length > 1 
-                            ? `${order.items[0].name} 외 ${order.items.length - 1}건` 
-                            : order.items[0].name
-                        ) : '상품 없음'}
+                        <div className="order-item-cell" style={{display: 'flex', alignItems: 'center', gap: '0.8rem'}}>
+                          {order.items.length > 0 && order.items[0].imageUrl ? (
+                            <img src={order.items[0].imageUrl} alt="product" style={{width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0}} />
+                          ) : (
+                            <div style={{width: '40px', height: '40px', background: '#eee', borderRadius: '6px', flexShrink: 0}}></div>
+                          )}
+                          <div>
+                            {order.items.length > 0 ? (
+                              order.items.length > 1 
+                                ? `${order.items[0].name} 외 ${order.items.length - 1}건` 
+                                : order.items[0].name
+                            ) : '상품 없음'}
+                          </div>
+                        </div>
                       </td>
                       <td style={{padding: '1rem', fontWeight: 'bold', color: 'var(--primary-color)'}}>
                         {(order.totalAmount + order.shippingFee).toLocaleString()}원
