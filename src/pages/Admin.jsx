@@ -760,7 +760,7 @@ function Admin({ refreshGlobalProducts }) {
             <div style={{display: 'flex', gap: '3rem', flexWrap: 'wrap', alignItems: 'flex-start'}}>
               
               {/* 왼쪽: 등록 폼 */}
-              <div style={{flex: 1, minWidth: '400px', background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)'}}>
+              <div style={{flex: 1, minWidth: '280px', background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)'}}>
                 <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
                   <div>
                     <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>상품명</label>
@@ -909,13 +909,13 @@ function Admin({ refreshGlobalProducts }) {
               </div>
 
               {/* 오른쪽: 미리보기 */}
-              <div style={{flex: 1.5, minWidth: '500px', position: 'sticky', top: '100px'}}>
+              <div style={{flex: 1.5, minWidth: '280px', position: 'sticky', top: '100px'}}>
                 <h3 style={{marginBottom: '1rem', color: '#666', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                   [쇼핑몰 미리보기]
                 </h3>
                 
                 <div style={{background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', pointerEvents: 'none'}}>
-                  <div style={{display: 'flex', gap: '2rem'}}>
+                  <div style={{display: 'flex', gap: '2rem', flexWrap: 'wrap'}}>
                     {/* 썸네일 미리보기 */}
                     <div style={{flex: 1, borderRadius: '12px', overflow: 'hidden', background: '#f1f2f6', aspectRatio: '1/1'}}>
                       {imagePreview ? (
@@ -1192,7 +1192,7 @@ function Admin({ refreshGlobalProducts }) {
             </h2>
             
             {/* 소메뉴 (서브 탭) */}
-            <div style={{display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '2px solid #eee', paddingBottom: '1rem'}}>
+            <div style={{display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem', borderBottom: '2px solid #eee', paddingBottom: '1rem'}}>
               {['결제완료', '상품준비중', '배송중', '배송완료'].map(status => (
                 <button
                   key={status}
@@ -1222,7 +1222,7 @@ function Admin({ refreshGlobalProducts }) {
             </div>
 
             {orderSubTab === '배송완료' && (
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '8px' }}>
                 <span style={{ fontWeight: 'bold', color: '#555' }}>조회 기간:</span>
                 <input 
                   type="date" 

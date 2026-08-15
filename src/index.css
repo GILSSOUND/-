@@ -31,7 +31,7 @@
   
   /* Layout */
   --nav-height: 80px;
-  --max-width: 1500px; /* 기존 1200px에서 1500px로 넓혀서 양옆 여백을 줄이고 상품 크기를 키움 */
+  --max-width: 1500px; /* 기존 1200px?�서 1500px�??��????�옆 ?�백??줄이�??�품 ?�기�??��? */
 }
 
 * {
@@ -276,11 +276,11 @@ html {
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 컴퓨터 화면에서 무조건 5개씩 */
+  grid-template-columns: repeat(5, 1fr); /* 컴퓨???�면?�서 무조�?5개씩 */
   gap: 1.5rem;
 }
 
-/* 태블릿 화면에서는 4개, 3개로 점진적 축소 */
+/* ?�블�??�면?�서??4�? 3개로 ?�진??축소 */
 @media (max-width: 1200px) {
   .product-grid {
     grid-template-columns: repeat(4, 1fr);
@@ -471,9 +471,9 @@ html {
 
 .price-container {
   display: flex;
-  flex-direction: row; /* 한 줄 표시 */
+  flex-direction: row; /* ??�??�시 */
   align-items: baseline;
-  justify-content: flex-start; /* 좌측 정렬 */
+  justify-content: flex-start; /* 좌측 ?�렬 */
   gap: 0.4rem;
   flex-wrap: wrap;
   margin-top: 0;
@@ -541,7 +541,7 @@ html {
 .price-top-row {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* 좌측 정렬 */
+  justify-content: flex-start; /* 좌측 ?�렬 */
   gap: 0.3rem;
 }
 
@@ -1058,7 +1058,7 @@ html {
   position: relative;
 }
 
-/* 상품 상세페이지 사진 위 배지 위치 고정 (데스크탑/모바일 공통) */
+/* ?�품 ?�세?�이지 ?�진 ??배�? ?�치 고정 (?�스?�탑/모바??공통) */
 .detail-image-badges {
   position: absolute;
   top: 1rem;
@@ -1158,7 +1158,7 @@ html {
   box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
   z-index: 1000;
   gap: 0.8rem;
-  display: none; /* 데스크톱에서는 기본 숨김 */
+  display: none; /* ?�스?�톱?�서??기본 ?��? */
   border-top: 1px solid #eee;
 }
 
@@ -1183,7 +1183,7 @@ html {
   flex: 1;
 }
 
-/* 하단바에 가려지지 않도록 패딩 추가 */
+/* ?�단바에 가?��?지 ?�도�??�딩 추�? */
 body {
   padding-bottom: 80px;
 }
@@ -1324,7 +1324,7 @@ footer {
   .nav-actions {
     order: 2;
     gap: 0.8rem;
-    /* 우측으로 조금 더 땡기기 */
+    /* ?�측?�로 조금 ???�기�?*/
     transform: translateX(5px);
   }
   
@@ -1379,7 +1379,7 @@ footer {
   .hero-slide-subtitle { font-size: 0.95rem; }
 
   .product-info {
-    padding: 0.6rem 0.5rem; /* 여백 쫌 줄이기 */
+    padding: 0.6rem 0.5rem; /* ?�백 �?줄이�?*/
     gap: 0.1rem;
   }
 
@@ -1426,7 +1426,7 @@ footer {
     padding: 0 5%;
   }
   
-  /* 모바일 하단바 패딩 화면 대응 */
+  /* 모바???�단�??�딩 ?�면 ?�??*/
   .sticky-bottom-bar {
     padding: 1rem;
   }
@@ -1454,8 +1454,8 @@ footer {
   }
 
   .price-container {
-    flex-direction: row; /* 금액을 한 줄로 표시 */
-    justify-content: flex-start; /* 왼쪽으로 바짝 땡기기 */
+    flex-direction: row; /* 금액????줄로 ?�시 */
+    justify-content: flex-start; /* ?�쪽?�로 바짝 ?�기�?*/
     align-items: baseline;
     gap: 0.4rem;
     flex-wrap: wrap;
@@ -1534,7 +1534,7 @@ footer {
     gap: 0.3rem;
   }
   .wishlist-action-btn {
-    padding: 0.4rem 0.5rem; /* 아이콘만 나올 때 크기 줄이기 */
+    padding: 0.4rem 0.5rem; /* ?�이콘만 ?�올 ???�기 줄이�?*/
   }
   .wishlist-trash-btn {
     width: 32px;
@@ -1547,15 +1547,15 @@ footer {
 
   .cart-content { grid-template-columns: 1fr; }
 
-  /* 모바일 상품 카드 호버 버튼을 우측 하단에 작게 고정 */
+  /* 모바???�품 카드 ?�버 버튼???�측 ?�단???�게 고정 */
   .card-hover-actions {
     position: absolute;
     bottom: 0.5rem;
     left: auto;
     right: 0.5rem;
     width: auto;
-    opacity: 1; /* 항상 보이게 */
-    transform: none; /* 호버 이동 효과 제거 */
+    opacity: 1; /* ??�� 보이�?*/
+    transform: none; /* ?�버 ?�동 ?�과 ?�거 */
     gap: 0.4rem;
   }
   
@@ -1650,7 +1650,7 @@ footer {
 
 /* Admin Page Layout */
 .admin-sidebar { width: 260px; background: white; padding: 2rem 0; border-right: 1px solid #eee; position: fixed; height: 100vh; top: 80px; z-index: 1000; transition: transform 0.3s ease; }
-.admin-main-content { flex: 1; margin-left: 260px; padding: 3rem 5%; margin-top: 80px; max-width: 1400px; }
+.admin-main-content { flex: 1; min-width: 0; margin-left: 260px; padding: 3rem 5%; margin-top: 80px; max-width: 1400px; }
 @media (max-width: 768px) {
   .admin-sidebar { transform: translateX(-100%); top: 0; padding-top: 2rem; }
   .admin-sidebar.open { transform: translateX(0); }
