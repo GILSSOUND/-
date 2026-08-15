@@ -1260,14 +1260,14 @@ function Admin({ refreshGlobalProducts }) {
                 <tbody>
                   {currentOrders.map(order => (
                     <tr key={order._id} style={{borderBottom: '1px solid #eee', cursor: 'pointer', transition: 'background 0.2s'}} onMouseEnter={(e) => e.currentTarget.style.background='#f9f9f9'} onMouseLeave={(e) => e.currentTarget.style.background='transparent'} onClick={() => setSelectedOrderDetails(order)}>
-                      <td style={{padding: '1rem', color: '#666'}}>
+                      <td className="admin-order-date" style={{padding: '1rem', color: '#666'}}>
                         {new Date(order.createdAt).toLocaleString()}
                       </td>
-                      <td style={{padding: '1rem'}}>
-                        <div style={{fontWeight: 'bold', color: '#333'}}>{order.userId?.name || order.shippingInfo?.receiverName || '알 수 없음'}</div>
-                        <div style={{color: '#666', fontSize: '0.85rem'}}>{order.merchant_uid}</div>
+                      <td className="admin-order-user" style={{padding: '1rem'}}>
+                        <div className="order-user-name" style={{fontWeight: 'bold', color: '#333'}}>{order.userId?.name || order.shippingInfo?.receiverName || '알 수 없음'}</div>
+                        <div className="order-uid" style={{color: '#666', fontSize: '0.85rem'}}>{order.merchant_uid}</div>
                       </td>
-                      <td style={{padding: '1rem', color: '#333'}}>
+                      <td className="admin-order-item" style={{padding: '1rem', color: '#333'}}>
                         <div className="order-item-cell" style={{display: 'flex', alignItems: 'center', gap: '0.8rem'}}>
                           {order.items.length > 0 && order.items[0].imageUrl ? (
                             <img src={order.items[0].imageUrl} alt="product" style={{width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0}} />
@@ -1283,10 +1283,10 @@ function Admin({ refreshGlobalProducts }) {
                           </div>
                         </div>
                       </td>
-                      <td style={{padding: '1rem', fontWeight: 'bold', color: 'var(--primary-color)'}}>
+                      <td className="admin-order-price" style={{padding: '1rem', fontWeight: 'bold', color: 'var(--primary-color)'}}>
                         {(order.totalAmount + order.shippingFee).toLocaleString()}원
                       </td>
-                      <td style={{padding: '1rem'}} onClick={e => e.stopPropagation()}>
+                      <td className="admin-order-tracking" style={{padding: '1rem'}} onClick={e => e.stopPropagation()}>
                         {orderSubTab === '상품준비중' ? (
                           <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
                             <input 
@@ -1313,7 +1313,7 @@ function Admin({ refreshGlobalProducts }) {
                           <span style={{color: '#aaa'}}>-</span>
                         )}
                       </td>
-                      <td style={{padding: '1rem'}} onClick={e => e.stopPropagation()}>
+                      <td className="admin-order-action" style={{padding: '1rem'}} onClick={e => e.stopPropagation()}>
                         {orderSubTab === '결제완료' && (
                           <button onClick={async (e) => {
                             e.stopPropagation();
