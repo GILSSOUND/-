@@ -1186,13 +1186,13 @@ function Admin({ refreshGlobalProducts }) {
         )}
 
         {activeTab === 'order' && (
-          <div style={{background: 'white', borderRadius: '16px', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.05)'}}>
+          <div className="admin-orders-card" style={{background: 'white', borderRadius: '16px', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.05)'}}>
             <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '1.5rem'}}>
               주문 관리 ({allOrders.filter(o => ['결제완료', '상품준비중', '배송중'].includes(o.status)).length}건)
             </h2>
             
             {/* 소메뉴 (서브 탭) */}
-            <div style={{display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem', borderBottom: '2px solid #eee', paddingBottom: '1rem'}}>
+            <div className="admin-order-tabs" style={{display: 'flex', gap: '0.5rem', flexWrap: 'nowrap', overflowX: 'auto', whiteSpace: 'nowrap', marginBottom: '2rem', borderBottom: '2px solid #eee', paddingBottom: '1rem'}}>
               {['결제완료', '상품준비중', '배송중', '배송완료'].map(status => (
                 <button
                   key={status}
