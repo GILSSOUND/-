@@ -30,7 +30,14 @@ function AppContent() {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [products, setProducts] = useState(window.__INITIAL_PRODUCTS__ || []);
   const [toastMessage, setToastMessage] = useState('');
-  const { requireAuth } = useAuth();
+  const { requireAuth, user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      if (cartItems.length > 0) setCartItems([]);
+      if (wishlistItems.length > 0) setWishlistItems([]);
+    }
+  }, [user, loading, cartItems.length, wishlistItems.length]);
 
   const showToast = (msg) => {
     setToastMessage(msg);
