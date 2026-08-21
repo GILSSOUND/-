@@ -108,8 +108,9 @@ function MyPage() {
                         <span style={{ fontWeight: 'bold' }}>{formatDate(order.createdAt)}</span>
                         <span style={{ color: '#888', fontSize: '0.85rem' }}>주문번호: {order.merchant_uid}</span>
                       </div>
-                      <div style={{ whiteSpace: 'nowrap' }}>
-                        <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>{order.status}</span>
+                      <div style={{ whiteSpace: 'nowrap', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                        <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>{order.status === '환불됨' ? '취소됨' : order.status}</span>
+                        {order.status === '환불됨' && <span style={{ color: '#ff4757', fontWeight: 'bold', fontSize: '0.9rem', marginTop: '0.2rem' }}>환불완료</span>}
                       </div>
                     </div>
                     

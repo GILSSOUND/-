@@ -1460,7 +1460,7 @@ function Admin({ refreshGlobalProducts }) {
                 </thead>
                 <tbody>
                   {allOrders.filter(o => {
-                    if (claimsSubTab === '취소관리') return o.status?.includes('취소');
+                    if (claimsSubTab === '취소관리') return o.status?.includes('취소') || o.status === '환불됨';
                     if (claimsSubTab === '반품관리') return o.status?.includes('반품');
                     if (claimsSubTab === '교환관리') return o.status?.includes('교환');
                     return false;
@@ -1472,7 +1472,7 @@ function Admin({ refreshGlobalProducts }) {
                     </tr>
                   ) : (
                     allOrders.filter(o => {
-                      if (claimsSubTab === '취소관리') return o.status?.includes('취소');
+                      if (claimsSubTab === '취소관리') return o.status?.includes('취소') || o.status === '환불됨';
                       if (claimsSubTab === '반품관리') return o.status?.includes('반품');
                       if (claimsSubTab === '교환관리') return o.status?.includes('교환');
                       return false;
@@ -1508,20 +1508,36 @@ function Admin({ refreshGlobalProducts }) {
                           <div style={{color: '#e74c3c', fontWeight: 'bold'}}>{order.status}</div>
                         </td>
                         <td className="admin-order-action" style={{padding: '1rem'}} onClick={e => e.stopPropagation()}>
-                          <button onClick={async (e) => {
-                            e.stopPropagation();
-                            try {
-                              const nextStatus = order.status.replace('요청', '완료');
-                              if(nextStatus === order.status) {
-                                alert('이미 처리되었습니다.');
-                                return;
+                          {order.status === '취소됨' ? (
+                            <button onClick={async (e) => {
+                              e.stopPropagation();
+                              if(window.confirm('환불 완료 처리하시겠습니까?')) {
+                                try {
+                                  await updateOrderStatus(order._id, { status: '환불됨' });
+                                  loadAllOrders();
+                                } catch (err) { alert('처리 실패'); }
                               }
-                              await updateOrderStatus(order._id, { status: nextStatus });
-                              loadAllOrders();
-                            } catch (err) { alert('처리 실패'); }
-                          }} style={{padding: '0.6rem 1rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit'}}>
-                            {order.status?.includes('요청') ? '처리 완료하기' : '처리 완료됨'}
-                          </button>
+                            }} style={{padding: '0.6rem 1rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 'bold'}}>
+                              환불완료
+                            </button>
+                          ) : order.status === '환불됨' ? (
+                            <span style={{color: '#ff4757', fontWeight: 'bold'}}>환불완료됨</span>
+                          ) : (
+                            <button onClick={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                const nextStatus = order.status.replace('요청', '완료');
+                                if(nextStatus === order.status) {
+                                  alert('이미 처리되었습니다.');
+                                  return;
+                                }
+                                await updateOrderStatus(order._id, { status: nextStatus });
+                                loadAllOrders();
+                              } catch (err) { alert('처리 실패'); }
+                            }} style={{padding: '0.6rem 1rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit'}}>
+                              {order.status?.includes('요청') ? '처리 완료하기' : '처리 완료'}
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))
