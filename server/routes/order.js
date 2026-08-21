@@ -90,13 +90,14 @@ router.get('/', async (req, res) => {
   }
 });
 
-// --- 주문 상태 및 송장 변경 (관리자용) ---
+// --- 관리자 주문 상태 변경 (또는 클레임 신청) ---
 router.put('/:id/status', async (req, res) => {
   try {
-    const { status, courier, trackingNumber } = req.body;
+    const { status, courier, trackingNumber, claim } = req.body;
     const updateData = { status };
     if (courier !== undefined) updateData.courier = courier;
     if (trackingNumber !== undefined) updateData.trackingNumber = trackingNumber;
+    if (claim !== undefined) updateData.claim = claim;
 
     const order = await Order.findByIdAndUpdate(req.params.id, updateData, { new: true });
     res.json(order);

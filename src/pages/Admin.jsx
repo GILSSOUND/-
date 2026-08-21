@@ -1943,6 +1943,37 @@ function Admin({ refreshGlobalProducts }) {
             </div>
           </div>
 
+          {/* 클레임(교환/반품) 정보 내역 */}
+          {selectedOrderDetails.claim && selectedOrderDetails.claim.type && (
+            <div style={{marginTop: '2rem'}}>
+              <h3 style={{fontSize: '1.2rem', fontWeight: 'bold', color: '#e74c3c', borderBottom: '2px solid #eee', paddingBottom: '0.8rem', marginBottom: '1.5rem'}}>
+                {selectedOrderDetails.claim.type === 'exchange' ? '교환(재발송) 요청 정보' : '반품(환불) 요청 정보'}
+              </h3>
+              <div style={{padding: '1.8rem', background: '#fff5f5', borderRadius: '8px', border: '1px solid #ffcece', fontSize: '1.1rem'}}>
+                <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
+                  <strong style={{color: '#555', minWidth: '100px'}}>요청 사유</strong> 
+                  <span style={{textAlign: 'right'}}>{selectedOrderDetails.claim.reason} {selectedOrderDetails.claim.reason === '기타' ? `(${selectedOrderDetails.claim.customReason})` : ''}</span>
+                </p>
+                {selectedOrderDetails.claim.imageUrl && (
+                  <div style={{marginBottom: '1rem'}}>
+                    <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>첨부 사진</strong>
+                    <img src={selectedOrderDetails.claim.imageUrl} alt="클레임 이미지" style={{maxWidth: '100%', borderRadius: '6px', border: '1px solid #ddd'}} />
+                  </div>
+                )}
+                
+                {selectedOrderDetails.claim.type === 'exchange' && selectedOrderDetails.claim.exchangeShipping && (
+                  <div style={{marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px dashed #ffb3b3'}}>
+                    <strong style={{display: 'block', marginBottom: '1rem', color: '#c0392b'}}>교환 받으실 배송지</strong>
+                    <p style={{marginBottom: '0.5rem'}}><strong>수령인:</strong> {selectedOrderDetails.claim.exchangeShipping.receiverName}</p>
+                    <p style={{marginBottom: '0.5rem'}}><strong>연락처:</strong> {selectedOrderDetails.claim.exchangeShipping.receiverPhone}</p>
+                    <p style={{marginBottom: '0.5rem'}}><strong>주소:</strong> [{selectedOrderDetails.claim.exchangeShipping.zonecode}] {selectedOrderDetails.claim.exchangeShipping.address} {selectedOrderDetails.claim.exchangeShipping.detailAddress}</p>
+                    <p style={{marginBottom: '0.5rem'}}><strong>기타메모:</strong> {selectedOrderDetails.claim.exchangeShipping.extraMemo || '없음'}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           <button onClick={() => setSelectedOrderDetails(null)} style={{width: '100%', padding: '1rem', background: '#333', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontFamily: 'inherit', marginTop: '2rem'}}>
             닫기
           </button>

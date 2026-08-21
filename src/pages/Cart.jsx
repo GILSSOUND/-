@@ -139,7 +139,7 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
     // 하위 상점 티어코드 적용 (init 대신 agency 사용)
     IMP.agency('imp28885142', '002');
 
-    const merchant_uid = `order_${new Date().getTime()}`;
+    const merchant_uid = `${new Date().getTime()}`;
     const amount = totalPrice + finalShippingFee;
 
     const data = {

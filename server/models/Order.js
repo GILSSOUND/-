@@ -33,10 +33,26 @@ const OrderSchema = new mongoose.Schema({
   // 송장 정보
   courier: { type: String, default: '' },
   trackingNumber: { type: String, default: '' },
+
+  // 클레임(교환/반품) 정보
+  claim: {
+    type: { type: String, enum: ['exchange', 'return'], default: null }, // 교환 또는 반품
+    reason: { type: String, default: '' },
+    customReason: { type: String, default: '' },
+    imageUrl: { type: String, default: '' }, // 첨부사진
+    exchangeShipping: {
+      receiverName: { type: String, default: '' },
+      receiverPhone: { type: String, default: '' },
+      zonecode: { type: String, default: '' },
+      address: { type: String, default: '' },
+      detailAddress: { type: String, default: '' },
+      extraMemo: { type: String, default: '' }
+    }
+  },
   
   status: { 
     type: String, 
-    enum: ['결제대기', '결제완료', '상품준비중', '배송중', '배송완료', '취소됨', '환불됨'],
+    enum: ['결제대기', '결제완료', '상품준비중', '배송중', '배송완료', '취소됨', '환불됨', '반품요청', '교환요청'],
     default: '결제완료' 
   }
 }, { timestamps: true });
