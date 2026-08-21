@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, useLocation } from 'react-router-dom';
 import { ShoppingBag, RefreshCcw, RotateCcw, User, ChevronRight, X } from 'lucide-react';
-import { fetchMyOrders, updateMyInfo } from '../api';
+import { fetchMyOrders, updateMyInfo, updateOrderStatus } from '../api';
 
 function MyPage() {
   const { user, setUser, loading: authLoading } = useAuth();
@@ -62,6 +62,19 @@ function MyPage() {
     }
   };
 
+  const handleCancelOrder = async (orderId) => {
+    if (window.confirm('정말 구매를 취소하시겠습니까?')) {
+      try {
+        await updateOrderStatus(orderId, { status: '취소됨' });
+        alert('구매가 취소되었습니다.');
+        loadOrders();
+      } catch (error) {
+        alert('구매 취소 중 오류가 발생했습니다.');
+        console.error(error);
+      }
+    }
+  };
+
   const formatPrice = (price) => price.toLocaleString('ko-KR');
   const formatDate = (dateString) => new Date(dateString).toLocaleDateString('ko-KR');
 
@@ -117,8 +130,18 @@ function MyPage() {
                           {order.courier ? `${order.courier} ` : ''}송장번호: <span style={{ fontWeight: 'bold', color: 'var(--text-main)' }}>{order.trackingNumber}</span>
                         </div>
                       )}
-                      <div style={{ textAlign: 'left', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                        총 결제 금액: <span style={{ color: 'var(--primary-color)' }}>{formatPrice(order.totalAmount + order.shippingFee)}원</span>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                        <div style={{ textAlign: 'left', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                          총 결제 금액: <span style={{ color: 'var(--primary-color)' }}>{formatPrice(order.totalAmount + order.shippingFee)}원</span>
+                        </div>
+                        {order.status === '결제완료' && (
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleCancelOrder(order._id); }}
+                            className="pc-cancel-btn"
+                          >
+                            구매취소
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
