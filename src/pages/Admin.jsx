@@ -3,37 +3,37 @@ import { fetchProducts, createProduct, updateProduct, deleteProduct, uploadImage
 import { LayoutDashboard, PackagePlus, List, Image as ImageIcon, Bell, Edit, Trash2, ChevronLeft, ChevronRight, Plus, X, Image as ImgIcon, Type, ShoppingCart, Menu, RefreshCcw } from 'lucide-react';
 
 function Admin({ refreshGlobalProducts }) {
-  const [activeTab, setActiveTab] = useState('register'); // register, list, banner, notice, order
+  const [activeTab, setActiveTab] = useState('register'); // register, list, banner, rec_banner, notice, order, claims, member
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
   const [allOrders, setAllOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   
-  // ?_이_?(목록??
+  // 페이징 (목록)
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   
   const [currentUsersPage, setCurrentUsersPage] = useState(1);
   const usersPerPage = 10;
   
-  // ?_정 모드 ?_태
+  // 수정 모드 상태
   const [editingProductId, setEditingProductId] = useState(null);
   
-  // ?_택???_품 ?_태 (?_괄 ??__??
+  // 선택된 상품 상태 (일괄 삭제용)
   const [selectedProductIds, setSelectedProductIds] = useState([]);
   
-  // 관리자 ?_원 주문 ?_역 모달 ?_태
+  // 관리자 회원 주문 내역 모달 상태
   const [selectedUserForOrders, setSelectedUserForOrders] = useState(null);
   const [selectedUserOrders, setSelectedUserOrders] = useState([]);
   
-  // 주문 관_??_이지?_이??_??_세 모달 ?_태
+  // 주문 관리 페이지네이션 및 상세 모달 상태
   const [currentOrdersPage, setCurrentOrdersPage] = useState(1);
   const ordersPerPage = 20;
   const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
   
-  // 주문 _??_레?????_태
-  const [orderSubTab, setOrderSubTab] = useState('결제?_료');
+  // 주문 서브탭 상태
+  const [orderSubTab, setOrderSubTab] = useState('결제완료');
   const [claimsSubTab, setClaimsSubTab] = useState('취소관리');
   const [trackingInputs, setTrackingInputs] = useState({});
   const defaultEndDate = new Date().toISOString().split('T')[0];
@@ -41,10 +41,10 @@ function Admin({ refreshGlobalProducts }) {
   const [orderStartDate, setOrderStartDate] = useState(defaultStartDate);
   const [orderEndDate, setOrderEndDate] = useState(defaultEndDate);
 
-  
   // 기본 폼
   const initialFormData = {
     name: '',
+    subtitle: '',
     category: 'mealkit',
     originalPrice: '',
     price: '',
@@ -53,37 +53,37 @@ function Admin({ refreshGlobalProducts }) {
     isBest: false
   };
 
-  // ???_태
+  // 폼 상태
   const [formData, setFormData] = useState(initialFormData);
   
-  // 메인 ?_네???_태
+  // 메인 썸네일 상태
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   
-  // 구버???_세 ?__?지 (?_위 ?_환)
+  // 구버전 상세 이미지 (하위 호환)
   const [detailImagePreview, setDetailImagePreview] = useState(null);
   const [detailImageFile, setDetailImageFile] = useState(null);
 
-  // 구매 ?_내 ?__?지
+  // 구매 안내 이미지
   const [purchaseImagePreview, setPurchaseImagePreview] = useState(null);
   const [purchaseImageFile, setPurchaseImageFile] = useState(null);
 
-  // ?_브 ?__?지 (최_? 5_?
+  // 서브 이미지 (최대 5개)
   const [subImageFiles, setSubImageFiles] = useState([null, null, null, null, null]);
   const [subImagePreviews, setSubImagePreviews] = useState([null, null, null, null, null]);
 
-  // ?_중 블록 (?_진/글) ?_태
+  // 다중 블록 (사진/글) 상태
   const [detailBlocks, setDetailBlocks] = useState([]); 
   // 구조: { type: 'text' | 'image', content: '...', file?: File, preview?: string }
   
   const [options, setOptions] = useState([]);
   const [uploading, setUploading] = useState(false);
 
-  // 배너 관_??_태
+  // 배너 관리 상태
   const [heroBanners, setHeroBanners] = useState([]);
   const [recBanners, setRecBanners] = useState([]);
   
-  // ?_디??모달 ?_태
+  // 에디터 모달 상태
   const [editingBanner, setEditingBanner] = useState(null);
   const [editorType, setEditorType] = useState(null); // 'hero' | 'rec'
 
@@ -120,10 +120,9 @@ function Admin({ refreshGlobalProducts }) {
         setSelectedUserForOrders(user);
       });
     } catch (e) {
-      alert('주문 ?_역??불러?_는???_패?_습?_다.');
+      alert('주문 내역을 불러오는데 실패했습니다.');
     }
   };
-
 
   const loadBanners = async () => {
     try {
@@ -162,7 +161,7 @@ function Admin({ refreshGlobalProducts }) {
   };
 
   // -------------------------------------------------------------
-  // ?_론?_엔???__?지 ?_축 ?_진 (WebP 변?? 최_? 1200px)
+  // 프론트엔드 이미지 압축 엔진 (WebP 변환, 최대 1200px)
   // -------------------------------------------------------------
   const compressImage = (file) => {
     return new Promise((resolve) => {
@@ -208,17 +207,15 @@ function Admin({ refreshGlobalProducts }) {
   };
 
   // 공통 이미지 업로드 핸들러
-  // 공통 이미지 업로드 핸들러
   const handleImageUpload = async (file) => {
     try {
       setUploading(true);
       const compressedFile = await compressImage(file);
       const res = await uploadImage(compressedFile);
-      // res is { success: true, imageUrl: '...' }
       return res.imageUrl;
     } catch (error) {
       console.error(error);
-      alert("?_로???_세 ?_러 ?_보:\n" + error.message);
+      alert("업로드 상세 에러 정보:\n" + error.message);
       throw error;
     } finally {
       setUploading(false);
@@ -274,7 +271,7 @@ function Admin({ refreshGlobalProducts }) {
       const url = await handleImageUpload(e.target.files[0]);
       setEditingBanner({...editingBanner, imageUrl: url});
     } catch(err) {
-      // error is alerted in handleImageUpload
+      // handled in handleImageUpload
     } finally {
       e.target.value = '';
     }
@@ -282,7 +279,7 @@ function Admin({ refreshGlobalProducts }) {
 
   const handleSaveBannerEditor = async () => {
     if (!editingBanner.imageUrl) {
-      alert("배너 ?__?지_??_로?_해주세??");
+      alert("배너 이미지를 업로드해주세요.");
       return;
     }
     
@@ -310,14 +307,14 @@ function Admin({ refreshGlobalProducts }) {
         await updateConfig('recommended_banners', updatedList);
       }
       handleCloseBannerEditor();
-      alert('배너가 ?_?_되?_습?_다.');
+      alert('배너가 저장되었습니다.');
     } catch(err) {
-      alert("?_???_패: " + err.message);
+      alert("저장 실패: " + err.message);
     }
   };
 
   const handleDeleteBanner = async (id, type) => {
-    if(!window.confirm("??배너_???__?_시겠습?_까?")) return;
+    if(!window.confirm("이 배너를 삭제하시겠습니까?")) return;
     try {
       if(type === 'hero') {
         const updated = heroBanners.filter(b => b.id !== id);
@@ -329,7 +326,7 @@ function Admin({ refreshGlobalProducts }) {
         await updateConfig('recommended_banners', updated);
       }
     } catch(err) {
-      alert("배너 ??__ ?_패");
+      alert("배너 삭제 실패");
     }
   };
 
@@ -358,7 +355,6 @@ function Admin({ refreshGlobalProducts }) {
   };
 
   // 상세 블록 추가
-  // 상세 블록 추가
   const handleAddBlock = (type) => {
     setDetailBlocks([...detailBlocks, { type, content: '', file: null, preview: null }]);
   };
@@ -383,7 +379,7 @@ function Admin({ refreshGlobalProducts }) {
     }
   };
 
-  // ?_정 버튼 ?_릭???_이??로드
+  // 수정 버튼 클릭 시 데이터 로드
   const handleEditClick = (product) => {
     setEditingProductId(product._id || product.id);
     setFormData({
@@ -399,15 +395,15 @@ function Admin({ refreshGlobalProducts }) {
     setImageFile(null);
     setImagePreview(product.imageUrl || null);
     
-    // ?_환?? 기존 ?_일 ?__?지
+    // 호환용 기존 단일 이미지
     setDetailImageFile(null);
     setDetailImagePreview(product.detailImageUrl || null);
     
-    // 구매 ?_내 ?__?지
+    // 구매 안내 이미지
     setPurchaseImageFile(null);
     setPurchaseImagePreview(product.purchaseInfoImageUrl || null);
     
-    // ?_브 ?__?지
+    // 서브 이미지
     const previews = [null, null, null, null, null];
     if (product.subImageUrls && product.subImageUrls.length > 0) {
       product.subImageUrls.forEach((url, i) => {
@@ -421,13 +417,10 @@ function Admin({ refreshGlobalProducts }) {
     if (product.detailBlocks && product.detailBlocks.length > 0) {
       setDetailBlocks(product.detailBlocks.map(b => ({
         type: b.type,
-        content: b.content, // 이미지일 경우 URL
+        content: b.content,
         preview: b.type === "image" ? b.content : null,
         file: null
       })));
-
-
-
     } else {
       setDetailBlocks([]);
     }
@@ -497,19 +490,19 @@ function Admin({ refreshGlobalProducts }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!editingProductId && !imageFile && !imagePreview) {
-      alert("메인 ?_네???__?지_??_록?_주?_요.");
+      alert("메인 썸네일 이미지를 등록해주세요.");
       return;
     }
 
     try {
       setUploading(true);
       
-      let imageUrl = imagePreview; // ?_정모드?_서 변경안?_으_?기존 URL ?__?
+      let imageUrl = imagePreview; // 수정모드에서 변경안했으면 기존 URL 유지
       if (imageFile) {
         imageUrl = await handleImageUpload(imageFile);
       }
 
-      // 블록 ?__?지 ?_로???_차 처리 (병렬 처리 ??ImgBB/Cloudflare 차단 방_?)
+      // 블록 이미지 업로드 순차 처리
       const processedBlocks = [];
       for (const block of detailBlocks) {
         if (block.type === 'image' && block.file) {
@@ -522,19 +515,19 @@ function Admin({ refreshGlobalProducts }) {
         }
       }
 
-      // ?_위 ?_환 ?_일 ?_테???__?지 처리 (?_택?_항)
+      // 하위 호환 단일 디테일 이미지 처리
       let oldDetailImageUrl = detailImagePreview;
       if (detailImageFile) {
          oldDetailImageUrl = await handleImageUpload(detailImageFile);
       }
 
-      // 구매 ?_내 ?__?지 처리
+      // 구매 안내 이미지 처리
       let oldPurchaseImageUrl = purchaseImagePreview;
       if (purchaseImageFile) {
          oldPurchaseImageUrl = await handleImageUpload(purchaseImageFile);
       }
 
-      // ?_브 ?__?지 ?_차 처리
+      // 서브 이미지 순차 처리
       const processedSubImages = [];
       for (let index = 0; index < subImageFiles.length; index++) {
         const file = subImageFiles[index];
@@ -572,10 +565,10 @@ function Admin({ refreshGlobalProducts }) {
 
       if (editingProductId) {
         await updateProduct(editingProductId, productPayload);
-        alert("?_품???_공?_으_??_정?_었?_니??");
+        alert("상품이 성공적으로 수정되었습니다.");
       } else {
         await createProduct(productPayload);
-        alert("?_품???_공?_으_??_록?_었?_니??");
+        alert("상품이 성공적으로 등록되었습니다.");
       }
       
       if (refreshGlobalProducts) refreshGlobalProducts();
@@ -585,41 +578,39 @@ function Admin({ refreshGlobalProducts }) {
       
     } catch (error) {
       console.error(error);
-      alert("처리 ?_패: " + (error.response?.data?.error || error.message));
+      alert("처리 실패: " + (error.response?.data?.error || error.message));
     } finally {
       setUploading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("?_말_????_품????__?_시겠습?_까?")) {
+    if (window.confirm("정말 이 상품을 삭제하시겠습니까?")) {
       try {
-        // 즉시 반영???_한 Optimistic UI ?_데?_트
         setProducts(prev => prev.filter(p => (p._id || p.id) !== id));
         await deleteProduct(id);
-        alert("??__?_었?_니??");
+        alert("삭제되었습니다.");
         loadProducts();
         if (refreshGlobalProducts) refreshGlobalProducts();
       } catch (error) {
-        alert("??__ ?_패");
-        loadProducts(); // ?_러 ??복구
+        alert("삭제 실패");
+        loadProducts();
       }
     }
   };
 
   const handleBulkDelete = async () => {
-    if (selectedProductIds.length === 0) return alert("??__???_품???_택?_주?_요.");
-    if (window.confirm(`?_택??${selectedProductIds.length}개의 ?_품???_말_???__?_시겠습?_까?`)) {
+    if (selectedProductIds.length === 0) return alert("삭제할 상품을 선택해주세요.");
+    if (window.confirm(`선택한 ${selectedProductIds.length}개의 상품을 정말로 삭제하시겠습니까?`)) {
       try {
-        // 즉시 반영
         setProducts(prev => prev.filter(p => !selectedProductIds.includes(p._id || p.id)));
         await Promise.all(selectedProductIds.map(id => deleteProduct(id)));
-        alert("?_택???_품????__?_었?_니??");
+        alert("선택한 상품이 삭제되었습니다.");
         setSelectedProductIds([]);
         loadProducts();
         if (refreshGlobalProducts) refreshGlobalProducts();
       } catch (error) {
-        alert("?__? ?_품 ??__???_패?_습?_다.");
+        alert("일부 상품 삭제에 실패했습니다.");
         loadProducts();
       }
     }
@@ -651,7 +642,7 @@ function Admin({ refreshGlobalProducts }) {
   // Pagination Logic (Orders)
   const filteredOrders = allOrders.filter(o => {
     if (o.status !== orderSubTab) return false;
-    if (orderSubTab === '배송?_료') {
+    if (orderSubTab === '배송완료') {
       let orderDate = '';
       try {
         const dateObj = new Date(o.updatedAt || o.createdAt);
@@ -686,13 +677,14 @@ function Admin({ refreshGlobalProducts }) {
     </style>
     <div className="admin-page" style={{display: 'flex', minHeight: '100vh', background: '#f8f9fa'}}>
       
-      {/* 1. ?_쪽 ?_이?_바 메뉴 */}
+      {/* 1. 왼쪽 사이드바 메뉴 */}
       {isSidebarOpen && (
         <div className="admin-sidebar-overlay" onClick={() => setIsSidebarOpen(false)} style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999}}></div>
       )}
       <div className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <h2 style={{padding: '0 2rem', marginBottom: '2rem', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-color)'}}>
-          <LayoutDashboard /> 관리자 ??        </h2>
+          <LayoutDashboard /> 관리자 패널
+        </h2>
         
         <ul style={{listStyle: 'none', padding: 0}}>
           {[
@@ -739,32 +731,33 @@ function Admin({ refreshGlobalProducts }) {
         </ul>
       </div>
 
-      {/* 2. 메인 컨텐_??_역 */}
+      {/* 2. 메인 컨텐츠 영역 */}
       <div className="admin-main-content">
         
         <div className="admin-mobile-header" style={{ display: 'none', alignItems: 'center', padding: '1rem', background: 'white', borderBottom: '1px solid #eee', marginBottom: '1rem' }}>
           <button onClick={() => setIsSidebarOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
             <Menu size={24} />
           </button>
-          <span style={{ marginLeft: '1rem', fontWeight: 'bold', fontSize: '1.2rem' }}>관리자 ?_이지</span>
+          <span style={{ marginLeft: '1rem', fontWeight: 'bold', fontSize: '1.2rem' }}>관리자 페이지</span>
         </div>
+
         {/* ========================================================================================= */}
-        {/* ?_품 ?_록/?_정 ??*/}
+        {/* 상품 등록/수정 탭 */}
         {/* ========================================================================================= */}
         {activeTab === 'register' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <h2 style={{fontSize: '1.8rem', fontWeight: '800'}}>
-                {editingProductId ? '?_품 ?_정' : '?_규 ?_품 ?_록'}
+                {editingProductId ? '상품 수정' : '신규 상품 등록'}
               </h2>
               {editingProductId && (
-                <button className="outline-btn" onClick={handleCancelEdit}>?_정 취소 (?_규 ?_록?_로 ?_환)</button>
+                <button className="outline-btn" onClick={handleCancelEdit}>수정 취소 (신규 등록으로 전환)</button>
               )}
             </div>
 
             <div style={{display: 'flex', gap: '3rem', flexWrap: 'wrap', alignItems: 'flex-start'}}>
               
-              {/* ?_쪽: ?_록 ??*/}
+              {/* 왼쪽: 등록 폼 */}
               <div style={{flex: 1, minWidth: '280px', background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)'}}>
                 <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
                   <div>
@@ -773,57 +766,57 @@ function Admin({ refreshGlobalProducts }) {
                   </div>
 
                   <div>
-                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>상품명</label>
-                    <input type="text" name="subtitle" value={formData.subtitle} onChange={handleChange} placeholder="?? 바다???_선?_을 그_?_??__?" style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd'}} />
+                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>상품 소제목</label>
+                    <input type="text" name="subtitle" value={formData.subtitle} onChange={handleChange} placeholder="예: 바다의 신선함을 그대로 담은" style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd'}} />
                   </div>
                   
                   <div style={{display: 'flex', gap: '1rem'}}>
                     <div style={{flex: 1}}>
-                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>상품명</label>
+                      <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>카테고리</label>
                       <select name="category" value={formData.category} onChange={handleChange} style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd'}}>
                         <option value="mealkit">밀키트</option>
                         <option value="new">신상품</option>
-                        <option value="local">?__?직송</option>
-                        <option value="direct">?_체직송</option>
-                        <option value="sale">?__??_인</option>
+                        <option value="local">산지직송</option>
+                        <option value="direct">업체직송</option>
+                        <option value="sale">특가할인</option>
                       </select>
                     </div>
                     <div style={{flex: 1}}>
-                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>상품명</label>
+                      <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>판매가격 (원)</label>
                       <input type="number" name="price" value={formData.price} onChange={handleChange} required style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd'}} />
                     </div>
                   </div>
 
                   <div>
-                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>상품명</label>
-                    <input type="number" name="originalPrice" value={formData.originalPrice} onChange={handleChange} placeholder="?_인 ??가격을 ?_으_??_인???_동 계산" style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd'}} />
+                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>정상가격 (원)</label>
+                    <input type="number" name="originalPrice" value={formData.originalPrice} onChange={handleChange} placeholder="할인 전 가격을 적으면 할인율 자동 계산" style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd'}} />
                   </div>
 
                   <div>
-                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>상품명</label>
-                    <input type="number" name="shippingFee" value={formData.shippingFee} onChange={handleChange} placeholder="기본 3,000?? 0 ?_력 ??무료배송" style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd'}} />
+                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>배송비 (원)</label>
+                    <input type="number" name="shippingFee" value={formData.shippingFee} onChange={handleChange} placeholder="기본 3,000원, 0 입력 시 무료배송" style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd'}} />
                   </div>
 
                   <div style={{display: 'flex', gap: '2rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px'}}>
                     <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: '600'}}>
                       <input type="checkbox" name="isNewProduct" checked={formData.isNewProduct} onChange={handleChange} />
-                      [NEW 배_?]
+                      [NEW 뱃지]
                     </label>
                     <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: '600'}}>
                       <input type="checkbox" name="isBest" checked={formData.isBest} onChange={handleChange} />
-                      [BEST 배_?]
+                      [BEST 뱃지]
                     </label>
                   </div>
 
-                  {/* ?_네??*/}
+                  {/* 썸네일 */}
                   <div>
-                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>상품명</label>
+                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>대표 썸네일 이미지</label>
                     <input type="file" accept="image/*" onChange={handleFileChange} style={{width: '100%', padding: '0.5rem', border: '1px dashed #ccc', borderRadius: '8px'}} />
                   </div>
 
-                  {/* ?_브 ?__?지 (최_? 5_? */}
+                  {/* 서브 이미지 (최대 5개) */}
                   <div>
-                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>상품명</label>
+                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>추가 서브 이미지 (최대 5개)</label>
                     <div style={{display: 'flex', gap: '0.5rem'}}>
                       {[0, 1, 2, 3, 4].map(idx => (
                         <div key={idx} style={{flex: 1, position: 'relative'}}>
@@ -836,22 +829,22 @@ function Admin({ refreshGlobalProducts }) {
                     </div>
                   </div>
 
-                  {/* 구매 ?_내 ?__?지 */}
+                  {/* 구매 안내 이미지 */}
                   <div>
-                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>상품명</label>
+                    <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>구매 안내 이미지</label>
                     <input type="file" accept="image/*" onChange={handlePurchaseFileChange} style={{width: '100%', padding: '0.5rem', border: '1px dashed #ccc', borderRadius: '8px'}} />
                     {purchaseImagePreview && (
                       <div style={{marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--primary-color)'}}>
-                        ?__?지가 ?_록?_어 ?_습?_다.
+                        이미지가 등록되어 있습니다.
                       </div>
                     )}
                   </div>
 
-                  {/* ?_션 */}
+                  {/* 옵션 */}
                   <div style={{background: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', border: '1px solid #eee'}}>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
-                      <label style={{fontWeight: 'bold'}}>???_품 ?_션 ?_정 (?_택?_항)</label>
-                      <button type="button" onClick={handleAddOption} style={{padding: '0.4rem 0.8rem', background: '#333', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>+ 추_?</button>
+                      <label style={{fontWeight: 'bold'}}>상품 옵션 설정 (선택사항)</label>
+                      <button type="button" onClick={handleAddOption} style={{padding: '0.4rem 0.8rem', background: '#333', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>+ 추가</button>
                     </div>
                     <div style={{display: 'flex', flexDirection: 'column', gap: '0.8rem'}}>
                       {options.map((opt, idx) => (
@@ -864,11 +857,11 @@ function Admin({ refreshGlobalProducts }) {
                     </div>
                   </div>
 
-                  {/* ?_적 ?_세 블록 추_? (?_진+글 ?_기) */}
+                  {/* 동적 상세 블록 추가 (사진+글 쓰기) */}
                   <div style={{border: '1px solid var(--primary-color)', padding: '1.5rem', borderRadius: '8px'}}>
-                    <h3 style={{marginBottom: '1rem', color: 'var(--primary-color)', fontSize: '1.1rem'}}>?_세?_이지 구성 (블록 ?_디??</h3>
+                    <h3 style={{marginBottom: '1rem', color: 'var(--primary-color)', fontSize: '1.1rem'}}>상세페이지 구성 (블록 에디터)</h3>
                     <p style={{fontSize: '0.85rem', color: '#666', marginBottom: '1rem'}}>
-                      ?_진_??_스?__? ?_하???_서?__??_유_?__ 추_??_보?_요.
+                      사진과 텍스트를 원하는 순서대로 자유롭게 추가해보세요.
                     </p>
                     
                     <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem'}}>
@@ -878,17 +871,17 @@ function Admin({ refreshGlobalProducts }) {
                           
                           {block.type === 'text' ? (
                             <div>
-                              <div style={{fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#555'}}><Type size={14}/> ?_스??블록</div>
+                              <div style={{fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#555'}}><Type size={14}/> 텍스트 블록</div>
                               <textarea 
                                 value={block.content} 
                                 onChange={(e) => handleBlockTextChange(idx, e.target.value)}
-                                placeholder="?_기???_세 ?_명???_어주세??.."
+                                placeholder="여기에 상세 설명을 적어주세요..."
                                 style={{width: '100%', minHeight: '80px', padding: '0.8rem', border: '1px solid #ddd', borderRadius: '4px', resize: 'vertical'}}
                               />
                             </div>
                           ) : (
                             <div>
-                              <div style={{fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#555'}}><ImgIcon size={14}/> ?__?지 블록</div>
+                              <div style={{fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#555'}}><ImgIcon size={14}/> 이미지 블록</div>
                               <input type="file" accept="image/*" onChange={(e) => handleBlockImageChange(idx, e)} style={{marginBottom: '0.5rem'}} />
                               {block.preview && <img src={block.preview} alt="preview" style={{maxWidth: '100%', maxHeight: '150px', display: 'block', borderRadius: '4px'}} />}
                             </div>
@@ -899,10 +892,10 @@ function Admin({ refreshGlobalProducts }) {
 
                     <div style={{display: 'flex', gap: '0.5rem'}}>
                       <button type="button" onClick={() => handleAddBlock('image')} style={{flex: 1, padding: '0.8rem', background: '#e1e5eb', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontWeight: '600'}}>
-                        <ImgIcon size={16}/> ?_진 추_?
+                        <ImgIcon size={16}/> 사진 추가
                       </button>
                       <button type="button" onClick={() => handleAddBlock('text')} style={{flex: 1, padding: '0.8rem', background: '#e1e5eb', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontWeight: '600'}}>
-                        <Type size={16}/> 글 추_?
+                        <Type size={16}/> 글 추가
                       </button>
                     </div>
                   </div>
@@ -913,30 +906,30 @@ function Admin({ refreshGlobalProducts }) {
                 </form>
               </div>
 
-              {/* ?_른_? 미리보기 */}
+              {/* 오른쪽 쇼핑몰 미리보기 */}
               <div style={{flex: 1.5, minWidth: '280px', position: 'sticky', top: '100px'}}>
                 <h3 style={{marginBottom: '1rem', color: '#666', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                  [?_핑_?미리보기]
+                  [쇼핑몰 미리보기]
                 </h3>
                 
                 <div style={{background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', pointerEvents: 'none'}}>
                   <div style={{display: 'flex', gap: '2rem', flexWrap: 'wrap'}}>
-                    {/* ?_네??미리보기 */}
+                    {/* 썸네일 미리보기 */}
                     <div style={{flex: 1, borderRadius: '12px', overflow: 'hidden', background: '#f1f2f6', aspectRatio: '1/1'}}>
                       {imagePreview ? (
                         <img src={imagePreview} alt="preview" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
                       ) : (
-                        <div style={{display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: '#999'}}>메인 ?_진</div>
+                        <div style={{display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: '#999'}}>메인 사진</div>
                       )}
                     </div>
-                    {/* ?_보 미리보기 */}
+                    {/* 정보 미리보기 */}
                     <div style={{flex: 1}}>
                       <div style={{display: 'flex', gap: '0.5rem', marginBottom: '0.5rem'}}>
                         {formData.isBest && <span style={{padding: '0.2rem 0.5rem', background: 'var(--primary-color)', color: 'white', fontSize: '0.7rem', fontWeight: 'bold', borderRadius: '4px'}}>BEST</span>}
                         {formData.isNewProduct && <span style={{padding: '0.2rem 0.5rem', background: '#2ed573', color: 'white', fontSize: '0.7rem', fontWeight: 'bold', borderRadius: '4px'}}>NEW</span>}
                       </div>
-                        <h3 style={{fontSize: '1.2rem', fontWeight: '800', marginBottom: '0.2rem'}}>{formData.name || '상품명'}</h3>
-                      <p style={{fontSize: '0.9rem', color: '#888', marginBottom: '1rem'}}>{formData.subtitle || '??_??_명'}</p>
+                      <h3 style={{fontSize: '1.2rem', fontWeight: '800', marginBottom: '0.2rem'}}>{formData.name || '상품명'}</h3>
+                      <p style={{fontSize: '0.9rem', color: '#888', marginBottom: '1rem'}}>{formData.subtitle || '상품 소제목'}</p>
                       
                       <div style={{display: 'flex', alignItems: 'baseline', gap: '0.5rem'}}>
                         <span style={{fontSize: '1.4rem', color: '#e74c3c', letterSpacing: '-0.5px', fontWeight: '900'}}>{formatPrice(formData.price)}원</span>
@@ -946,19 +939,19 @@ function Admin({ refreshGlobalProducts }) {
                   </div>
 
                   <div style={{marginTop: '2rem', borderTop: '2px solid #eee', paddingTop: '1rem'}}>
-                    <h4 style={{marginBottom: '1rem', color: 'var(--primary-color)'}}>?_세?_이지 본문</h4>
+                    <h4 style={{marginBottom: '1rem', color: 'var(--primary-color)'}}>상세페이지 본문</h4>
                     <div style={{background: '#fafafa', padding: '1rem', borderRadius: '8px', minHeight: '200px'}}>
                       {detailBlocks.length === 0 ? (
-                        <div style={{textAlign: 'center', color: '#aaa', marginTop: '3rem'}}>?_세 블록???_기???_시?_니??</div>
+                        <div style={{textAlign: 'center', color: '#aaa', marginTop: '3rem'}}>상세 블록이 여기에 표시됩니다.</div>
                       ) : (
                         <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
                           {detailBlocks.map((block, idx) => (
                             <div key={idx}>
                               {block.type === 'text' && (
-                                <p style={{whiteSpace: 'pre-wrap', color: '#444', lineHeight: '1.6'}}>{block.content || '(?_스??'}</p>
+                                <p style={{whiteSpace: 'pre-wrap', color: '#444', lineHeight: '1.6'}}>{block.content || '(텍스트)'}</p>
                               )}
                               {block.type === 'image' && block.preview && (
-                                <img src={block.preview} alt="?_세미리보기" style={{width: '100%', borderRadius: '8px'}} />
+                                <img src={block.preview} alt="상세미리보기" style={{width: '100%', borderRadius: '8px'}} />
                               )}
                             </div>
                           ))}
@@ -973,19 +966,19 @@ function Admin({ refreshGlobalProducts }) {
         )}
 
         {/* ========================================================================================= */}
-        {/* ?_품 목록 ??(가로형 리스??+ ?_이_? */}
+        {/* 상품 목록 탭 */}
         {/* ========================================================================================= */}
         {activeTab === 'list' && (
           <div>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
-              <h2 style={{fontSize: '1.8rem', fontWeight: '800'}}>?_록???_품 목록 ({products.length}_?</h2>
+              <h2 style={{fontSize: '1.8rem', fontWeight: '800'}}>등록된 상품 목록 ({products.length}개)</h2>
               <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
                 {selectedProductIds.length > 0 && (
                   <button onClick={handleBulkDelete} style={{padding: '0.6rem 1.2rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>
-                    ?_택 ??__ ({selectedProductIds.length})
+                    선택 삭제 ({selectedProductIds.length})
                   </button>
                 )}
-                <button className="primary-btn" onClick={() => {resetForm(); setActiveTab('register');}}>+ ???_품 ?_록</button>
+                <button className="primary-btn" onClick={() => {resetForm(); setActiveTab('register');}}>+ 새 상품 등록</button>
               </div>
             </div>
             
@@ -1004,13 +997,13 @@ function Admin({ refreshGlobalProducts }) {
                     }
                   }}
                 />
-                <label htmlFor="selectAll" style={{cursor: 'pointer', fontWeight: '600'}}>?_재 ?_이지 ?_체 ?_택</label>
+                <label htmlFor="selectAll" style={{cursor: 'pointer', fontWeight: '600'}}>현재 페이지 전체 선택</label>
               </div>
             )}
             
             {products.length === 0 ? (
               <div style={{textAlign: 'center', padding: '5rem', background: 'white', borderRadius: '16px', color: '#888'}}>
-                ?_록???_품???_습?_다.
+                등록된 상품이 없습니다.
               </div>
             ) : (
               <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
@@ -1041,20 +1034,21 @@ function Admin({ refreshGlobalProducts }) {
                     </div>
 
                     <div style={{flex: 1, fontWeight: '700', fontSize: '1.1rem', textAlign: 'right', marginRight: '2rem'}}>
-                      {formatPrice(p.price)}??                    </div>
+                      {formatPrice(p.price)}원
+                    </div>
 
                     <div style={{display: 'flex', gap: '0.5rem'}}>
                       <button 
                         onClick={() => handleEditClick(p)}
                         style={{padding: '0.6rem 1rem', background: '#f1f2f6', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: '600'}}
                       >
-                        <Edit size={16} /> ?_정
+                        <Edit size={16} /> 수정
                       </button>
                       <button 
                         onClick={() => handleDelete(p._id || p.id)}
                         style={{padding: '0.6rem 1rem', background: '#fff0f0', color: '#ff4757', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: '600'}}
                       >
-                        <Trash2 size={16} /> ??__
+                        <Trash2 size={16} /> 삭제
                       </button>
                     </div>
                   </div>
@@ -1095,37 +1089,40 @@ function Admin({ refreshGlobalProducts }) {
           </div>
         )}
 
+        {/* ========================================================================================= */}
+        {/* 메인 상단 배너 관리 탭 */}
+        {/* ========================================================================================= */}
         {activeTab === 'banner' && (
           <div style={{background: 'white', padding: '3rem', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)'}}>
             <h2 style={{fontSize: '1.8rem', fontWeight: '800', marginBottom: '1rem', color: '#333'}}>메인 상단 배너 관리</h2>
             <div style={{padding: '1rem', background: '#fff3e0', color: '#e65100', borderRadius: '8px', marginBottom: '2rem', fontWeight: '600'}}>
-              권장 ?__?지 ?_이_? 가_?1920px × ?_로 500px
+              권장 이미지 사이즈: 가로 1920px × 세로 500px
             </div>
             
             <div style={{marginBottom: '2rem'}}>
               <button onClick={() => handleOpenBannerEditor('hero')} style={{padding: '0.8rem 1.5rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem'}}>
-                + ???_단 배너 추_?
+                + 새 상단 배너 추가
               </button>
             </div>
 
             <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
               {heroBanners.length === 0 ? (
-                <p style={{color: '#888'}}>?_록???_단 배너가 ?_습?_다.</p>
+                <p style={{color: '#888'}}>등록된 상단 배너가 없습니다.</p>
               ) : heroBanners.map((banner, idx) => (
                 <div key={banner.id} className="admin-banner-card" style={{border: '1px solid #ddd', borderRadius: '12px', padding: '1.5rem', background: '#fafafa', position: 'relative'}}>
                   <div className="admin-banner-item" style={{display: 'flex', gap: '1.5rem', alignItems: 'center'}}>
                     <span style={{fontWeight: '900', fontSize: '1.5rem', color: 'var(--primary-color)'}}>{idx + 1}</span>
                     <img src={banner.imageUrl} alt="banner" style={{width: '240px', height: '62px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ccc'}} />
                     <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '0.3rem', justifyContent: 'center'}}>
-                      <strong style={{fontSize: '1.1rem'}}>{banner.title || '(문구 ?_음)'}</strong>
+                      <strong style={{fontSize: '1.1rem'}}>{banner.title || '(문구 없음)'}</strong>
                       <span style={{color: '#888', fontSize: '0.9rem'}}>{banner.subtitle}</span>
                     </div>
                     <div style={{display: 'flex', gap: '0.5rem'}}>
                       <button onClick={() => handleOpenBannerEditor('hero', banner)} style={{padding: '0.6rem 1rem', background: '#4bcffa', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold'}}>
-                        ?_정
+                        수정
                       </button>
                       <button onClick={() => handleDeleteBanner(banner.id, 'hero')} style={{padding: '0.6rem 1rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold'}}>
-                        ??__
+                        삭제
                       </button>
                     </div>
                   </div>
@@ -1135,68 +1132,72 @@ function Admin({ refreshGlobalProducts }) {
           </div>
         )}
 
+        {/* ========================================================================================= */}
+        {/* 추천상품 배너 관리 탭 */}
+        {/* ========================================================================================= */}
         {activeTab === 'rec_banner' && (
           <div style={{background: 'white', padding: '3rem', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)'}}>
             <h2 style={{fontSize: '1.8rem', fontWeight: '800', marginBottom: '1rem', color: '#333'}}>추천상품 배너 관리</h2>
             <div style={{padding: '1rem', background: '#fff3e0', color: '#e65100', borderRadius: '8px', marginBottom: '2rem', fontWeight: '600'}}>
-              권장 ?__?지 ?_이_? 가_?1200px × ?_로 300px (비율 4:1)
+              권장 이미지 사이즈: 가로 1200px × 세로 300px (비율 4:1)
             </div>
             
             <div style={{marginBottom: '2rem'}}>
               <button onClick={() => handleOpenBannerEditor('rec')} style={{padding: '0.8rem 1.5rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem'}}>
-                + ??추천?_품 배너 추_?
+                + 새 추천상품 배너 추가
               </button>
             </div>
 
             <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
               {recBanners.length === 0 ? (
-                <p style={{color: '#888'}}>?_록??추천?_품 배너가 ?_습?_다.</p>
+                <p style={{color: '#888'}}>등록된 추천상품 배너가 없습니다.</p>
               ) : recBanners.map((banner, idx) => (
                 <div key={banner.id} className="admin-banner-card" style={{border: '1px solid #ddd', borderRadius: '12px', padding: '1.5rem', background: '#fafafa', position: 'relative'}}>
                   <div className="admin-banner-item" style={{display: 'flex', gap: '1.5rem', alignItems: 'center'}}>
                     <span style={{fontWeight: '900', fontSize: '1.5rem', color: 'var(--primary-color)'}}>{idx + 1}</span>
                     <img src={banner.imageUrl} alt="banner" style={{width: '240px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ccc'}} />
                     <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '0.3rem', justifyContent: 'center'}}>
-                      <strong style={{fontSize: '1.1rem'}}>{banner.title || '(문구 ?_음)'}</strong>
+                      <strong style={{fontSize: '1.1rem'}}>{banner.title || '(문구 없음)'}</strong>
                     </div>
                     <div style={{display: 'flex', gap: '0.5rem'}}>
                       <button onClick={() => handleOpenBannerEditor('rec', banner)} style={{padding: '0.6rem 1rem', background: '#4bcffa', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold'}}>
-                        ?_정
+                        수정
                       </button>
                       <button onClick={() => handleDeleteBanner(banner.id, 'rec')} style={{padding: '0.6rem 1rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold'}}>
-                        ??__
+                        삭제
                       </button>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-
-            {recBanners.length > 0 && (
-              <div style={{marginTop: '2rem', textAlign: 'right'}}>
-                {/* Save button removed */}
-              </div>
-            )}
           </div>
         )}
 
+        {/* ========================================================================================= */}
+        {/* 공지사항 관리 탭 */}
+        {/* ========================================================================================= */}
         {activeTab === 'notice' && (
           <div style={{textAlign: 'center', padding: '5rem', background: 'white', borderRadius: '16px', color: '#888'}}>
             <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '1rem'}}>
-               공_??_항 관_?            </h2>
-            <p>??기능?_ 추후 ?_데?_트 ???_정?_니??</p>
+              공지사항 관리
+            </h2>
+            <p>이 기능은 추후 업데이트 예정입니다.</p>
           </div>
         )}
 
+        {/* ========================================================================================= */}
+        {/* 주문 관리 탭 */}
+        {/* ========================================================================================= */}
         {activeTab === 'order' && (
           <div className="admin-orders-card" style={{background: 'white', borderRadius: '16px', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.05)'}}>
             <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '1.5rem'}}>
-              주문 관_?({allOrders.filter(o => ['주문완료', '상품준비중', '배송중'].includes(o.status)).length}건
+              주문 관리 ({allOrders.filter(o => ['결제완료', '상품준비중', '배송중'].includes(o.status)).length}건)
             </h2>
             
-            {/* ?_메??(?_브 ?? */}
+            {/* 서브탭 */}
             <div className="admin-order-tabs" style={{display: 'flex', gap: '0.5rem', flexWrap: 'nowrap', overflowX: 'auto', whiteSpace: 'nowrap', marginBottom: '2rem', borderBottom: '2px solid #eee', paddingBottom: '1rem'}}>
-              {['결제?_료', '?_품준비중', '배송_?, '배송?_료'].map(status => (
+              {['결제완료', '상품준비중', '배송중', '배송완료'].map(status => (
                 <button
                   key={status}
                   onClick={() => {
@@ -1214,8 +1215,8 @@ function Admin({ refreshGlobalProducts }) {
                     fontSize: '1.1rem'
                   }}
                 >
-                  {status === '결제?_료' ? '1. 주문?_료' : status === '?_품준비중' ? '2. 배송처리' : status === '배송_? ? '3. 배송_? : '4. 배송?_료'}
-                  {status !== '배송?_료' && (
+                  {status === '결제완료' ? '1. 결제완료' : status === '상품준비중' ? '2. 배송처리(준비중)' : status === '배송중' ? '3. 배송중' : '4. 배송완료'}
+                  {status !== '배송완료' && (
                     <span style={{marginLeft: '0.5rem', background: 'rgba(255,255,255,0.2)', padding: '0.2rem 0.5rem', borderRadius: '12px', fontSize: '0.9rem'}}>
                       {allOrders.filter(o => o.status === status).length}
                     </span>
@@ -1224,7 +1225,7 @@ function Admin({ refreshGlobalProducts }) {
               ))}
             </div>
 
-            {orderSubTab === '배송?_료' && (
+            {orderSubTab === '배송완료' && (
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '8px' }}>
                 <span style={{ fontWeight: 'bold', color: '#555' }}>조회 기간:</span>
                 <input 
@@ -1241,7 +1242,8 @@ function Admin({ refreshGlobalProducts }) {
                   style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
                 <span style={{ marginLeft: '1rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>
-                  기간 ??배송?_료: {filteredOrders.length}_?                </span>
+                  기간 내 배송완료: {filteredOrders.length}건
+                </span>
               </div>
             )}
 
@@ -1249,14 +1251,14 @@ function Admin({ refreshGlobalProducts }) {
               <table className="admin-orders-table" style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1000px'}}>
                 <thead>
                   <tr style={{background: '#f8f9fa', borderBottom: '2px solid #ddd'}}>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>주문?_시</th>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>주문번호/주문??/th>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>?_품_?/th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>주문일시</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>주문번호/주문자</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>상품명</th>
                     <th style={{padding: '1rem', fontWeight: 'bold'}}>결제금액</th>
                     <th style={{padding: '1rem', fontWeight: 'bold'}}>
-                      {orderSubTab === '?_품준비중' ? '?_장?_력' : orderSubTab === '배송_? || orderSubTab === '배송?_료' ? '?_장?_보' : '관_?}
+                      {orderSubTab === '상품준비중' ? '송장입력' : orderSubTab === '배송중' || orderSubTab === '배송완료' ? '송장정보' : '관리'}
                     </th>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>?_태변_?/th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>상태변경</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1266,7 +1268,7 @@ function Admin({ refreshGlobalProducts }) {
                         {new Date(order.createdAt).toLocaleString()}
                       </td>
                       <td className="admin-order-user" style={{padding: '1rem'}}>
-                        <div className="order-user-name" style={{fontWeight: 'bold', color: '#333'}}>{order.userId?.name || order.shippingInfo?.receiverName || '?????_음'}</div>
+                        <div className="order-user-name" style={{fontWeight: 'bold', color: '#333'}}>{order.userId?.name || order.shippingInfo?.receiverName || '이름 없음'}</div>
                         <div className="order-uid" style={{color: '#666', fontSize: '0.85rem'}}>{order.merchant_uid}</div>
                       </td>
                       <td className="admin-order-item" style={{padding: '1rem', color: '#333'}}>
@@ -1279,85 +1281,86 @@ function Admin({ refreshGlobalProducts }) {
                           <div>
                             {order.items.length > 0 ? (
                               order.items.length > 1 
-                                ? `${order.items[0].name} ??${order.items.length - 1}_? 
+                                ? `${order.items[0].name} 외 ${order.items.length - 1}건` 
                                 : order.items[0].name
-                            ) : '?_품 ?_음'}
+                            ) : '상품 없음'}
                           </div>
                         </div>
                       </td>
                       <td className="admin-order-price" style={{padding: '1rem', fontWeight: 'bold', color: 'var(--primary-color)'}}>
-                        {(order.totalAmount + order.shippingFee).toLocaleString()}??                      </td>
+                        {(order.totalAmount + order.shippingFee).toLocaleString()}원
+                      </td>
                       <td className="admin-order-tracking" style={{padding: '1rem'}} onClick={e => e.stopPropagation()}>
-                        {orderSubTab === '?_품준비중' ? (
+                        {orderSubTab === '상품준비중' ? (
                           <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
                             <input 
                               type="text" 
-                              placeholder="?_배??(?? CJ?_?_통??"
+                              placeholder="택배사 (예: CJ대한통운)"
                               value={trackingInputs[order._id]?.courier || ''}
                               onChange={e => setTrackingInputs(prev => ({...prev, [order._id]: {...prev[order._id], courier: e.target.value}}))}
                               style={{padding: '0.4rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '0.9rem'}}
                             />
                             <input 
                               type="text" 
-                              placeholder="?_장번호 ?_력"
+                              placeholder="송장번호 입력"
                               value={trackingInputs[order._id]?.trackingNumber || ''}
                               onChange={e => setTrackingInputs(prev => ({...prev, [order._id]: {...prev[order._id], trackingNumber: e.target.value}}))}
                               style={{padding: '0.4rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '0.9rem'}}
                             />
                           </div>
-                        ) : (orderSubTab === '배송_? || orderSubTab === '배송?_료') ? (
+                        ) : (orderSubTab === '배송중' || orderSubTab === '배송완료') ? (
                           <div style={{fontSize: '0.95rem'}}>
-                            <div style={{fontWeight: 'bold', color: '#555'}}>{order.courier || '?_배??미상'}</div>
-                            <div style={{color: '#888'}}>{order.trackingNumber || '?_장번호 ?_음'}</div>
+                            <div style={{fontWeight: 'bold', color: '#555'}}>{order.courier || '택배사 미상'}</div>
+                            <div style={{color: '#888'}}>{order.trackingNumber || '송장번호 없음'}</div>
                           </div>
                         ) : (
                           <span style={{color: '#aaa'}}>-</span>
                         )}
                       </td>
                       <td className="admin-order-action" style={{padding: '1rem'}} onClick={e => e.stopPropagation()}>
-                        {orderSubTab === '결제?_료' && (
+                        {orderSubTab === '결제완료' && (
                           <button onClick={async (e) => {
                             e.stopPropagation();
                             try {
-                              await updateOrderStatus(order._id, { status: '?_품준비중' });
+                              await updateOrderStatus(order._id, { status: '상품준비중' });
                               loadAllOrders();
-                            } catch (err) { alert('변_??_패'); }
+                            } catch (err) { alert('변경 실패'); }
                           }} style={{padding: '0.6rem 1rem', background: '#34495e', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit'}}>
-                            배송처리(준비중)_??_동
+                            배송처리(준비중)로 이동
                           </button>
                         )}
-                        {orderSubTab === '?_품준비중' && (
+                        {orderSubTab === '상품준비중' && (
                           <button onClick={async (e) => {
                             e.stopPropagation();
                             const trackingInfo = trackingInputs[order._id];
                             if (!trackingInfo?.courier || !trackingInfo?.trackingNumber) {
-                              if (!window.confirm('?_배?_나 ?_장번호가 ?_력?__? ?_았?_니?? 그래??배송중으_??_동?_시겠습?_까?')) return;
+                              if (!window.confirm('택배사나 송장번호가 입력되지 않았습니다. 그래도 배송중으로 이동하시겠습니까?')) return;
                             }
                             try {
                               await updateOrderStatus(order._id, { 
-                                status: '배송_?, 
+                                status: '배송중', 
                                 courier: trackingInfo?.courier || '',
                                 trackingNumber: trackingInfo?.trackingNumber || ''
                               });
                               loadAllOrders();
-                            } catch (err) { alert('변_??_패'); }
+                            } catch (err) { alert('변경 실패'); }
                           }} style={{padding: '0.6rem 1rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit'}}>
-                            ?_장?_력 ??배송_??_동
+                            송장입력 후 배송중 이동
                           </button>
                         )}
-                        {orderSubTab === '배송_? && (
+                        {orderSubTab === '배송중' && (
                           <button onClick={async (e) => {
                             e.stopPropagation();
                             try {
-                              await updateOrderStatus(order._id, { status: '배송?_료' });
+                              await updateOrderStatus(order._id, { status: '배송완료' });
                               loadAllOrders();
-                            } catch (err) { alert('변_??_패'); }
+                            } catch (err) { alert('변경 실패'); }
                           }} style={{padding: '0.6rem 1rem', background: '#27ae60', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit'}}>
-                            배송?_료 처리
+                            배송완료 처리
                           </button>
                         )}
-                        {orderSubTab === '배송?_료' && (
-                          <span style={{color: '#27ae60', fontWeight: 'bold'}}>배송?_료 ??/span>
+                        {orderSubTab === '배송완료' && (
+                          <span style={{color: '#27ae60', fontWeight: 'bold'}}>배송완료 됨</span>
                         )}
                       </td>
                     </tr>
@@ -1365,7 +1368,7 @@ function Admin({ refreshGlobalProducts }) {
                   {currentOrders.length === 0 && (
                     <tr>
                       <td colSpan="6" style={{padding: '3rem', textAlign: 'center', color: '#999', fontSize: '1.1rem'}}>
-                        주문 ?_역???_습?_다.
+                        주문 내역이 없습니다.
                       </td>
                     </tr>
                   )}
@@ -1373,7 +1376,7 @@ function Admin({ refreshGlobalProducts }) {
               </table>
             </div>
 
-            {/* 주문 ?_이_?*/}
+            {/* 주문 페이징 */}
             {totalOrdersPages > 1 && (
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem', gap: '0.5rem' }}>
                 <button
@@ -1412,7 +1415,9 @@ function Admin({ refreshGlobalProducts }) {
           </div>
         )}
 
-        
+        {/* ========================================================================================= */}
+        {/* 취소반품교환관리 탭 */}
+        {/* ========================================================================================= */}
         {activeTab === 'claims' && (
           <div className="admin-orders-card" style={{background: 'white', borderRadius: '16px', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.05)'}}>
             <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '1.5rem'}}>
@@ -1455,9 +1460,9 @@ function Admin({ refreshGlobalProducts }) {
                 </thead>
                 <tbody>
                   {allOrders.filter(o => {
-                    if (claimsSubTab === '취소관리') return o.status.includes('취소');
-                    if (claimsSubTab === '반품관리') return o.status.includes('반품');
-                    if (claimsSubTab === '교환관리') return o.status.includes('교환');
+                    if (claimsSubTab === '취소관리') return o.status?.includes('취소');
+                    if (claimsSubTab === '반품관리') return o.status?.includes('반품');
+                    if (claimsSubTab === '교환관리') return o.status?.includes('교환');
                     return false;
                   }).length === 0 ? (
                     <tr>
@@ -1467,9 +1472,9 @@ function Admin({ refreshGlobalProducts }) {
                     </tr>
                   ) : (
                     allOrders.filter(o => {
-                      if (claimsSubTab === '취소관리') return o.status.includes('취소');
-                      if (claimsSubTab === '반품관리') return o.status.includes('반품');
-                      if (claimsSubTab === '교환관리') return o.status.includes('교환');
+                      if (claimsSubTab === '취소관리') return o.status?.includes('취소');
+                      if (claimsSubTab === '반품관리') return o.status?.includes('반품');
+                      if (claimsSubTab === '교환관리') return o.status?.includes('교환');
                       return false;
                     }).map(order => (
                       <tr key={order._id} style={{borderBottom: '1px solid #eee', cursor: 'pointer', transition: 'background 0.2s'}} onMouseEnter={(e) => e.currentTarget.style.background='#f9f9f9'} onMouseLeave={(e) => e.currentTarget.style.background='transparent'} onClick={() => setSelectedOrderDetails(order)}>
@@ -1515,7 +1520,7 @@ function Admin({ refreshGlobalProducts }) {
                               loadAllOrders();
                             } catch (err) { alert('처리 실패'); }
                           }} style={{padding: '0.6rem 1rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit'}}>
-                            {order.status.includes('요청') ? '처리 완료하기' : '처리 완료됨'}
+                            {order.status?.includes('요청') ? '처리 완료하기' : '처리 완료됨'}
                           </button>
                         </td>
                       </tr>
@@ -1527,39 +1532,41 @@ function Admin({ refreshGlobalProducts }) {
           </div>
         )}
 
+        {/* ========================================================================================= */}
+        {/* 회원 관리 탭 */}
+        {/* ========================================================================================= */}
         {activeTab === 'member' && (
           <div style={{background: 'white', borderRadius: '16px', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.05)'}}>
-            <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '2rem'}}>?_원 관_?({users.length}_?</h2>
+            <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '2rem'}}>회원 관리 ({users.length}명)</h2>
             <div style={{overflowX: 'auto'}}>
               <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px'}}>
                 <thead>
                   <tr style={{background: '#f8f9fa', borderBottom: '2px solid #ddd'}}>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>?_름</th>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>?_이???_셜)</th>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>?_메??/th>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>?_화번호</th>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>마_??_수?_동??/th>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>가?_일</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>이름</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>아이디(소셜)</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>이메일</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>전화번호</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>마케팅 수신동의</th>
+                    <th style={{padding: '1rem', fontWeight: 'bold'}}>가입일</th>
                   </tr>
                 </thead>
                 <tbody>
                   {currentUsers.length === 0 ? (
                     <tr>
-                      <td colSpan="6" style={{padding: '3rem', textAlign: 'center', color: '#777'}}>가?_한 ?_원???_습?_다.</td>
+                      <td colSpan="6" style={{padding: '3rem', textAlign: 'center', color: '#777'}}>가입한 회원이 없습니다.</td>
                     </tr>
                   ) : (
                     currentUsers.map(u => (
                       <tr key={u._id} onClick={() => handleUserClick(u)} style={{borderBottom: '1px solid #eee', cursor: 'pointer', transition: 'background 0.2s'}} onMouseEnter={(e) => e.currentTarget.style.background='#f9f9f9'} onMouseLeave={(e) => e.currentTarget.style.background='transparent'}>
-
                         <td style={{padding: '1rem'}}>{u.name} {u.role === 'admin' ? '(관리자)' : ''}</td>
-                        <td style={{padding: '1rem'}}>{u.provider !== 'local' ? `${u.provider.toUpperCase()} 로그?? : u.loginId}</td>
+                        <td style={{padding: '1rem'}}>{u.provider !== 'local' ? `${u.provider.toUpperCase()} 로그인` : u.loginId}</td>
                         <td style={{padding: '1rem'}}>{u.email}</td>
                         <td style={{padding: '1rem'}}>{u.phone || '-'}</td>
                         <td style={{padding: '1rem'}}>
                           {u.agreements?.sns ? (
-                            <span style={{background: '#e8f5e9', color: '#2e7d32', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.85rem'}}>?_의</span>
+                            <span style={{background: '#e8f5e9', color: '#2e7d32', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.85rem'}}>동의</span>
                           ) : (
-                            <span style={{background: '#ffebee', color: '#c62828', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.85rem'}}>미동??/span>
+                            <span style={{background: '#ffebee', color: '#c62828', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.85rem'}}>미동의</span>
                           )}
                         </td>
                         <td style={{padding: '1rem'}}>{new Date(u.createdAt).toLocaleDateString()}</td>
@@ -1570,7 +1577,7 @@ function Admin({ refreshGlobalProducts }) {
               </table>
             </div>
 
-            {/* ?_원관_??_이_?*/}
+            {/* 회원관리 페이징 */}
             {totalUsersPages > 1 && (
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem', gap: '0.5rem' }}>
                 <button 
@@ -1578,7 +1585,7 @@ function Admin({ refreshGlobalProducts }) {
                   disabled={currentUsersPage === 1}
                   style={{ padding: '0.5rem 1rem', border: '1px solid #ddd', background: currentUsersPage === 1 ? '#f8f9fa' : 'white', cursor: currentUsersPage === 1 ? 'not-allowed' : 'pointer', borderRadius: '8px' }}
                 >
-                  ?_전
+                  이전
                 </button>
                 {[...Array(totalUsersPages)].map((_, i) => (
                   <button
@@ -1602,7 +1609,7 @@ function Admin({ refreshGlobalProducts }) {
                   disabled={currentUsersPage === totalUsersPages}
                   style={{ padding: '0.5rem 1rem', border: '1px solid #ddd', background: currentUsersPage === totalUsersPages ? '#f8f9fa' : 'white', cursor: currentUsersPage === totalUsersPages ? 'not-allowed' : 'pointer', borderRadius: '8px' }}
                 >
-                  ?_음
+                  다음
                 </button>
               </div>
             )}
@@ -1612,18 +1619,18 @@ function Admin({ refreshGlobalProducts }) {
       </div>
     </div>
 
-    {/* ?_디??모달 */}
+    {/* 에디터 모달 */}
     {editingBanner && (
       <div className="modal-overlay" onClick={handleCloseBannerEditor}>
         <div className="modal-content" onClick={e => e.stopPropagation()}>
           <button className="modal-close-btn" onClick={handleCloseBannerEditor}>&times;</button>
           <h2 style={{fontSize: '1.8rem', fontWeight: '800', marginBottom: '1.5rem', color: '#333'}}>
-            {editorType === 'hero' ? '?_단 배너 ?_디?? : '추천?_품 배너 ?_디??}
+            {editorType === 'hero' ? '상단 배너 에디터' : '추천상품 배너 에디터'}
           </h2>
           
           <div style={{marginBottom: '1rem'}}>
             <label style={{display: 'inline-block', padding: '0.8rem 1.5rem', background: 'var(--primary-color)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>
-                    {uploading ? '서버통신중..' : (editingProductId ? '수정 내용 저장' : '상품 등록')}
+              {uploading ? '서버통신중..' : '배너 이미지 선택'}
               <input type="file" accept="image/*" style={{display: 'none'}} disabled={uploading} onChange={handleModalImageUpload} />
             </label>
           </div>
@@ -1631,7 +1638,7 @@ function Admin({ refreshGlobalProducts }) {
           <div className="modal-preview-box">
             {editorType === 'hero' ? (
               <div className="hero-slide" style={{ width: '100%', height: '300px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
-                <img src={editingBanner.imageUrl || 'https://via.placeholder.com/1920x500?text=배너?__?지'} alt="미리보기" className="hero-slide-bg" style={{width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0}} />
+                <img src={editingBanner.imageUrl || 'https://via.placeholder.com/1920x500?text=배너이미지'} alt="미리보기" className="hero-slide-bg" style={{width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0}} />
                 {editingBanner.title && (
                   <>
                     <div className="hero-slide-overlay" style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.3)'}}></div>
@@ -1652,8 +1659,8 @@ function Admin({ refreshGlobalProducts }) {
                         borderRadius: '8px',
                         zIndex: 10
                       }}
-                      title="?_래그하???_치 변_?
-                    >
+                      title="드래그하여 위치 변경"
+                  >
                       <h1 style={{
                         color: editingBanner.titleColor,
                         fontSize: `${editingBanner.titleSize}px`,
@@ -1689,7 +1696,7 @@ function Admin({ refreshGlobalProducts }) {
                 overflow: 'hidden'
               }}>
                 <img 
-                  src={editingBanner.imageUrl || 'https://via.placeholder.com/1200x300?text=배너?__?지'} 
+                  src={editingBanner.imageUrl || 'https://via.placeholder.com/1200x300?text=배너이미지'} 
                   alt="미리보기"
                   style={{
                     position: 'absolute',
@@ -1717,7 +1724,7 @@ function Admin({ refreshGlobalProducts }) {
                       borderRadius: '8px',
                       zIndex: 10
                     }}
-                    title="?_래그하???_치 변_?
+                    title="드래그하여 위치 변경"
                   >
                     <h3 style={{
                       position: 'relative',
@@ -1738,57 +1745,57 @@ function Admin({ refreshGlobalProducts }) {
           </div>
 
           <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
-            {/* ?_결???_품 ?_정 */}
+            {/* 연결할 상품 설정 */}
             <div style={{display: 'flex', flexWrap: 'wrap', gap: '1rem', background: '#fafafa', padding: '1rem', borderRadius: '8px', border: '1px solid #eee'}}>
-              <div style={{flex: '1 1 100%'}}><strong style={{color: '#555'}}>?_결???_품 (배너 ?_릭 ???_당 ?_품 ?_이지_??_동)</strong></div>
+              <div style={{flex: '1 1 100%'}}><strong style={{color: '#555'}}>연결할 상품 (배너 클릭 시 해당 상품 페이지로 이동)</strong></div>
               <select value={editingBanner.linkProductId || ''} onChange={(e) => setEditingBanner({...editingBanner, linkProductId: e.target.value})} style={{width: '100%', padding: '0.8rem', border: '1px solid #ddd', borderRadius: '4px', fontSize: '1rem', cursor: 'pointer'}}>
-                <option value="">-- ?_결 ????(?_릭 ?_과 ?_음) --</option>
+                <option value="">-- 연결 안 함 (클릭 효과 없음) --</option>
                 {products.map(p => (
                   <option key={p._id || p.id} value={p._id || p.id}>{p.name}</option>
                 ))}
               </select>
             </div>
 
-            {/* 메인 문구 ?_정 */}
+            {/* 메인 문구 설정 */}
             <div style={{display: 'flex', flexWrap: 'wrap', gap: '1rem', background: '#fafafa', padding: '1rem', borderRadius: '8px', border: '1px solid #eee'}}>
               <div style={{flex: '1 1 100%'}}><strong style={{color: '#555'}}>{editorType === 'hero' ? '메인 문구' : '배너 문구'}</strong></div>
-              <input type="text" placeholder="문구 ?_력" value={editingBanner.title} onChange={(e) => setEditingBanner({...editingBanner, title: e.target.value})} style={{flex: '3', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} />
-              <input type="number" placeholder="?_기(?_자)" value={editingBanner.titleSize} onChange={(e) => setEditingBanner({...editingBanner, titleSize: e.target.value})} style={{flex: '1', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} title="글???_기(px)" />
-              <input type="color" value={editingBanner.titleColor} onChange={(e) => setEditingBanner({...editingBanner, titleColor: e.target.value})} style={{width: '50px', height: '40px', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer'}} title="글???_상" />
+              <input type="text" placeholder="문구 입력" value={editingBanner.title} onChange={(e) => setEditingBanner({...editingBanner, title: e.target.value})} style={{flex: '3', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} />
+              <input type="number" placeholder="크기(숫자)" value={editingBanner.titleSize} onChange={(e) => setEditingBanner({...editingBanner, titleSize: e.target.value})} style={{flex: '1', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} title="글자 크기(px)" />
+              <input type="color" value={editingBanner.titleColor} onChange={(e) => setEditingBanner({...editingBanner, titleColor: e.target.value})} style={{width: '50px', height: '40px', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer'}} title="글자 색상" />
               <select value={editingBanner.titleFontFamily} onChange={(e) => setEditingBanner({...editingBanner, titleFontFamily: e.target.value})} style={{flex: '2', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}}>
                 <option value="'Noto Sans KR', sans-serif">고딕 (Noto Sans)</option>
                 <option value="'Noto Serif KR', serif">명조 (Noto Serif)</option>
-                <option value="'Nanum Gothic', sans-serif">?_눔고딕</option>
-                <option value="'Nanum Myeongjo', serif">?_눔명조</option>
-                <option value="'Black Han Sans', sans-serif">검?_고딕 (?_꺼?_)</option>
-                <option value="'Jua', sans-serif">주아_?(?__??__?)</option>
-                <option value="'Do Hyeon', sans-serif">?_현_?(각진?_목)</option>
-                <option value="'Gowun Dodum', sans-serif">고운?__?</option>
+                <option value="'Nanum Gothic', sans-serif">나눔고딕</option>
+                <option value="'Nanum Myeongjo', serif">나눔명조</option>
+                <option value="'Black Han Sans', sans-serif">검은고딕 (두꺼움)</option>
+                <option value="'Jua', sans-serif">주아체 (동글동글)</option>
+                <option value="'Do Hyeon', sans-serif">도현체 (각진제목)</option>
+                <option value="'Gowun Dodum', sans-serif">고운돋움</option>
                 <option value="'Gowun Batang', serif">고운바탕</option>
-                <option value="'Dongle', sans-serif">?__? (매우귀?__?)</option>
-                <option value="'Nanum Pen Script', cursive">?_눔?__???/option>
+                <option value="'Dongle', sans-serif">동글 (매우귀여움)</option>
+                <option value="'Nanum Pen Script', cursive">나눔손글씨</option>
               </select>
             </div>
 
-            {/* ?_브 문구 ?_정 (?_단 배너 ?_용) */}
+            {/* 서브 문구 설정 (상단 배너 전용) */}
             {editorType === 'hero' && (
               <div style={{display: 'flex', flexWrap: 'wrap', gap: '1rem', background: '#fafafa', padding: '1rem', borderRadius: '8px', border: '1px solid #eee'}}>
-                <div style={{flex: '1 1 100%'}}><strong style={{color: '#555'}}>?_브 문구</strong></div>
-                <input type="text" placeholder="?_브 문구 ?_력" value={editingBanner.subtitle} onChange={(e) => setEditingBanner({...editingBanner, subtitle: e.target.value})} style={{flex: '3', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} />
-                <input type="number" placeholder="?_기(?_자)" value={editingBanner.subtitleSize} onChange={(e) => setEditingBanner({...editingBanner, subtitleSize: e.target.value})} style={{flex: '1', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} title="글???_기(px)" />
-                <input type="color" value={editingBanner.subtitleColor} onChange={(e) => setEditingBanner({...editingBanner, subtitleColor: e.target.value})} style={{width: '50px', height: '40px', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer'}} title="글???_상" />
+                <div style={{flex: '1 1 100%'}}><strong style={{color: '#555'}}>서브 문구</strong></div>
+                <input type="text" placeholder="서브 문구 입력" value={editingBanner.subtitle} onChange={(e) => setEditingBanner({...editingBanner, subtitle: e.target.value})} style={{flex: '3', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} />
+                <input type="number" placeholder="크기(숫자)" value={editingBanner.subtitleSize} onChange={(e) => setEditingBanner({...editingBanner, subtitleSize: e.target.value})} style={{flex: '1', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}} title="글자 크기(px)" />
+                <input type="color" value={editingBanner.subtitleColor} onChange={(e) => setEditingBanner({...editingBanner, subtitleColor: e.target.value})} style={{width: '50px', height: '40px', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer'}} title="글자 색상" />
                 <select value={editingBanner.subtitleFontFamily} onChange={(e) => setEditingBanner({...editingBanner, subtitleFontFamily: e.target.value})} style={{flex: '2', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px'}}>
                   <option value="'Noto Sans KR', sans-serif">고딕 (Noto Sans)</option>
                   <option value="'Noto Serif KR', serif">명조 (Noto Serif)</option>
-                  <option value="'Nanum Gothic', sans-serif">?_눔고딕</option>
-                  <option value="'Nanum Myeongjo', serif">?_눔명조</option>
-                  <option value="'Black Han Sans', sans-serif">검?_고딕 (?_꺼?_)</option>
-                  <option value="'Jua', sans-serif">주아_?(?__??__?)</option>
-                  <option value="'Do Hyeon', sans-serif">?_현_?(각진?_목)</option>
-                  <option value="'Gowun Dodum', sans-serif">고운?__?</option>
+                  <option value="'Nanum Gothic', sans-serif">나눔고딕</option>
+                  <option value="'Nanum Myeongjo', serif">나눔명조</option>
+                  <option value="'Black Han Sans', sans-serif">검은고딕 (두꺼움)</option>
+                  <option value="'Jua', sans-serif">주아체 (동글동글)</option>
+                  <option value="'Do Hyeon', sans-serif">도현체 (각진제목)</option>
+                  <option value="'Gowun Dodum', sans-serif">고운돋움</option>
                   <option value="'Gowun Batang', serif">고운바탕</option>
-                  <option value="'Dongle', sans-serif">?__? (매우귀?__?)</option>
-                  <option value="'Nanum Pen Script', cursive">?_눔?__???/option>
+                  <option value="'Dongle', sans-serif">동글 (매우귀여움)</option>
+                  <option value="'Nanum Pen Script', cursive">나눔손글씨</option>
                 </select>
               </div>
             )}
@@ -1796,20 +1803,23 @@ function Admin({ refreshGlobalProducts }) {
 
           <div style={{marginTop: '2rem', textAlign: 'center'}}>
             <button onClick={handleSaveBannerEditor} style={{padding: '1rem 4rem', background: '#333', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold'}}>
-              ?_?_하_?            </button>
+              저장하기
+            </button>
           </div>
         </div>
       </div>
     )}
-      {selectedUserForOrders && (
+
+    {/* 회원 주문 내역 모달 */}
+    {selectedUserForOrders && (
       <div className="modal-overlay" onClick={() => setSelectedUserForOrders(null)}>
         <div className="modal-content" onClick={e => e.stopPropagation()} style={{maxWidth: '800px', maxHeight: '80vh', overflowY: 'auto'}}>
           <button className="modal-close-btn" onClick={() => setSelectedUserForOrders(null)}>&times;</button>
           <h2 style={{fontSize: '1.5rem', fontWeight: '800', marginBottom: '1.5rem', color: '#333'}}>
-            {selectedUserForOrders.name} ?_의 주문 ?_역
+            {selectedUserForOrders.name} 님의 주문 내역
           </h2>
           {selectedUserOrders.length === 0 ? (
-            <p style={{textAlign: 'center', padding: '2rem', color: '#666'}}>주문 ?_역???_습?_다.</p>
+            <p style={{textAlign: 'center', padding: '2rem', color: '#666'}}>주문 내역이 없습니다.</p>
           ) : (
             <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
               {selectedUserOrders.map(order => (
@@ -1828,13 +1838,14 @@ function Admin({ refreshGlobalProducts }) {
                       {item.imageUrl && <img src={item.imageUrl} alt={item.name} style={{width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px'}} />}
                       <div style={{flex: 1}}>
                         <div style={{fontWeight: 'bold'}}>{item.name}</div>
-                        {item.selectedOptionName && <div style={{fontSize: '0.85rem', color: '#666'}}>?_션: {item.selectedOptionName}</div>}
-                        <div style={{fontSize: '0.9rem'}}>{item.price.toLocaleString()}??x {item.quantity}_?/div>
+                        {item.selectedOptionName && <div style={{fontSize: '0.85rem', color: '#666'}}>옵션: {item.selectedOptionName}</div>}
+                        <div style={{fontSize: '0.9rem'}}>{item.price.toLocaleString()}원 x {item.quantity}개</div>
                       </div>
                     </div>
                   ))}
                   <div style={{marginTop: '1.5rem', textAlign: 'right', fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--primary-color)'}}>
-                    _?결제금액: {order.totalAmount.toLocaleString()}??                  </div>
+                    총 결제금액: {order.totalAmount.toLocaleString()}원
+                  </div>
                 </div>
               ))}
             </div>
@@ -1843,85 +1854,85 @@ function Admin({ refreshGlobalProducts }) {
       </div>
     )}
 
-      {/* 주문 ?_세(배송지 ?_보) 모달 */}
-      {selectedOrderDetails && (
-        <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000}} onClick={() => setSelectedOrderDetails(null)}>
-          <div style={{background: 'white', borderRadius: '16px', padding: '2.5rem', width: '90%', maxWidth: '650px', maxHeight: '85vh', overflowY: 'auto', fontFamily: '"Jua", "Pretendard", sans-serif'}} onClick={e => e.stopPropagation()}>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem'}}>
-              <h2 style={{fontSize: '1.6rem', fontWeight: 'bold'}}>주문 ?_세 ?_역</h2>
-              <button onClick={() => setSelectedOrderDetails(null)} style={{background: 'none', border: 'none', cursor: 'pointer'}}><X size={28} /></button>
-            </div>
-            
-            {/* ?_품 ?_보 ?_역 */}
-            <div style={{marginBottom: '2rem'}}>
-              <h3 style={{fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--primary-color)', borderBottom: '2px solid #eee', paddingBottom: '0.8rem', marginBottom: '1.5rem'}}>주문 ?_품 ?_보</h3>
-              <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
-                {selectedOrderDetails.items.map((item, idx) => (
-                  <div key={idx} style={{display: 'flex', alignItems: 'center', gap: '1.2rem', background: '#f8f9fa', padding: '1.2rem', borderRadius: '8px'}}>
-                    {item.imageUrl && <img src={item.imageUrl} alt={item.name} style={{width: '70px', height: '70px', objectFit: 'cover', borderRadius: '6px'}} />}
-                    <div style={{flex: 1}}>
-                      <div style={{fontWeight: 'bold', fontSize: '1.2rem', color: '#333'}}>{item.name}</div>
-                      {item.selectedOptionName && <div style={{fontSize: '1rem', color: '#666', marginTop: '0.3rem'}}>?_션: {item.selectedOptionName}</div>}
-                      <div style={{fontSize: '1.1rem', color: '#444', marginTop: '0.3rem'}}>{item.price.toLocaleString()}??x <strong style={{color: 'var(--primary-color)'}}>{item.quantity}_?/strong></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{marginTop: '1.5rem', textAlign: 'right', fontSize: '1.4rem', fontWeight: 'bold'}}>
-                _?결제금액: <span style={{color: 'var(--primary-color)'}}>{selectedOrderDetails.totalAmount.toLocaleString()}??/span>
-              </div>
-            </div>
-
-            {/* 배송지 ?_보 ?_역 */}
-            <div>
-              <h3 style={{fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--primary-color)', borderBottom: '2px solid #eee', paddingBottom: '0.8rem', marginBottom: '1.5rem'}}>배송지 ?_보</h3>
-              <div style={{padding: '1.8rem', background: '#f8f9fa', borderRadius: '8px', fontSize: '1.1rem'}}>
-                <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
-                  <strong style={{color: '#555', minWidth: '100px'}}>?_령??/strong> 
-                  <span style={{textAlign: 'right'}}>{selectedOrderDetails.shippingInfo?.receiverName || '?_보 ?_음'}</span>
-                </p>
-                <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
-                  <strong style={{color: '#555', minWidth: '100px'}}>?_락_?/strong> 
-                  <span style={{textAlign: 'right'}}>{selectedOrderDetails.shippingInfo?.receiverPhone || '?_보 ?_음'}</span>
-                </p>
-                <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
-                  <strong style={{color: '#555', minWidth: '100px'}}>?_편번호</strong> 
-                  <span style={{textAlign: 'right'}}>{selectedOrderDetails.shippingInfo?.zonecode || '?_보 ?_음'}</span>
-                </p>
-                <div style={{marginBottom: '1rem'}}>
-                  <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>주소</strong> 
-                  <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', lineHeight: '1.5'}}>
-                    {selectedOrderDetails.shippingInfo?.address || '?_보 ?_음'}<br/>
-                    {selectedOrderDetails.shippingInfo?.detailAddress || ''}
-                  </div>
-                </div>
-                <div style={{marginBottom: '1rem'}}>
-                  <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>?__? 출입비_?번호</strong> 
-                  <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', color: 'var(--primary-color)', fontWeight: 'bold'}}>
-                    {selectedOrderDetails.shippingInfo?.doorPassword || '?_음'}
-                  </div>
-                </div>
-                <div style={{marginBottom: '1rem'}}>
-                  <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>배송 메모</strong> 
-                  <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', minHeight: '60px'}}>
-                    {selectedOrderDetails.shippingInfo?.memo || '?_음'}
-                  </div>
-                </div>
-                <div>
-                  <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>기_? 메모</strong> 
-                  <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', minHeight: '60px'}}>
-                    {selectedOrderDetails.shippingInfo?.extraMemo || '?_음'}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <button onClick={() => setSelectedOrderDetails(null)} style={{width: '100%', padding: '1rem', background: '#333', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontFamily: 'inherit', marginTop: '2rem'}}>
-              ?_기
-            </button>
+    {/* 주문 상세(배송지 정보) 모달 */}
+    {selectedOrderDetails && (
+      <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000}} onClick={() => setSelectedOrderDetails(null)}>
+        <div style={{background: 'white', borderRadius: '16px', padding: '2.5rem', width: '90%', maxWidth: '650px', maxHeight: '85vh', overflowY: 'auto', fontFamily: '"Jua", "Pretendard", sans-serif'}} onClick={e => e.stopPropagation()}>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem'}}>
+            <h2 style={{fontSize: '1.6rem', fontWeight: 'bold'}}>주문 상세 내역</h2>
+            <button onClick={() => setSelectedOrderDetails(null)} style={{background: 'none', border: 'none', cursor: 'pointer'}}><X size={28} /></button>
           </div>
+          
+          {/* 상품 정보 내역 */}
+          <div style={{marginBottom: '2rem'}}>
+            <h3 style={{fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--primary-color)', borderBottom: '2px solid #eee', paddingBottom: '0.8rem', marginBottom: '1.5rem'}}>주문 상품 정보</h3>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+              {selectedOrderDetails.items.map((item, idx) => (
+                <div key={idx} style={{display: 'flex', alignItems: 'center', gap: '1.2rem', background: '#f8f9fa', padding: '1.2rem', borderRadius: '8px'}}>
+                  {item.imageUrl && <img src={item.imageUrl} alt={item.name} style={{width: '70px', height: '70px', objectFit: 'cover', borderRadius: '6px'}} />}
+                  <div style={{flex: 1}}>
+                    <div style={{fontWeight: 'bold', fontSize: '1.2rem', color: '#333'}}>{item.name}</div>
+                    {item.selectedOptionName && <div style={{fontSize: '1rem', color: '#666', marginTop: '0.3rem'}}>옵션: {item.selectedOptionName}</div>}
+                    <div style={{fontSize: '1.1rem', color: '#444', marginTop: '0.3rem'}}>{item.price.toLocaleString()}원 x <strong style={{color: 'var(--primary-color)'}}>{item.quantity}개</strong></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{marginTop: '1.5rem', textAlign: 'right', fontSize: '1.4rem', fontWeight: 'bold'}}>
+              총 결제금액: <span style={{color: 'var(--primary-color)'}}>{selectedOrderDetails.totalAmount.toLocaleString()}원</span>
+            </div>
+          </div>
+
+          {/* 배송지 정보 내역 */}
+          <div>
+            <h3 style={{fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--primary-color)', borderBottom: '2px solid #eee', paddingBottom: '0.8rem', marginBottom: '1.5rem'}}>배송지 정보</h3>
+            <div style={{padding: '1.8rem', background: '#f8f9fa', borderRadius: '8px', fontSize: '1.1rem'}}>
+              <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
+                <strong style={{color: '#555', minWidth: '100px'}}>수령인</strong> 
+                <span style={{textAlign: 'right'}}>{selectedOrderDetails.shippingInfo?.receiverName || '정보 없음'}</span>
+              </p>
+              <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
+                <strong style={{color: '#555', minWidth: '100px'}}>연락처</strong> 
+                <span style={{textAlign: 'right'}}>{selectedOrderDetails.shippingInfo?.receiverPhone || '정보 없음'}</span>
+              </p>
+              <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
+                <strong style={{color: '#555', minWidth: '100px'}}>우편번호</strong> 
+                <span style={{textAlign: 'right'}}>{selectedOrderDetails.shippingInfo?.zonecode || '정보 없음'}</span>
+              </p>
+              <div style={{marginBottom: '1rem'}}>
+                <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>주소</strong> 
+                <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', lineHeight: '1.5'}}>
+                  {selectedOrderDetails.shippingInfo?.address || '정보 없음'}<br/>
+                  {selectedOrderDetails.shippingInfo?.detailAddress || ''}
+                </div>
+              </div>
+              <div style={{marginBottom: '1rem'}}>
+                <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>공동현관 비밀번호</strong> 
+                <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', color: 'var(--primary-color)', fontWeight: 'bold'}}>
+                  {selectedOrderDetails.shippingInfo?.doorPassword || '없음'}
+                </div>
+              </div>
+              <div style={{marginBottom: '1rem'}}>
+                <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>배송 메모</strong> 
+                <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', minHeight: '60px'}}>
+                  {selectedOrderDetails.shippingInfo?.memo || '없음'}
+                </div>
+              </div>
+              <div>
+                <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>기타 메모</strong> 
+                <div style={{background: 'white', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd', minHeight: '60px'}}>
+                  {selectedOrderDetails.shippingInfo?.extraMemo || '없음'}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button onClick={() => setSelectedOrderDetails(null)} style={{width: '100%', padding: '1rem', background: '#333', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontFamily: 'inherit', marginTop: '2rem'}}>
+            닫기
+          </button>
         </div>
-      )}
+      </div>
+    )}
   </>
   );
 }
