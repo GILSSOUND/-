@@ -140,14 +140,14 @@ function MyPage() {
             <h3>주문내역</h3>
             {loading ? (
               <div style={{ textAlign: 'center', padding: '2rem' }}>로딩 중...</div>
-            ) : orders.length === 0 ? (
+            ) : orders.filter(o => !o.claim || o.claim.type !== 'return').length === 0 ? (
               <div className="mypage-empty-state">
                 <ShoppingBag size={48} color="#ddd" />
                 <p>주문한 내역이 없습니다.</p>
               </div>
             ) : (
               <div className="orders-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {orders.map((order) => (
+                {orders.filter(o => !o.claim || o.claim.type !== 'return').map((order) => (
                   <div key={order._id} style={{ border: '1px solid #eee', borderRadius: '8px', padding: '1.5rem', cursor: 'pointer', transition: 'box-shadow 0.2s' }} onClick={() => setSelectedOrder(order)} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '0.8rem', marginBottom: '1rem' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
@@ -213,13 +213,64 @@ function MyPage() {
           </div>
         );
       case 'returns':
+        const returnOrders = orders.filter(o => o.claim && o.claim.type === 'return');
         return (
           <div className="mypage-tab-content">
             <h3>반품내역</h3>
-            <div className="mypage-empty-state">
-              <RotateCcw size={48} color="#ddd" />
-              <p>반품 내역이 없습니다.</p>
-            </div>
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>로딩 중...</div>
+            ) : returnOrders.length === 0 ? (
+              <div className="mypage-empty-state">
+                <RotateCcw size={48} color="#ddd" />
+                <p>반품 내역이 없습니다.</p>
+              </div>
+            ) : (
+              <div className="orders-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {returnOrders.map((order) => (
+                  <div key={order._id} style={{ border: '1px solid #eee', borderRadius: '8px', padding: '1.5rem', cursor: 'pointer', transition: 'box-shadow 0.2s' }} onClick={() => setSelectedOrder(order)} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '0.8rem', marginBottom: '1rem' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                        <span style={{ fontWeight: 'bold' }}>{formatDate(order.createdAt)}</span>
+                        <span style={{ color: '#888', fontSize: '0.85rem' }}>주문번호: {order.merchant_uid}</span>
+                      </div>
+                      <div style={{ whiteSpace: 'nowrap', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                        <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>
+                          {order.status === '환불됨' || (order.status === '환불완료' && !order.claim) ? '취소됨' : 
+                           (order.status === '환불완료' && order.claim) ? '반품요청' : order.status}
+                        </span>
+                        {(order.status === '환불됨' || order.status === '환불완료') && (
+                          <span style={{ color: '#ff4757', fontWeight: 'bold', fontSize: '0.9rem', marginTop: '0.2rem' }}>환불완료</span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {order.items.map((item, idx) => (
+                      <div key={idx} style={{ display: 'flex', gap: '1rem', marginBottom: idx !== order.items.length - 1 ? '1rem' : 0 }}>
+                        <img src={item.imageUrl} alt={item.name} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '4px' }} />
+                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                          <span style={{ fontWeight: 'bold', marginBottom: '0.3rem' }}>{item.name}</span>
+                          {item.selectedOptionName && <span style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.3rem' }}>옵션: {item.selectedOptionName}</span>}
+                          <span>{formatPrice(item.price)}원 / {item.quantity}개</span>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px dashed #eee' }}>
+                      {order.trackingNumber && (
+                        <div style={{ color: '#555', fontSize: '0.95rem', textAlign: 'left', marginBottom: '0.5rem' }}>
+                          {order.courier ? `${order.courier} ` : ''}송장번호: <span style={{ fontWeight: 'bold', color: 'var(--text-main)' }}>{order.trackingNumber}</span>
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                        <div style={{ textAlign: 'left', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                          총 결제 금액: <span style={{ color: 'var(--primary-color)' }}>{formatPrice(order.totalAmount + order.shippingFee)}원</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         );
       case 'profile':
