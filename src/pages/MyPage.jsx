@@ -195,7 +195,7 @@ function MyPage() {
                               구매취소
                             </button>
                           )}
-                          {order.status === '배송완료' && (
+                          {order.status === '배송완료' && (new Date() - new Date(order.updatedAt || order.createdAt) <= 48 * 60 * 60 * 1000) && (
                             <span 
                               style={{ color: '#888', fontSize: '0.85rem', cursor: 'pointer', textDecoration: 'underline', marginTop: '0.5rem' }}
                               onClick={(e) => { e.stopPropagation(); setClaimOrder(order); }}
