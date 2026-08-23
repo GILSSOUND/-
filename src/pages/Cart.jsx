@@ -50,6 +50,9 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
   
   const [checkoutMode, setCheckoutMode] = useState(false);
   const [useDefaultShipping, setUseDefaultShipping] = useState(false);
+  const [usePoints, setUsePoints] = useState('');
+  const [useCoupon, setUseCoupon] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('card');
   
   const [shippingInfo, setShippingInfo] = useState({
     receiverName: '',
@@ -142,9 +145,16 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
     const merchant_uid = `${new Date().getTime()}`;
     const amount = totalPrice + finalShippingFee;
 
+    let pg = 'html5_inicis';
+    if (paymentMethod === 'easy') pg = 'kakaopay';
+    else if (paymentMethod === 'phone') pg = 'danal';
+    
+    let pay_method = paymentMethod;
+    if (paymentMethod === 'easy') pay_method = 'card';
+
     const data = {
-      pg: 'kakaopay', // 설정된 카카오페이 테스트 채널 지정
-      pay_method: 'card',
+      pg: pg,
+      pay_method: pay_method,
       merchant_uid: merchant_uid,
       name: cartItems.length > 1 ? `${cartItems[0].name} 외 ${cartItems.length - 1}건` : cartItems[0].name,
       amount: amount,
@@ -328,11 +338,57 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>기타 메모 (선택)</label>
                     <input type="text" name="extraMemo" value={shippingInfo.extraMemo} onChange={handleInputChange} placeholder="추가 전달사항" style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', border: '1px solid #ddd' }} />
                   </div>
-                </div>
+                                </div>
               </div>
             )}
-          </div>
+            
+            {checkoutMode && (
+              <>
+                <div style={{ background: 'white', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginTop: '2rem' }}>
+                  <h3 style={{ marginBottom: '1.5rem', borderBottom: '2px solid #333', paddingBottom: '0.8rem' }}>할인/포인트 적용</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>포인트 사용</label>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <input type="number" value={usePoints} onChange={(e) => setUsePoints(e.target.value)} placeholder="0" style={{ flex: 1, padding: '0.8rem', borderRadius: '4px', border: '1px solid #ddd' }} />
+                        <button type="button" onClick={() => setUsePoints(user?.points || 0)} style={{ padding: '0.8rem 1.5rem', background: '#333', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>전액사용</button>
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.3rem' }}>* 보유 포인트: {(user?.points || 0).toLocaleString()}P</div>
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>쿠폰 적용</label>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <input type="text" value={useCoupon} readOnly placeholder="적용된 쿠폰 없음" style={{ flex: 1, padding: '0.8rem', borderRadius: '4px', border: '1px solid #ddd', background: '#f5f5f5' }} />
+                        <button type="button" onClick={() => alert('사용 가능한 쿠폰이 없습니다.')} style={{ padding: '0.8rem 1.5rem', background: '#333', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>쿠폰선택</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
+                <div style={{ background: 'white', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginTop: '2rem' }}>
+                  <h3 style={{ marginBottom: '1.5rem', borderBottom: '2px solid #333', paddingBottom: '0.8rem' }}>결제 수단</h3>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '1.1rem' }}>
+                      <input type="radio" name="paymentMethod" value="card" checked={paymentMethod === 'card'} onChange={(e) => setPaymentMethod(e.target.value)} style={{ width: '18px', height: '18px' }} />
+                      카드결제
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '1.1rem' }}>
+                      <input type="radio" name="paymentMethod" value="vbank" checked={paymentMethod === 'vbank'} onChange={(e) => setPaymentMethod(e.target.value)} style={{ width: '18px', height: '18px' }} />
+                      가상계좌결제
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '1.1rem' }}>
+                      <input type="radio" name="paymentMethod" value="easy" checked={paymentMethod === 'easy'} onChange={(e) => setPaymentMethod(e.target.value)} style={{ width: '18px', height: '18px' }} />
+                      간편결제
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '1.1rem' }}>
+                      <input type="radio" name="paymentMethod" value="phone" checked={paymentMethod === 'phone'} onChange={(e) => setPaymentMethod(e.target.value)} style={{ width: '18px', height: '18px' }} />
+                      휴대폰결제
+                    </label>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
           <div className="cart-summary" style={{ flex: '1 1 30%', minWidth: '300px' }}>
             <h3>결제 예상 금액</h3>
             <div className="summary-row">

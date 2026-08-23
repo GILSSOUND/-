@@ -90,7 +90,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
     e.stopPropagation();
     if (product.options && product.options.length > 0 && !selectedOption) {
       alert("상품 옵션을 선택해주세요.");
-      return;
+      return false;
     }
 
     const productWithOption = {
@@ -102,6 +102,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
     };
 
     handleAddToCart(productWithOption, { stopPropagation: () => {} }, quantity);
+    return true;
   };
 
   return (
@@ -403,7 +404,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
               <button className="outline-btn cart" onClick={onAddToCartClick} style={{ flex: 1, height: '54px', borderRadius: '8px', border: '1px solid var(--primary-color)', color: 'var(--primary-color)', background: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
                 장바구니 담기
               </button>
-              <button className="primary-btn buy" onClick={(e) => { requireAuth(() => { onAddToCartClick(e); navigate('/cart'); }); }} style={{ flex: 1, height: '54px', borderRadius: '8px', border: 'none', background: 'var(--primary-color)', color: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
+              <button className="primary-btn buy" onClick={(e) => { requireAuth(() => { const success = onAddToCartClick(e); if(success) navigate('/cart'); }); }} style={{ flex: 1, height: '54px', borderRadius: '8px', border: 'none', background: 'var(--primary-color)', color: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
                 구매하기
               </button>
             </div>
@@ -494,7 +495,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           <Heart size={24} />
         </button>
         <button className="outline-btn cart" onClick={onAddToCartClick}>장바구니 담기</button>
-        <button className="primary-btn buy" onClick={(e) => { requireAuth(() => { onAddToCartClick(e); navigate('/cart'); }); }}>구매하기</button>
+        <button className="primary-btn buy" onClick={(e) => { requireAuth(() => { const success = onAddToCartClick(e); if(success) navigate('/cart'); }); }}>구매하기</button>
       </div>
 
     </div>
