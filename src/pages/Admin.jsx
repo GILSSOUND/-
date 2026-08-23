@@ -1428,6 +1428,7 @@ function Admin({ refreshGlobalProducts }) {
                 <button
                   key={status}
                   onClick={() => {
+                    setClaimsSubTab(status);
                     setCurrentOrdersPage(1);
                   }}
                   style={{
