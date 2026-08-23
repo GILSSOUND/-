@@ -1445,6 +1445,13 @@ function Admin({ refreshGlobalProducts }) {
                 </button>
               ))}
             </div>
+
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '8px' }}>
+              <span style={{ fontWeight: 'bold', color: '#555' }}>조회 기간:</span>
+              <input type="date" value={orderStartDate} onChange={(e) => { setOrderStartDate(e.target.value); setCurrentOrdersPage(1); }} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+              <span style={{color: '#888'}}>~</span>
+              <input type="date" value={orderEndDate} onChange={(e) => { setOrderEndDate(e.target.value); setCurrentOrdersPage(1); }} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+            </div>
             
             <div style={{overflowX: 'auto'}}>
               <table className="admin-orders-table" style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1000px'}}>
@@ -1460,10 +1467,24 @@ function Admin({ refreshGlobalProducts }) {
                 </thead>
                 <tbody>
                   {allOrders.filter(o => {
-                    if (claimsSubTab === '취소관리') return o.status?.includes('취소') || o.status === '환불됨';
-                    if (claimsSubTab === '반품관리') return o.status?.includes('반품');
-
-                    return false;
+                    let ok = false;
+                    if (claimsSubTab === '취소관리') ok = o.status === '취소됨' || (o.status === '환불완료' && !o.claim);
+                    if (claimsSubTab === '반품관리') ok = o.status === '반품요청' || (o.status === '환불완료' && !!o.claim);
+                    if (!ok) return false;
+                    if (orderStartDate || orderEndDate) {
+                      const oDate = new Date(o.updatedAt || o.createdAt);
+                      if (orderStartDate) {
+                        const sDate = new Date(orderStartDate);
+                        sDate.setHours(0,0,0,0);
+                        if (oDate < sDate) return false;
+                      }
+                      if (orderEndDate) {
+                        const eDate = new Date(orderEndDate);
+                        eDate.setHours(23,59,59,999);
+                        if (oDate > eDate) return false;
+                      }
+                    }
+                    return true;
                   }).length === 0 ? (
                     <tr>
                       <td colSpan="6" style={{padding: '3rem', textAlign: 'center', color: '#999', fontSize: '1.1rem'}}>
@@ -1472,10 +1493,24 @@ function Admin({ refreshGlobalProducts }) {
                     </tr>
                   ) : (
                     allOrders.filter(o => {
-                      if (claimsSubTab === '취소관리') return o.status?.includes('취소') || o.status === '환불됨';
-                      if (claimsSubTab === '반품관리') return o.status?.includes('반품');
-
-                      return false;
+                      let ok = false;
+                    if (claimsSubTab === '취소관리') ok = o.status === '취소됨' || (o.status === '환불완료' && !o.claim);
+                    if (claimsSubTab === '반품관리') ok = o.status === '반품요청' || (o.status === '환불완료' && !!o.claim);
+                    if (!ok) return false;
+                    if (orderStartDate || orderEndDate) {
+                      const oDate = new Date(o.updatedAt || o.createdAt);
+                      if (orderStartDate) {
+                        const sDate = new Date(orderStartDate);
+                        sDate.setHours(0,0,0,0);
+                        if (oDate < sDate) return false;
+                      }
+                      if (orderEndDate) {
+                        const eDate = new Date(orderEndDate);
+                        eDate.setHours(23,59,59,999);
+                        if (oDate > eDate) return false;
+                      }
+                    }
+                    return true;
                     }).map(order => (
                       <tr key={order._id} style={{borderBottom: '1px solid #eee', cursor: 'pointer', transition: 'background 0.2s'}} onMouseEnter={(e) => e.currentTarget.style.background='#f9f9f9'} onMouseLeave={(e) => e.currentTarget.style.background='transparent'} onClick={() => setSelectedOrderDetails(order)}>
                         <td className="admin-order-date" style={{padding: '1rem', color: '#666'}}>
@@ -1508,36 +1543,21 @@ function Admin({ refreshGlobalProducts }) {
                           <div style={{color: '#e74c3c', fontWeight: 'bold'}}>{order.status}</div>
                         </td>
                         <td className="admin-order-action" style={{padding: '1rem'}} onClick={e => e.stopPropagation()}>
-                          {order.status === '취소됨' ? (
+                          {order.status === '취소됨' || order.status === '반품요청' ? (
                             <button onClick={async (e) => {
                               e.stopPropagation();
                               if(window.confirm('환불 완료 처리하시겠습니까?')) {
                                 try {
-                                  await updateOrderStatus(order._id, { status: '환불됨' });
+                                  await updateOrderStatus(order._id, { status: '환불완료' });
                                   loadAllOrders();
                                 } catch (err) { alert('처리 실패'); }
                               }
                             }} style={{padding: '0.6rem 1rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 'bold'}}>
                               환불완료
                             </button>
-                          ) : order.status === '환불됨' ? (
-                            <span style={{color: '#ff4757', fontWeight: 'bold'}}>환불완료됨</span>
-                          ) : (
-                            <button onClick={async (e) => {
-                              e.stopPropagation();
-                              try {
-                                const nextStatus = order.status.replace('요청', '완료');
-                                if(nextStatus === order.status) {
-                                  alert('이미 처리되었습니다.');
-                                  return;
-                                }
-                                await updateOrderStatus(order._id, { status: nextStatus });
-                                loadAllOrders();
-                              } catch (err) { alert('처리 실패'); }
-                            }} style={{padding: '0.6rem 1rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontFamily: 'inherit'}}>
-                              {order.status?.includes('요청') ? '처리 완료하기' : '처리 완료'}
-                            </button>
-                          )}
+                          ) : order.status === '환불완료' ? (
+                            <button disabled style={{padding: '0.6rem 1rem', background: '#ddd', color: '#666', border: 'none', borderRadius: '6px', fontFamily: 'inherit', fontWeight: 'bold'}}>완료</button>
+                          ) : null}
                         </td>
                       </tr>
                     ))
