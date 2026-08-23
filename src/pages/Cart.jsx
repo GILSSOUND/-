@@ -143,7 +143,8 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
     IMP.agency('imp28885142', '002');
 
     const merchant_uid = `${new Date().getTime()}`;
-    const amount = totalPrice + finalShippingFee;
+    const discountPoints = Number(usePoints) || 0;
+    const amount = Math.max(0, totalPrice + finalShippingFee - discountPoints);
 
     let pg = 'html5_inicis';
     if (paymentMethod === 'easy') pg = 'kakaopay';
@@ -179,6 +180,7 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
         imageUrl: item.imageUrl
       })),
       totalAmount: totalPrice,
+      usedPoints: discountPoints,
       shippingFee: finalShippingFee,
       shippingInfo
     };
@@ -201,6 +203,7 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
               imageUrl: item.imageUrl
             })),
             totalAmount: totalPrice,
+      usedPoints: discountPoints,
             shippingFee: finalShippingFee,
             shippingInfo
           };
@@ -350,8 +353,16 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
                     <div>
                       <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>포인트 사용</label>
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <input type="number" value={usePoints} onChange={(e) => setUsePoints(e.target.value)} placeholder="0" style={{ flex: 1, padding: '0.8rem', borderRadius: '4px', border: '1px solid #ddd' }} />
-                        <button type="button" onClick={() => setUsePoints(user?.points || 0)} style={{ padding: '0.8rem 1.5rem', background: '#333', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>전액사용</button>
+                        <input type="number" value={usePoints} onChange={(e) => {
+                          let val = e.target.value === '' ? '' : Number(e.target.value);
+                          const maxPoints = Math.min(user?.points || 0, totalPrice + finalShippingFee);
+                          if (val > maxPoints) val = maxPoints;
+                          setUsePoints(val);
+                        }} placeholder="0" style={{ flex: 1, padding: '0.8rem', borderRadius: '4px', border: '1px solid #ddd' }} />
+                        <button type="button" onClick={() => {
+                          const maxPoints = Math.min(user?.points || 0, totalPrice + finalShippingFee);
+                          setUsePoints(maxPoints);
+                        }} style={{ padding: '0.8rem 1.5rem', background: '#333', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>전액사용</button>
                       </div>
                       <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.3rem' }}>* 보유 포인트: {(user?.points || 0).toLocaleString()}P</div>
                     </div>
@@ -399,15 +410,21 @@ function Cart({ cartItems, handleRemoveFromCart, handleUpdateQuantity, handleCha
               <span>배송비</span>
               <span>{finalShippingFee === 0 ? '무료' : `${formatPrice(finalShippingFee)}원`}</span>
             </div>
+            {checkoutMode && Number(usePoints) > 0 && (
+              <div className="summary-row" style={{ color: '#e53935' }}>
+                <span>포인트 사용</span>
+                <span>-{formatPrice(Number(usePoints))}원</span>
+              </div>
+            )}
             <div className="summary-total">
               <span>총 결제 금액</span>
-              <span>{formatPrice(totalPrice + finalShippingFee)}원</span>
+              <span>{formatPrice(Math.max(0, totalPrice + finalShippingFee - (Number(usePoints) || 0)))}원</span>
             </div>
             
             {!checkoutMode ? (
               <button className="primary-btn checkout-btn" onClick={() => setCheckoutMode(true)} style={{ width: '100%', padding: '1.2rem', marginTop: '1.5rem', fontSize: '1.2rem', fontWeight: 'bold', display: 'block', margin: '1.5rem auto 0', textAlign: 'center', boxSizing: 'border-box' }}>구매하기</button>
             ) : (
-              <button className="primary-btn checkout-btn" onClick={requestPay} style={{ background: '#e53935', width: '100%', padding: '1.2rem', marginTop: '1.5rem', fontSize: '1.2rem', fontWeight: 'bold', display: 'block', margin: '1.5rem auto 0', textAlign: 'center', boxSizing: 'border-box' }}>{formatPrice(totalPrice + finalShippingFee)}원 결제하기</button>
+              <button className="primary-btn checkout-btn" onClick={requestPay} style={{ background: '#e53935', width: '100%', padding: '1.2rem', marginTop: '1.5rem', fontSize: '1.2rem', fontWeight: 'bold', display: 'block', margin: '1.5rem auto 0', textAlign: 'center', boxSizing: 'border-box' }}>{formatPrice(Math.max(0, totalPrice + finalShippingFee - (Number(usePoints) || 0)))}원 결제하기</button>
             )}
           </div>
         </div>
