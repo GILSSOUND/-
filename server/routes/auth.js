@@ -199,4 +199,24 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
 router.get('/naver', passport.authenticate('naver'));
 router.get('/naver/callback', passport.authenticate('naver', { failureRedirect: '/?error=naver_login_failed' }), handleSocialCallback);
 
+
+// --- Admin Update User ---
+router.put('/users/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    // Allow updating points and other fields
+    if (req.body.points !== undefined) {
+      user.points = req.body.points;
+    }
+    
+    await user.save();
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;
