@@ -15,16 +15,10 @@ function MyPage() {
 
   const [claimOrder, setClaimOrder] = useState(null);
   const [claimForm, setClaimForm] = useState({
-    type: 'exchange',
+    type: 'return',
     reason: '',
     customReason: '',
-    imageFile: null,
-    receiverName: '',
-    receiverPhone: '',
-    zonecode: '',
-    address: '',
-    detailAddress: '',
-    extraMemo: ''
+    imageFile: null
   });
   const [claimLoading, setClaimLoading] = useState(false);
 
@@ -90,27 +84,9 @@ function MyPage() {
     }
   };
 
-  const handleClaimPostcode = () => {
-    new window.daum.Postcode({
-      oncomplete: (data) => {
-        let fullAddr = data.address;
-        let extraAddr = '';
-        if (data.addressType === 'R') {
-          if (data.bname !== '') extraAddr += data.bname;
-          if (data.buildingName !== '') extraAddr += extraAddr !== '' ? `, ${data.buildingName}` : data.buildingName;
-          fullAddr += extraAddr !== '' ? ` (${extraAddr})` : '';
-        }
-        setClaimForm(prev => ({...prev, zonecode: data.zonecode, address: fullAddr}));
-      }
-    }).open();
-  };
-
   const submitClaim = async () => {
     if(!claimForm.reason) return alert('사유를 선택해주세요.');
     if(claimForm.reason === '기타' && !claimForm.customReason) return alert('상세 사유를 적어주세요.');
-    if(claimForm.type === 'exchange') {
-      if(!claimForm.receiverName || !claimForm.receiverPhone || !claimForm.address) return alert('재발송 받으실 주소 및 연락처를 입력해주세요.');
-    }
 
     setClaimLoading(true);
     try {
@@ -118,28 +94,19 @@ function MyPage() {
       if(claimForm.imageFile) {
         const formData = new FormData();
         formData.append('image', claimForm.imageFile);
-        // Wait, uploadImage API takes file directly. (api.js has: formData.append('image', file))
         const res = await uploadImage(claimForm.imageFile);
         imageUrl = res.data?.url || res.data || ''; 
       }
 
       const claimData = {
-        type: claimForm.type,
+        type: 'return',
         reason: claimForm.reason,
         customReason: claimForm.customReason,
-        imageUrl,
-        exchangeShipping: claimForm.type === 'exchange' ? {
-          receiverName: claimForm.receiverName,
-          receiverPhone: claimForm.receiverPhone,
-          zonecode: claimForm.zonecode,
-          address: claimForm.address,
-          detailAddress: claimForm.detailAddress,
-          extraMemo: claimForm.extraMemo
-        } : null
+        imageUrl
       };
 
       await updateOrderStatus(claimOrder._id, { 
-        status: claimForm.type === 'exchange' ? '교환요청' : '반품요청',
+        status: '반품요청',
         claim: claimData
       });
 
@@ -247,16 +214,6 @@ function MyPage() {
             <div className="mypage-empty-state">
               <RotateCcw size={48} color="#ddd" />
               <p>반품 내역이 없습니다.</p>
-            </div>
-          </div>
-        );
-      case 'exchanges':
-        return (
-          <div className="mypage-tab-content">
-            <h3>교환내역</h3>
-            <div className="mypage-empty-state">
-              <RefreshCcw size={48} color="#ddd" />
-              <p>교환 내역이 없습니다.</p>
             </div>
           </div>
         );
@@ -369,9 +326,6 @@ function MyPage() {
             <button className={`menu-btn ${activeTab === 'returns' ? 'active' : ''}`} onClick={() => setActiveTab('returns')}>
               반품내역 <ChevronRight size={18} />
             </button>
-            <button className={`menu-btn ${activeTab === 'exchanges' ? 'active' : ''}`} onClick={() => setActiveTab('exchanges')}>
-              교환내역 <ChevronRight size={18} />
-            </button>
           </nav>
         </aside>
 
@@ -386,17 +340,12 @@ function MyPage() {
         <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100}} onClick={() => setClaimOrder(null)}>
           <div style={{background: 'white', borderRadius: '16px', padding: '2.5rem', width: '90%', maxWidth: '600px', maxHeight: '85vh', overflowY: 'auto', fontFamily: '"Jua", "Pretendard", sans-serif'}} onClick={e => e.stopPropagation()}>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
-              <h2 style={{fontSize: '1.6rem', fontWeight: 'bold'}}>교환/반품(환불) 신청</h2>
+              <h2 style={{fontSize: '1.6rem', fontWeight: 'bold'}}>반품(환불) 신청</h2>
               <button onClick={() => setClaimOrder(null)} style={{background: 'none', border: 'none', cursor: 'pointer'}}><X size={28} /></button>
             </div>
             
-            <div style={{marginBottom: '1.5rem', display: 'flex', gap: '1rem'}}>
-              <label style={{display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', fontSize: '1.1rem'}}>
-                <input type="radio" name="claimType" checked={claimForm.type === 'exchange'} onChange={() => setClaimForm(prev => ({...prev, type: 'exchange'}))} /> 교환 (재발송)
-              </label>
-              <label style={{display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', fontSize: '1.1rem'}}>
-                <input type="radio" name="claimType" checked={claimForm.type === 'return'} onChange={() => setClaimForm(prev => ({...prev, type: 'return'}))} /> 반품 (환불)
-              </label>
+            <div style={{marginBottom: '1.5rem'}}>
+              <strong style={{display: 'block', marginBottom: '0.5rem', color: '#c0392b'}}>신청 유형: 반품(환불)</strong>
             </div>
 
             <div style={{marginBottom: '1.5rem'}}>
@@ -418,23 +367,6 @@ function MyPage() {
               <strong style={{display: 'block', marginBottom: '0.5rem'}}>2. 사진 업로드 (선택)</strong>
               <input type="file" accept="image/*" onChange={e => setClaimForm(prev => ({...prev, imageFile: e.target.files[0]}))} />
             </div>
-
-            {claimForm.type === 'exchange' && (
-              <div style={{marginBottom: '2rem'}}>
-                <strong style={{display: 'block', marginBottom: '0.5rem'}}>3. 다시 받으실 주소</strong>
-                <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
-                  <input type="text" placeholder="성함" style={{padding: '0.8rem', border: '1px solid #ccc', borderRadius: '6px'}} value={claimForm.receiverName} onChange={e => setClaimForm(prev => ({...prev, receiverName: e.target.value}))} />
-                  <input type="text" placeholder="전화번호" style={{padding: '0.8rem', border: '1px solid #ccc', borderRadius: '6px'}} value={claimForm.receiverPhone} onChange={e => setClaimForm(prev => ({...prev, receiverPhone: e.target.value}))} />
-                  <div style={{display: 'flex', gap: '0.5rem'}}>
-                    <input type="text" readOnly placeholder="우편번호" style={{padding: '0.8rem', border: '1px solid #ccc', borderRadius: '6px', flex: 1, background: '#f5f5f5'}} value={claimForm.zonecode} />
-                    <button type="button" onClick={handleClaimPostcode} style={{padding: '0 1.5rem', background: '#333', color: 'white', border: 'none', borderRadius: '6px', whiteSpace: 'nowrap'}}>주소찾기</button>
-                  </div>
-                  <input type="text" readOnly placeholder="기본주소" style={{padding: '0.8rem', border: '1px solid #ccc', borderRadius: '6px', background: '#f5f5f5'}} value={claimForm.address} />
-                  <input type="text" placeholder="상세주소" style={{padding: '0.8rem', border: '1px solid #ccc', borderRadius: '6px'}} value={claimForm.detailAddress} onChange={e => setClaimForm(prev => ({...prev, detailAddress: e.target.value}))} />
-                  <input type="text" placeholder="기타메모" style={{padding: '0.8rem', border: '1px solid #ccc', borderRadius: '6px'}} value={claimForm.extraMemo} onChange={e => setClaimForm(prev => ({...prev, extraMemo: e.target.value}))} />
-                </div>
-              </div>
-            )}
 
             <button onClick={submitClaim} disabled={claimLoading} style={{width: '100%', padding: '1rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'inherit'}}>
               {claimLoading ? '처리중...' : '신청하기'}

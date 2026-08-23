@@ -694,7 +694,7 @@ function Admin({ refreshGlobalProducts }) {
             { id: 'rec_banner', label: '추천상품 배너 관리', icon: <ImageIcon size={20} /> },
             { id: 'notice', label: '공지사항 관리', icon: <Bell size={20} /> },
             { id: 'order', label: '주문 관리', icon: <ShoppingCart size={20} />, badge: allOrders.filter(o => o.status === '결제완료').length },
-            { id: 'claims', label: '취소반품교환관리', icon: <RefreshCcw size={20} /> },
+            { id: 'claims', label: '취소반품관리', icon: <RefreshCcw size={20} /> },
             { id: 'member', label: '회원 관리', icon: <LayoutDashboard size={20} /> },
           ].map(tab => (
             <li key={tab.id} 
@@ -1416,19 +1416,18 @@ function Admin({ refreshGlobalProducts }) {
         )}
 
         {/* ========================================================================================= */}
-        {/* 취소반품교환관리 탭 */}
+        {/* 취소반품관리 탭 */}
         {/* ========================================================================================= */}
         {activeTab === 'claims' && (
           <div className="admin-orders-card" style={{background: 'white', borderRadius: '16px', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.05)'}}>
             <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '1.5rem'}}>
-              취소반품교환관리
+              취소반품관리
             </h2>
             <div className="admin-order-tabs" style={{display: 'flex', gap: '0.5rem', flexWrap: 'nowrap', overflowX: 'auto', whiteSpace: 'nowrap', marginBottom: '2rem', borderBottom: '2px solid #eee', paddingBottom: '1rem'}}>
-              {['취소관리', '반품관리', '교환관리'].map(status => (
+              {['취소관리', '반품관리'].map(status => (
                 <button
                   key={status}
                   onClick={() => {
-                    setClaimsSubTab(status);
                     setCurrentOrdersPage(1);
                   }}
                   style={{
@@ -1462,7 +1461,7 @@ function Admin({ refreshGlobalProducts }) {
                   {allOrders.filter(o => {
                     if (claimsSubTab === '취소관리') return o.status?.includes('취소') || o.status === '환불됨';
                     if (claimsSubTab === '반품관리') return o.status?.includes('반품');
-                    if (claimsSubTab === '교환관리') return o.status?.includes('교환');
+
                     return false;
                   }).length === 0 ? (
                     <tr>
@@ -1474,7 +1473,7 @@ function Admin({ refreshGlobalProducts }) {
                     allOrders.filter(o => {
                       if (claimsSubTab === '취소관리') return o.status?.includes('취소') || o.status === '환불됨';
                       if (claimsSubTab === '반품관리') return o.status?.includes('반품');
-                      if (claimsSubTab === '교환관리') return o.status?.includes('교환');
+
                       return false;
                     }).map(order => (
                       <tr key={order._id} style={{borderBottom: '1px solid #eee', cursor: 'pointer', transition: 'background 0.2s'}} onMouseEnter={(e) => e.currentTarget.style.background='#f9f9f9'} onMouseLeave={(e) => e.currentTarget.style.background='transparent'} onClick={() => setSelectedOrderDetails(order)}>
@@ -1943,11 +1942,11 @@ function Admin({ refreshGlobalProducts }) {
             </div>
           </div>
 
-          {/* 클레임(교환/반품) 정보 내역 */}
+          {/* 클레임(반품) 정보 내역 */}
           {selectedOrderDetails.claim && selectedOrderDetails.claim.type && (
             <div style={{marginTop: '2rem'}}>
               <h3 style={{fontSize: '1.2rem', fontWeight: 'bold', color: '#e74c3c', borderBottom: '2px solid #eee', paddingBottom: '0.8rem', marginBottom: '1.5rem'}}>
-                {selectedOrderDetails.claim.type === 'exchange' ? '교환(재발송) 요청 정보' : '반품(환불) 요청 정보'}
+                반품(환불) 요청 정보
               </h3>
               <div style={{padding: '1.8rem', background: '#fff5f5', borderRadius: '8px', border: '1px solid #ffcece', fontSize: '1.1rem'}}>
                 <p style={{marginBottom: '1rem', display: 'flex', justifyContent: 'space-between'}}>
@@ -1961,15 +1960,7 @@ function Admin({ refreshGlobalProducts }) {
                   </div>
                 )}
                 
-                {selectedOrderDetails.claim.type === 'exchange' && selectedOrderDetails.claim.exchangeShipping && (
-                  <div style={{marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px dashed #ffb3b3'}}>
-                    <strong style={{display: 'block', marginBottom: '1rem', color: '#c0392b'}}>교환 받으실 배송지</strong>
-                    <p style={{marginBottom: '0.5rem'}}><strong>수령인:</strong> {selectedOrderDetails.claim.exchangeShipping.receiverName}</p>
-                    <p style={{marginBottom: '0.5rem'}}><strong>연락처:</strong> {selectedOrderDetails.claim.exchangeShipping.receiverPhone}</p>
-                    <p style={{marginBottom: '0.5rem'}}><strong>주소:</strong> [{selectedOrderDetails.claim.exchangeShipping.zonecode}] {selectedOrderDetails.claim.exchangeShipping.address} {selectedOrderDetails.claim.exchangeShipping.detailAddress}</p>
-                    <p style={{marginBottom: '0.5rem'}}><strong>기타메모:</strong> {selectedOrderDetails.claim.exchangeShipping.extraMemo || '없음'}</p>
-                  </div>
-                )}
+
               </div>
             </div>
           )}
