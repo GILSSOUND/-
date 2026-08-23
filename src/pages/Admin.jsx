@@ -26,6 +26,9 @@ function Admin({ refreshGlobalProducts }) {
   // 관리자 회원 주문 내역 모달 상태
   const [selectedUserForOrders, setSelectedUserForOrders] = useState(null);
   const [selectedUserOrders, setSelectedUserOrders] = useState([]);
+  const [userOrderStartDate, setUserOrderStartDate] = useState('');
+  const [userOrderEndDate, setUserOrderEndDate] = useState('');
+  const [chargePointsAmount, setChargePointsAmount] = useState('');
   
   // 주문 관리 페이지네이션 및 상세 모달 상태
   const [currentOrdersPage, setCurrentOrdersPage] = useState(1);
@@ -1852,13 +1855,45 @@ function Admin({ refreshGlobalProducts }) {
         <div className="modal-content" onClick={e => e.stopPropagation()} style={{maxWidth: '800px', maxHeight: '80vh', overflowY: 'auto'}}>
           <button className="modal-close-btn" onClick={() => setSelectedUserForOrders(null)}>&times;</button>
           <h2 style={{fontSize: '1.5rem', fontWeight: '800', marginBottom: '1.5rem', color: '#333'}}>
-            {selectedUserForOrders.name} 님의 주문 내역
+            {selectedUserForOrders.name} 님의 회원정보 및 주문내역
           </h2>
+          
+          <div style={{ background: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem', fontSize: '1.1rem' }}>
+            <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', borderBottom: '2px solid #ddd', paddingBottom: '0.5rem' }}>회원 정보</h3>
+            <p style={{marginBottom: '0.5rem'}}><strong>이메일 (ID):</strong> {selectedUserForOrders.email}</p>
+            <p style={{marginBottom: '0.5rem'}}><strong>전화번호:</strong> {selectedUserForOrders.phone || '정보 없음'}</p>
+            <p style={{marginBottom: '0.5rem'}}><strong>주소지 정보:</strong> {selectedUserForOrders.address ? `${selectedUserForOrders.address} ${selectedUserForOrders.detailAddress || ''}` : '정보 없음'}</p>
+            <p style={{marginBottom: '0.5rem'}}><strong>가입일:</strong> {new Date(selectedUserForOrders.createdAt).toLocaleDateString()}</p>
+            <p style={{marginBottom: '0.5rem'}}><strong>보유 포인트:</strong> {(selectedUserForOrders.points || 0).toLocaleString()} P</p>
+          </div>
+
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', borderBottom: '2px solid #ddd', paddingBottom: '0.5rem' }}>주문 내역</h3>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem' }}>
+              <input type="date" value={userOrderStartDate} onChange={e => setUserOrderStartDate(e.target.value)} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd' }} />
+              <span>~</span>
+              <input type="date" value={userOrderEndDate} onChange={e => setUserOrderEndDate(e.target.value)} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd' }} />
+            </div>
+          </div>
           {selectedUserOrders.length === 0 ? (
             <p style={{textAlign: 'center', padding: '2rem', color: '#666'}}>주문 내역이 없습니다.</p>
           ) : (
             <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
-              {selectedUserOrders.map(order => (
+              {selectedUserOrders.filter(order => {
+                if (!userOrderStartDate && !userOrderEndDate) return true;
+                const oDate = new Date(order.createdAt);
+                if (userOrderStartDate) {
+                  const sDate = new Date(userOrderStartDate);
+                  sDate.setHours(0,0,0,0);
+                  if (oDate < sDate) return false;
+                }
+                if (userOrderEndDate) {
+                  const eDate = new Date(userOrderEndDate);
+                  eDate.setHours(23,59,59,999);
+                  if (oDate > eDate) return false;
+                }
+                return true;
+              }).map(order => (
                 <div key={order._id} style={{border: '1px solid #eee', borderRadius: '8px', padding: '1.5rem'}}>
                   <div style={{display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '0.8rem', marginBottom: '0.8rem'}}>
                     <div>
@@ -1886,6 +1921,33 @@ function Admin({ refreshGlobalProducts }) {
               ))}
             </div>
           )}
+
+          <div style={{ marginTop: '2rem', background: '#fff3cd', padding: '1.5rem', borderRadius: '8px' }}>
+            <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#856404' }}>포인트 충전</h3>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <input type="number" value={chargePointsAmount} onChange={e => setChargePointsAmount(e.target.value)} placeholder="충전할 포인트 입력" style={{ flex: 1, padding: '0.8rem', borderRadius: '4px', border: '1px solid #ffeeba' }} />
+              <button onClick={async () => {
+                if(!chargePointsAmount) return;
+                try {
+                  const api = await import('../api');
+                  if (api.adminUpdateUser) {
+                    await api.adminUpdateUser(selectedUserForOrders._id || selectedUserForOrders.id, { points: (selectedUserForOrders.points || 0) + Number(chargePointsAmount) });
+                  } else {
+                    console.log('adminUpdateUser API needed for backend persistence');
+                  }
+                  alert('포인트가 충전되었습니다.');
+                  setSelectedUserForOrders({...selectedUserForOrders, points: (selectedUserForOrders.points || 0) + Number(chargePointsAmount)});
+                  setUsers(prev => prev.map(u => (u._id === selectedUserForOrders._id || u.id === selectedUserForOrders.id) ? {...u, points: (u.points || 0) + Number(chargePointsAmount)} : u));
+                  setChargePointsAmount('');
+                } catch(e) {
+                  alert('포인트 충전에 실패했습니다.');
+                }
+              }} style={{ padding: '0.8rem 1.5rem', background: '#ffc107', color: '#212529', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                충전하기
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
     )}

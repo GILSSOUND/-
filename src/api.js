@@ -82,3 +82,8 @@ export const updateOrderStatus = async (orderId, payload) => {
   const res = await axios.put(`${API_URL}/orders/${orderId}/status`, payload);
   return res.data;
 };
+
+export const adminUpdateUser = async (userId, data) => {
+  const res = await axios.put(`${API_URL}/auth/users/${userId}`, data);
+  return res.data;
+};
