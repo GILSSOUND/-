@@ -1974,10 +1974,16 @@ function Admin({ refreshGlobalProducts }) {
                   <strong style={{color: '#555', minWidth: '100px'}}>요청 사유</strong> 
                   <span style={{textAlign: 'right'}}>{selectedOrderDetails.claim.reason} {selectedOrderDetails.claim.reason === '기타' ? `(${selectedOrderDetails.claim.customReason})` : ''}</span>
                 </p>
-                {selectedOrderDetails.claim.imageUrl && (
+                {(selectedOrderDetails.claim.imageUrls || (selectedOrderDetails.claim.imageUrl ? [selectedOrderDetails.claim.imageUrl] : [])).length > 0 && (
                   <div style={{marginBottom: '1rem'}}>
                     <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>첨부 사진</strong>
-                    <img src={selectedOrderDetails.claim.imageUrl} alt="클레임 이미지" style={{maxWidth: '100%', borderRadius: '6px', border: '1px solid #ddd'}} />
+                    <div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap'}}>
+                      {(selectedOrderDetails.claim.imageUrls || (selectedOrderDetails.claim.imageUrl ? [selectedOrderDetails.claim.imageUrl] : [])).map((url, idx) => (
+                        <a key={idx} href={url} target="_blank" rel="noreferrer">
+                          <img src={url} alt={`클레임 이미지 ${idx+1}`} style={{width: '120px', height: '120px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #ddd'}} />
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 )}
                 

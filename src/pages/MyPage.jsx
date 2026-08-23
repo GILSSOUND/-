@@ -18,7 +18,7 @@ function MyPage() {
     type: 'return',
     reason: '',
     customReason: '',
-    imageFile: null
+    imageFiles: []
   });
   const [claimLoading, setClaimLoading] = useState(false);
 
@@ -87,22 +87,24 @@ function MyPage() {
   const submitClaim = async () => {
     if(!claimForm.reason) return alert('사유를 선택해주세요.');
     if(claimForm.reason === '기타' && !claimForm.customReason) return alert('상세 사유를 적어주세요.');
+    if(!claimForm.imageFiles || claimForm.imageFiles.length === 0) return alert('사진을 1장 이상 업로드해주세요.');
 
     setClaimLoading(true);
     try {
-      let imageUrl = '';
-      if(claimForm.imageFile) {
-        const formData = new FormData();
-        formData.append('image', claimForm.imageFile);
-        const res = await uploadImage(claimForm.imageFile);
-        imageUrl = res.data?.url || res.data || ''; 
+      const imageUrls = [];
+      if(claimForm.imageFiles && claimForm.imageFiles.length > 0) {
+        for (const file of claimForm.imageFiles) {
+          const res = await uploadImage(file);
+          const url = res.data?.url || res.data || '';
+          if (url) imageUrls.push(url);
+        }
       }
 
       const claimData = {
         type: 'return',
         reason: claimForm.reason,
         customReason: claimForm.customReason,
-        imageUrl
+        imageUrls
       };
 
       await updateOrderStatus(claimOrder._id, { 
@@ -273,6 +275,21 @@ function MyPage() {
             )}
           </div>
         );
+      case 'points':
+        return (
+          <div className="mypage-tab-content">
+            <h3>포인트 관리</h3>
+            <div style={{ background: '#f8f9fa', padding: '2rem', borderRadius: '12px', textAlign: 'center', marginBottom: '2rem', border: '1px solid #eee' }}>
+              <h4 style={{ color: '#555', marginBottom: '0.5rem', fontWeight: 'normal' }}>보유 포인트</h4>
+              <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>
+                {(user.points || 0).toLocaleString()} <span style={{ fontSize: '1.2rem', color: '#333' }}>P</span>
+              </div>
+            </div>
+            <div style={{ padding: '3rem', textAlign: 'center', color: '#888', background: '#fafafa', borderRadius: '12px', border: '1px dashed #ddd' }}>
+              포인트 적립 및 사용 내역이 없습니다.
+            </div>
+          </div>
+        );
       case 'profile':
         const handleProfileChange = (e) => setProfileForm(prev => ({...prev, [e.target.name]: e.target.value}));
         const handlePostcode = () => {
@@ -382,6 +399,9 @@ function MyPage() {
             <button className={`menu-btn ${activeTab === 'returns' ? 'active' : ''}`} onClick={() => setActiveTab('returns')}>
               반품내역 <ChevronRight size={18} />
             </button>
+            <button className={`menu-btn ${activeTab === 'points' ? 'active' : ''}`} onClick={() => setActiveTab('points')}>
+              포인트관리 <ChevronRight size={18} />
+            </button>
           </nav>
         </aside>
 
@@ -420,8 +440,14 @@ function MyPage() {
             </div>
 
             <div style={{marginBottom: '1.5rem'}}>
-              <strong style={{display: 'block', marginBottom: '0.5rem'}}>2. 사진 업로드 (선택)</strong>
-              <input type="file" accept="image/*" onChange={e => setClaimForm(prev => ({...prev, imageFile: e.target.files[0]}))} />
+              <strong style={{display: 'block', marginBottom: '0.5rem'}}>2. 사진 업로드 (필수)</strong>
+              <input type="file" accept="image/*" multiple onChange={e => setClaimForm(prev => ({...prev, imageFiles: Array.from(e.target.files)}))} />
+              <div style={{fontSize: '0.85rem', color: '#666', marginTop: '0.5rem'}}>* 사진을 반드시 1장 이상 첨부해주세요. (여러 장 선택 가능)</div>
+              {claimForm.imageFiles?.length > 0 && (
+                <div style={{fontSize: '0.9rem', color: 'var(--primary-color)', marginTop: '0.3rem'}}>
+                  {claimForm.imageFiles.length}장의 사진이 선택되었습니다.
+                </div>
+              )}
             </div>
 
             <button onClick={submitClaim} disabled={claimLoading} style={{width: '100%', padding: '1rem', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'inherit'}}>
