@@ -6,7 +6,7 @@ const Order = require('../models/Order');
 // --- 결제 정보 검증 및 주문 저장 ---
 router.post('/complete', async (req, res) => {
   try {
-    const { imp_uid, merchant_uid, items, totalAmount, shippingFee, shippingInfo, userId } = req.body;
+    const { imp_uid, merchant_uid, items, totalAmount, shippingFee, shippingInfo, userId, usedPoints } = req.body;
 
     // 1. 포트원 API 액세스 토큰 발급
     const getTokenResponse = await axios.post('https://api.iamport.kr/users/getToken', {
@@ -43,7 +43,7 @@ router.post('/complete', async (req, res) => {
     const paymentData = paymentResponse.data.response;
 
     // 3. 결제 금액 검증
-    const amountToBePaid = totalAmount + shippingFee; // 프론트에서 계산한 총액
+    const amountToBePaid = totalAmount + shippingFee - (usedPoints || 0); // 프론트에서 계산한 총액
     if (amountToBePaid === paymentData.amount) {
       // 결제 금액 일치: DB에 주문 정보 저장
       const newOrder = new Order({
@@ -52,11 +52,16 @@ router.post('/complete', async (req, res) => {
         merchant_uid,
         items,
         totalAmount,
+        usedPoints: usedPoints || 0,
         shippingFee,
         shippingInfo,
         status: '결제완료'
       });
       await newOrder.save();
+      if (usedPoints && usedPoints > 0 && userId) {
+        const User = require('../models/User');
+        await User.findByIdAndUpdate(userId, { $inc: { points: -usedPoints } });
+      }
       
       res.json({ status: 'success', message: '일반 결제 성공' });
     } else {
