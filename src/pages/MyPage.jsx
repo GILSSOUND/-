@@ -14,6 +14,11 @@ function MyPage() {
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   const [claimOrder, setClaimOrder] = useState(null);
+
+  const [reviewOrder, setReviewOrder] = useState(null);
+  const [reviewForm, setReviewForm] = useState({ rating: 5, content: '', imageFiles: [] });
+  const [reviewLoading, setReviewLoading] = useState(false);
+
   const [claimForm, setClaimForm] = useState({
     type: 'return',
     reason: '',
