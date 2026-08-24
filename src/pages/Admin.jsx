@@ -681,47 +681,60 @@ function Admin({ refreshGlobalProducts }) {
 
         @media (max-width: 768px) {
           .admin-list-item {
-            flex-wrap: wrap !important;
-            padding: 1rem !important;
-            gap: 0 !important;
+            flex-wrap: nowrap !important;
+            padding: 0.6rem 0.4rem !important;
+            gap: 0.4rem !important;
           }
           .admin-list-item > input[type="checkbox"] {
-            margin-right: 0.8rem !important;
-            width: 22px !important;
-            height: 22px !important;
+            margin-right: 0 !important;
+            width: 16px !important;
+            height: 16px !important;
           }
           .admin-list-item > img {
-            width: 65px !important;
-            height: 65px !important;
-            margin-right: 1rem !important;
+            width: 40px !important;
+            height: 40px !important;
+            margin-right: 0 !important;
             margin-bottom: 0 !important;
-            border-radius: 8px !important;
+            border-radius: 4px !important;
           }
           .admin-list-info {
             flex: 1 1 0% !important;
             text-align: left !important;
             margin-bottom: 0 !important;
+            overflow: hidden;
           }
           .admin-list-info > div:first-child {
-            justify-content: flex-start !important;
+            display: none !important; /* Hide category/best labels to save space */
+          }
+          .admin-list-info h4 {
+            font-size: 0.85rem !important;
           }
           .admin-list-price {
-            width: 100% !important;
-            text-align: left !important;
+            width: auto !important;
+            flex: 0 0 auto !important;
+            font-size: 0.85rem !important;
+            text-align: right !important;
             margin-right: 0 !important;
-            margin-top: 0.5rem !important;
-            margin-bottom: 0 !important;
-            padding-left: 36px !important; /* aligned with image */
+            margin-top: 0 !important;
+            padding-left: 0 !important;
           }
           .admin-list-actions {
-            width: 100% !important;
-            margin-top: 1rem !important;
-            justify-content: space-between !important;
+            width: auto !important;
+            margin-top: 0 !important;
+            justify-content: flex-end !important;
+            gap: 0.3rem !important;
           }
           .admin-list-actions button {
-            flex: 1;
-            padding: 0.7rem !important;
-            font-size: 1.1rem !important;
+            flex: 0 0 auto !important;
+            padding: 0.4rem !important;
+            font-size: 0 !important; /* Hide text, only show icon */
+          }
+          .admin-list-actions button svg {
+            width: 14px;
+            height: 14px;
+          }
+          .admin-list-actions button .action-text {
+            display: none !important;
           }
         }
   
@@ -1097,13 +1110,13 @@ function Admin({ refreshGlobalProducts }) {
                         onClick={() => handleEditClick(p)}
                         style={{padding: '0.6rem 1rem', background: '#f1f2f6', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: '600'}}
                       >
-                        <Edit size={16} /> 수정
+                        <Edit size={16} /><span className="action-text">수정</span>
                       </button>
                       <button 
                         onClick={() => handleDelete(p._id || p.id)}
                         style={{padding: '0.6rem 1rem', background: '#fff0f0', color: '#ff4757', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: '600'}}
                       >
-                        <Trash2 size={16} /> 삭제
+                        <Trash2 size={16} /><span className="action-text">삭제</span>
                       </button>
                     </div>
                   </div>
