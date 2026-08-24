@@ -1283,7 +1283,7 @@ function Admin({ refreshGlobalProducts }) {
             </h2>
             
             {/* 서브탭 */}
-            <div className="admin-order-tabs" style={{display: 'flex', gap: '0.5rem', flexWrap: 'nowrap', overflowX: 'auto', whiteSpace: 'nowrap', marginBottom: '2rem', borderBottom: '2px solid #eee', paddingBottom: '1rem'}}>
+            <div className="admin-order-tabs" style={{display: 'flex', gap: '0.5rem', flexWrap: 'wrap', overflowX: 'auto', whiteSpace: 'nowrap', marginBottom: '2rem', borderBottom: '2px solid #eee', paddingBottom: '1rem'}}>
               {['결제완료', '상품준비중', '배송중', '배송완료'].map(status => (
                 <button
                   key={status}
@@ -1313,7 +1313,7 @@ function Admin({ refreshGlobalProducts }) {
             </div>
 
             {orderSubTab === '배송완료' && (
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'nowrap', alignItems: 'center', marginBottom: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '8px' }}>
                 
                 <input 
                   type="date" 
@@ -1328,7 +1328,7 @@ function Admin({ refreshGlobalProducts }) {
                   onChange={(e) => { setOrderEndDate(e.target.value); setCurrentOrdersPage(1); }}
                   style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', flex: 1, minWidth: 0 }}
                 />
-                <span style={{ marginLeft: '1rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>
+                <span style={{ marginLeft: 0, marginTop: '0.5rem', width: '100%', fontWeight: 'bold', color: 'var(--primary-color)' }}>
                   기간 내 배송완료: {filteredOrders.length}건
                 </span>
               </div>
@@ -1510,7 +1510,7 @@ function Admin({ refreshGlobalProducts }) {
             <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '1.5rem'}}>
               취소반품관리
             </h2>
-            <div className="admin-order-tabs" style={{display: 'flex', gap: '0.5rem', flexWrap: 'nowrap', overflowX: 'auto', whiteSpace: 'nowrap', marginBottom: '2rem', borderBottom: '2px solid #eee', paddingBottom: '1rem'}}>
+            <div className="admin-order-tabs" style={{display: 'flex', gap: '0.5rem', flexWrap: 'wrap', overflowX: 'auto', whiteSpace: 'nowrap', marginBottom: '2rem', borderBottom: '2px solid #eee', paddingBottom: '1rem'}}>
               {['취소관리', '반품관리'].map(status => (
                 <button
                   key={status}
@@ -1533,7 +1533,7 @@ function Admin({ refreshGlobalProducts }) {
               ))}
             </div>
 
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'nowrap', alignItems: 'center', marginBottom: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '8px' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '8px' }}>
               
               <input type="date" value={orderStartDate} onChange={(e) => { setOrderStartDate(e.target.value); setCurrentOrdersPage(1); }} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', flex: 1, minWidth: 0 }} />
               <span style={{color: '#888', flexShrink: 0}}>~</span>
@@ -2123,7 +2123,7 @@ function Admin({ refreshGlobalProducts }) {
                 {(selectedOrderDetails.claim.imageUrls || (selectedOrderDetails.claim.imageUrl ? [selectedOrderDetails.claim.imageUrl] : [])).length > 0 && (
                   <div style={{marginBottom: '1rem'}}>
                     <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>첨부 사진</strong>
-                    <div style={{display: 'flex', gap: '0.5rem', flexWrap: 'nowrap'}}>
+                    <div style={{display: 'flex', gap: '0.5rem', flexWrap: 'wrap'}}>
                       {(selectedOrderDetails.claim.imageUrls || (selectedOrderDetails.claim.imageUrl ? [selectedOrderDetails.claim.imageUrl] : [])).map((url, idx) => (
                         <a key={idx} href={url} target="_blank" rel="noreferrer">
                           <img src={url} alt={`클레임 이미지 ${idx+1}`} style={{width: '120px', height: '120px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #ddd'}} />
