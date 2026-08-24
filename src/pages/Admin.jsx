@@ -683,7 +683,7 @@ function Admin({ refreshGlobalProducts }) {
           .admin-list-item {
             flex-wrap: nowrap !important;
             padding: 0.6rem 0.4rem !important;
-            gap: 0.4rem !important;
+            gap: 0.3rem !important;
           }
           .admin-list-item > input[type="checkbox"] {
             margin-right: 0 !important;
@@ -707,16 +707,20 @@ function Admin({ refreshGlobalProducts }) {
             display: none !important; /* Hide category/best labels to save space */
           }
           .admin-list-info h4 {
-            font-size: 0.85rem !important;
+            font-size: 0.75rem !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
           .admin-list-price {
             width: auto !important;
             flex: 0 0 auto !important;
-            font-size: 0.85rem !important;
+            font-size: 0.75rem !important; /* Make font size even smaller */
             text-align: right !important;
             margin-right: 0 !important;
             margin-top: 0 !important;
             padding-left: 0 !important;
+            white-space: nowrap !important; /* Prevent vertical wrapping! */
           }
           .admin-list-actions {
             width: auto !important;
