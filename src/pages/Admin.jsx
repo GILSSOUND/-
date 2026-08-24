@@ -1313,20 +1313,20 @@ function Admin({ refreshGlobalProducts }) {
             </div>
 
             {orderSubTab === '배송완료' && (
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '8px' }}>
-                <span style={{ fontWeight: 'bold', color: '#555' }}>조회 기간:</span>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'nowrap', alignItems: 'center', marginBottom: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '8px' }}>
+                
                 <input 
                   type="date" 
                   value={orderStartDate} 
                   onChange={(e) => { setOrderStartDate(e.target.value); setCurrentOrdersPage(1); }}
-                  style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
+                  style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', flex: 1, minWidth: 0 }}
                 />
-                <span style={{color: '#888'}}>~</span>
+                <span style={{color: '#888', flexShrink: 0}}>~</span>
                 <input 
                   type="date" 
                   value={orderEndDate} 
                   onChange={(e) => { setOrderEndDate(e.target.value); setCurrentOrdersPage(1); }}
-                  style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
+                  style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', flex: 1, minWidth: 0 }}
                 />
                 <span style={{ marginLeft: '1rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>
                   기간 내 배송완료: {filteredOrders.length}건
@@ -1533,11 +1533,11 @@ function Admin({ refreshGlobalProducts }) {
               ))}
             </div>
 
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '8px' }}>
-              <span style={{ fontWeight: 'bold', color: '#555' }}>조회 기간:</span>
-              <input type="date" value={orderStartDate} onChange={(e) => { setOrderStartDate(e.target.value); setCurrentOrdersPage(1); }} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
-              <span style={{color: '#888'}}>~</span>
-              <input type="date" value={orderEndDate} onChange={(e) => { setOrderEndDate(e.target.value); setCurrentOrdersPage(1); }} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'nowrap', alignItems: 'center', marginBottom: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '8px' }}>
+              
+              <input type="date" value={orderStartDate} onChange={(e) => { setOrderStartDate(e.target.value); setCurrentOrdersPage(1); }} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', flex: 1, minWidth: 0 }} />
+              <span style={{color: '#888', flexShrink: 0}}>~</span>
+              <input type="date" value={orderEndDate} onChange={(e) => { setOrderEndDate(e.target.value); setCurrentOrdersPage(1); }} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', flex: 1, minWidth: 0 }} />
             </div>
             
             <div style={{overflowX: 'auto'}}>
@@ -1954,9 +1954,9 @@ function Admin({ refreshGlobalProducts }) {
           <div style={{ marginBottom: '1.5rem' }}>
             <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', borderBottom: '2px solid #ddd', paddingBottom: '0.5rem' }}>주문 내역</h3>
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem' }}>
-              <input type="date" value={userOrderStartDate} onChange={e => setUserOrderStartDate(e.target.value)} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd' }} />
-              <span>~</span>
-              <input type="date" value={userOrderEndDate} onChange={e => setUserOrderEndDate(e.target.value)} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd' }} />
+              <input type="date" value={userOrderStartDate} onChange={e => setUserOrderStartDate(e.target.value)} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd', flex: 1, minWidth: 0 }} />
+              <span style={{flexShrink: 0}}>~</span>
+              <input type="date" value={userOrderEndDate} onChange={e => setUserOrderEndDate(e.target.value)} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd', flex: 1, minWidth: 0 }} />
             </div>
           </div>
           {selectedUserOrders.length === 0 ? (
@@ -2123,7 +2123,7 @@ function Admin({ refreshGlobalProducts }) {
                 {(selectedOrderDetails.claim.imageUrls || (selectedOrderDetails.claim.imageUrl ? [selectedOrderDetails.claim.imageUrl] : [])).length > 0 && (
                   <div style={{marginBottom: '1rem'}}>
                     <strong style={{color: '#555', display: 'block', marginBottom: '0.5rem'}}>첨부 사진</strong>
-                    <div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap'}}>
+                    <div style={{display: 'flex', gap: '0.5rem', flexWrap: 'nowrap'}}>
                       {(selectedOrderDetails.claim.imageUrls || (selectedOrderDetails.claim.imageUrl ? [selectedOrderDetails.claim.imageUrl] : [])).map((url, idx) => (
                         <a key={idx} href={url} target="_blank" rel="noreferrer">
                           <img src={url} alt={`클레임 이미지 ${idx+1}`} style={{width: '120px', height: '120px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #ddd'}} />
