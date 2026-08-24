@@ -743,6 +743,18 @@ function Admin({ refreshGlobalProducts }) {
           .admin-list-actions button .action-text {
             display: none !important;
           }
+
+          .member-table {
+            min-width: 0 !important;
+          }
+          .hide-on-mobile {
+            display: none !important;
+          }
+          .member-table th, .member-table td {
+            padding: 0.5rem !important;
+            font-size: 0.75rem !important;
+            white-space: nowrap;
+          }
         }
   
       `}
@@ -1650,14 +1662,14 @@ function Admin({ refreshGlobalProducts }) {
           <div style={{background: 'white', borderRadius: '16px', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.05)'}}>
             <h2 style={{fontSize: '1.8rem', fontWeight: '800', color: '#333', marginBottom: '2rem'}}>회원 관리 ({users.length}명)</h2>
             <div style={{overflowX: 'auto'}}>
-              <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px'}}>
+              <table className="member-table" style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px'}}>
                 <thead>
                   <tr style={{background: '#f8f9fa', borderBottom: '2px solid #ddd'}}>
                     <th style={{padding: '1rem', fontWeight: 'bold'}}>이름</th>
                     <th style={{padding: '1rem', fontWeight: 'bold'}}>아이디(소셜)</th>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>이메일</th>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>전화번호</th>
-                    <th style={{padding: '1rem', fontWeight: 'bold'}}>마케팅 수신동의</th>
+                    <th className="hide-on-mobile" style={{padding: '1rem', fontWeight: 'bold'}}>이메일</th>
+                    <th className="hide-on-mobile" style={{padding: '1rem', fontWeight: 'bold'}}>전화번호</th>
+                    <th className="hide-on-mobile" style={{padding: '1rem', fontWeight: 'bold'}}>마케팅 수신동의</th>
                     <th style={{padding: '1rem', fontWeight: 'bold'}}>가입일</th>
                   </tr>
                 </thead>
@@ -1671,9 +1683,9 @@ function Admin({ refreshGlobalProducts }) {
                       <tr key={u._id} onClick={() => handleUserClick(u)} style={{borderBottom: '1px solid #eee', cursor: 'pointer', transition: 'background 0.2s'}} onMouseEnter={(e) => e.currentTarget.style.background='#f9f9f9'} onMouseLeave={(e) => e.currentTarget.style.background='transparent'}>
                         <td style={{padding: '1rem'}}>{u.name} {u.role === 'admin' ? '(관리자)' : ''}</td>
                         <td style={{padding: '1rem'}}>{u.provider !== 'local' ? `${u.provider.toUpperCase()} 로그인` : u.loginId}</td>
-                        <td style={{padding: '1rem'}}>{u.email}</td>
-                        <td style={{padding: '1rem'}}>{u.phone || '-'}</td>
-                        <td style={{padding: '1rem'}}>
+                        <td className="hide-on-mobile" style={{padding: '1rem'}}>{u.email}</td>
+                        <td className="hide-on-mobile" style={{padding: '1rem'}}>{u.phone || '-'}</td>
+                        <td className="hide-on-mobile" style={{padding: '1rem'}}>
                           {u.agreements?.sns ? (
                             <span style={{background: '#e8f5e9', color: '#2e7d32', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.85rem'}}>동의</span>
                           ) : (
@@ -1996,7 +2008,7 @@ function Admin({ refreshGlobalProducts }) {
 
           <div style={{ marginTop: '2rem', background: '#fff3cd', padding: '1.5rem', borderRadius: '8px' }}>
             <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#856404' }}>포인트 충전</h3>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
               <input type="number" value={chargePointsAmount} onChange={e => setChargePointsAmount(e.target.value)} placeholder="충전할 포인트 입력" style={{ flex: 1, padding: '0.8rem', borderRadius: '4px', border: '1px solid #ffeeba' }} />
               <button onClick={async () => {
                 if(!chargePointsAmount) return;
@@ -2014,7 +2026,7 @@ function Admin({ refreshGlobalProducts }) {
                 } catch(e) {
                   alert('포인트 충전에 실패했습니다.');
                 }
-              }} style={{ padding: '0.8rem 1.5rem', background: '#ffc107', color: '#212529', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+              }} style={{ width: '100%', padding: '1rem', background: '#ffc107', color: '#212529', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1.1rem' }}>
                 충전하기
               </button>
             </div>
