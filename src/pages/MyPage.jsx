@@ -260,6 +260,16 @@ function MyPage() {
                               *상품에 문제가 있으면 여기를 클릭해주세요
                             </span>
                           )}
+
+                          {order.status === '배송완료' && !order.hasReview && (
+                            <span 
+                              style={{ color: '#ff9800', fontSize: '0.9rem', cursor: 'pointer', fontWeight: 'bold', marginTop: '0.5rem', display: 'block' }}
+                              onClick={(e) => { e.stopPropagation(); setReviewOrder(order); }}
+                            >
+                              ☆리뷰쓰고포인트받기
+                            </span>
+                          )}
+
                         </div>
                       </div>
                     </div>
