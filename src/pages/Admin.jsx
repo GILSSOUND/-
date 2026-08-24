@@ -676,6 +676,56 @@ function Admin({ refreshGlobalProducts }) {
         .admin-page * {
           font-family: "Jua", "Pretendard", sans-serif !important;
         }
+
+        @media (max-width: 768px) {
+          .admin-list-item {
+            position: relative;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            padding: 1rem !important;
+            gap: 0 !important;
+          }
+          .admin-list-item > input[type="checkbox"] {
+            position: absolute !important;
+            top: 1.5rem !important;
+            left: 1.5rem !important;
+            z-index: 10;
+            width: 22px !important;
+            height: 22px !important;
+            margin: 0 !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+          }
+          .admin-list-item > img {
+            width: 100% !important;
+            height: auto !important;
+            aspect-ratio: 1/1;
+            margin-right: 0 !important;
+            margin-bottom: 1rem !important;
+            border-radius: 12px !important;
+          }
+          .admin-list-price {
+            text-align: center !important;
+            margin-right: 0 !important;
+            margin-bottom: 1.5rem !important;
+          }
+          .admin-list-info {
+            text-align: center;
+            margin-bottom: 1rem;
+          }
+          .admin-list-info > div:first-child {
+            justify-content: center !important;
+          }
+          .admin-list-actions {
+            justify-content: center !important;
+            width: 100%;
+          }
+          .admin-list-actions button {
+            flex: 1;
+            padding: 0.8rem !important;
+            font-size: 1.1rem !important;
+          }
+        }
+  
       `}
     </style>
     <div className="admin-page" style={{display: 'flex', minHeight: '100vh', background: '#f8f9fa'}}>
@@ -1027,7 +1077,7 @@ function Admin({ refreshGlobalProducts }) {
                     />
                     <img src={p.imageUrl} alt={p.name} style={{width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', marginRight: '1.5rem', background: '#f8f9fa'}} />
                     
-                    <div style={{flex: 2}}>
+                    <div className="admin-list-info" style={{flex: 2}}>
                       <div style={{display: 'flex', gap: '0.5rem', marginBottom: '0.2rem'}}>
                         <span style={{fontSize: '0.8rem', color: '#999'}}>[{p.category}]</span>
                         {p.isBest && <span style={{fontSize: '0.7rem', color: 'var(--primary-color)', fontWeight: 'bold'}}>BEST</span>}
@@ -1036,11 +1086,11 @@ function Admin({ refreshGlobalProducts }) {
                       <h4 style={{fontSize: '1.1rem', fontWeight: '600', color: '#333', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{p.name}</h4>
                     </div>
 
-                    <div style={{flex: 1, fontWeight: '700', fontSize: '1.1rem', textAlign: 'right', marginRight: '2rem'}}>
+                    <div className="admin-list-price" style={{flex: 1, fontWeight: '700', fontSize: '1.1rem', textAlign: 'right', marginRight: '2rem'}}>
                       {formatPrice(p.price)}원
                     </div>
 
-                    <div style={{display: 'flex', gap: '0.5rem'}}>
+                    <div className="admin-list-actions" style={{display: 'flex', gap: '0.5rem'}}>
                       <button 
                         onClick={() => handleEditClick(p)}
                         style={{padding: '0.6rem 1rem', background: '#f1f2f6', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: '600'}}
