@@ -744,6 +744,23 @@ function Admin({ refreshGlobalProducts }) {
             display: none !important;
           }
 
+          .admin-order-tabs {
+            flex-wrap: nowrap !important;
+            gap: 0.3rem !important;
+            padding-bottom: 0.5rem !important;
+            justify-content: space-between;
+          }
+          .admin-order-tabs button {
+            flex: 1 1 0%;
+            padding: 0.5rem 0.2rem !important;
+            font-size: 0.75rem !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            min-width: 0 !important;
+          }
+        
+
           .member-table {
             min-width: 0 !important;
           }
