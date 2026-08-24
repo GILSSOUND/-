@@ -17,6 +17,7 @@ const OrderSchema = new mongoose.Schema({
   items: [OrderItemSchema],
   
   totalAmount: { type: Number, required: true },
+    hasReview: { type: Boolean, default: false },
   shippingFee: { type: Number, default: 3000 },
   
   shippingInfo: {

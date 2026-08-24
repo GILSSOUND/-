@@ -87,3 +87,6 @@ export const adminUpdateUser = async (userId, data) => {
   const res = await axios.put(`${API_URL}/auth/users/${userId}`, data);
   return res.data;
 };
+
+export const createReview = (reviewData) => api.post('/reviews', reviewData);
+export const getReviewsByProduct = (productId) => api.get(`/reviews/${productId}`);

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, useLocation } from 'react-router-dom';
-import { ShoppingBag, RefreshCcw, RotateCcw, User, ChevronRight, X } from 'lucide-react';
-import { fetchMyOrders, updateMyInfo, updateOrderStatus, uploadImage } from '../api';
+import { ShoppingBag, RefreshCcw, RotateCcw, User, ChevronRight, X, Star } from 'lucide-react';
+import { fetchMyOrders, updateMyInfo, updateOrderStatus, uploadImage, createReview } from '../api';
 
 function MyPage() {
   const { user, setUser, loading: authLoading } = useAuth();
@@ -81,6 +81,61 @@ function MyPage() {
         alert('구매 취소 중 오류가 발생했습니다.');
         console.error(error);
       }
+    }
+  };
+
+  
+  const submitReview = async () => {
+    if (!reviewForm.content.trim()) {
+      alert('리뷰 내용을 입력해주세요.');
+      return;
+    }
+    setReviewLoading(true);
+    try {
+      let imageUrls = [];
+      if (reviewForm.imageFiles.length > 0) {
+        for (let file of reviewForm.imageFiles) {
+          const formData = new FormData();
+          formData.append('image', file);
+          const res = await fetch(import.meta.env.VITE_API_URL + '/upload', {
+            method: 'POST',
+            body: formData
+          });
+          const data = await res.json();
+          if (data.url) imageUrls.push(data.url);
+        }
+      }
+
+      // get productIds from order
+      const productIds = reviewOrder.items.map(i => i.productId).filter(Boolean);
+
+      const res = await createReview({
+        userId: user._id || user.id,
+        userName: user.name,
+        orderId: reviewOrder._id,
+        productIds,
+        rating: reviewForm.rating,
+        content: reviewForm.content,
+        images: imageUrls
+      });
+      
+      alert('리뷰가 등록되었습니다! ' + res.data.pointsAwarded + '포인트가 적립되었습니다.');
+      
+      // Update local orders state to reflect hasReview
+      setOrders(prev => prev.map(o => o._id === reviewOrder._id ? { ...o, hasReview: true } : o));
+      
+      // Update local user points
+      if (setUser) {
+        setUser({ ...user, points: (user.points || 0) + res.data.pointsAwarded });
+      }
+
+      setReviewOrder(null);
+      setReviewForm({ rating: 5, content: '', imageFiles: [] });
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.error || '리뷰 등록 중 오류가 발생했습니다.');
+    } finally {
+      setReviewLoading(false);
     }
   };
 

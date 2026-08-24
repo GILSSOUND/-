@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart, CreditCard } from 'lucide-react';
+import { ShoppingCart, Heart, CreditCard, Star } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
@@ -48,6 +48,17 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   }, [id]);
 
   const product = products.find(p => p._id === id || p.id === parseInt(id));
+
+  const [reviews, setReviews] = useState([]);
+  
+  useEffect(() => {
+    if (id) {
+      getReviewsByProduct(id).then(res => {
+        if (res.data) setReviews(res.data);
+      }).catch(err => console.error(err));
+    }
+  }, [id]);
+
 
   // 상품 변경 시 메인 이미지로 초기화
   useEffect(() => {
@@ -481,10 +492,41 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
 
           {/* 상품후기 섹션 */}
           <div ref={reviewRef} style={{ paddingTop: '2rem', paddingBottom: '5rem', borderTop: '1px solid #eee' }}>
-            <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.3rem' }}>상품 후기</h3>
-            <div style={{ padding: '3rem 2rem', textAlign: 'center', color: '#888', background: '#f9f9f9', borderRadius: '8px' }}>
-              아직 등록된 후기가 없습니다.<br/>첫 번째 후기를 남겨주세요!
-            </div>
+            <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.3rem' }}>상품 후기 ({reviews.length})</h3>
+            
+            {reviews.length === 0 ? (
+              <div style={{ padding: '3rem 2rem', textAlign: 'center', color: '#888', background: '#f9f9f9', borderRadius: '8px' }}>
+                아직 등록된 후기가 없습니다.<br/>첫 번째 후기를 남겨주세요!
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                {reviews.map(review => (
+                  <div key={review._id} style={{ padding: '1.5rem', background: '#f8f9fa', borderRadius: '12px', border: '1px solid #eee' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <strong style={{ fontSize: '1.1rem' }}>{review.userName}</strong>
+                        <span style={{ color: '#888', fontSize: '0.85rem' }}>{new Date(review.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <div style={{ display: 'flex', color: '#ffc107' }}>
+                        {[1, 2, 3, 4, 5].map(star => (
+                          <Star key={star} size={16} fill={review.rating >= star ? '#ffc107' : 'none'} color={review.rating >= star ? '#ffc107' : '#ccc'} />
+                        ))}
+                      </div>
+                    </div>
+                    <p style={{ lineHeight: '1.6', color: '#444', marginBottom: review.images?.length > 0 ? '1rem' : 0 }}>
+                      {review.content}
+                    </p>
+                    {review.images && review.images.length > 0 && (
+                      <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                        {review.images.map((img, idx) => (
+                          <img key={idx} src={img} alt="리뷰 이미지" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd' }} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

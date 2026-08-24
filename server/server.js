@@ -10,6 +10,9 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const passport = require('passport');
 const Product = require('./models/Product');
+const Review = require('./models/Review');
+const User = require('./models/User'); // ensure User is available
+const Order = require('./models/Order'); // ensure Order is available
 const Config = require('./models/Config');
 const authRoutes = require('./routes/auth');
 require('./config/passport')();
@@ -96,6 +99,51 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
     const errorDetails = error.response?.data?.error?.message || error.message;
     console.error('Image Upload Error:', errorDetails);
     res.status(500).json({ error: `ImgBB 에러: ${errorDetails}` });
+  }
+});
+
+
+// --- Review Routes ---
+app.post('/api/reviews', async (req, res) => {
+  try {
+    const { userId, userName, orderId, productIds, rating, content, images } = req.body;
+    
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(400).json({ error: '유효하지 않은 주문입니다.' });
+    }
+    if (order.hasReview) {
+      return res.status(400).json({ error: '이미 리뷰를 작성한 주문입니다.' });
+    }
+
+    const pointsToAward = 500;
+
+    const newReview = new Review({
+      userId, userName, orderId, productIds, rating, content, images, pointsAwarded: pointsToAward
+    });
+    await newReview.save();
+
+    order.hasReview = true;
+    await order.save();
+
+    const user = await User.findById(userId);
+    if (user) {
+      user.points = (user.points || 0) + pointsToAward;
+      await user.save();
+    }
+
+    res.json({ success: true, review: newReview, pointsAwarded: pointsToAward });
+  } catch (err) {
+    res.status(500).json({ error: '리뷰 등록 실패', details: err.message });
+  }
+});
+
+app.get('/api/reviews/:productId', async (req, res) => {
+  try {
+    const reviews = await Review.find({ productIds: req.params.productId }).sort({ createdAt: -1 });
+    res.json(reviews);
+  } catch (err) {
+    res.status(500).json({ error: '리뷰 조회 실패' });
   }
 });
 
