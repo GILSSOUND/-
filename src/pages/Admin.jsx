@@ -13,6 +13,7 @@ function Admin({ refreshGlobalProducts }) {
   // 페이징 (목록)
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [productSearchKeyword, setProductSearchKeyword] = useState('');
   
   const [currentUsersPage, setCurrentUsersPage] = useState(1);
   const usersPerPage = 10;
@@ -32,7 +33,7 @@ function Admin({ refreshGlobalProducts }) {
   
   // 주문 관리 페이지네이션 및 상세 모달 상태
   const [currentOrdersPage, setCurrentOrdersPage] = useState(1);
-  const ordersPerPage = 20;
+  const ordersPerPage = 10;
   const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
   
   // 주문 서브탭 상태
@@ -625,8 +626,9 @@ function Admin({ refreshGlobalProducts }) {
   };
 
   // Pagination Logic (Products)
-  const totalPages = Math.ceil(products.length / itemsPerPage);
-  const currentProducts = products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const filteredProducts = products.filter(p => !productSearchKeyword || p.name.includes(productSearchKeyword) || p.category.includes(productSearchKeyword));
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const currentProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -679,49 +681,46 @@ function Admin({ refreshGlobalProducts }) {
 
         @media (max-width: 768px) {
           .admin-list-item {
-            position: relative;
-            flex-direction: column !important;
-            align-items: stretch !important;
+            flex-wrap: wrap !important;
             padding: 1rem !important;
             gap: 0 !important;
           }
           .admin-list-item > input[type="checkbox"] {
-            position: absolute !important;
-            top: 1.5rem !important;
-            left: 1.5rem !important;
-            z-index: 10;
+            margin-right: 0.8rem !important;
             width: 22px !important;
             height: 22px !important;
-            margin: 0 !important;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
           }
           .admin-list-item > img {
-            width: 100% !important;
-            height: auto !important;
-            aspect-ratio: 1/1;
-            margin-right: 0 !important;
-            margin-bottom: 1rem !important;
-            border-radius: 12px !important;
-          }
-          .admin-list-price {
-            text-align: center !important;
-            margin-right: 0 !important;
-            margin-bottom: 1.5rem !important;
+            width: 65px !important;
+            height: 65px !important;
+            margin-right: 1rem !important;
+            margin-bottom: 0 !important;
+            border-radius: 8px !important;
           }
           .admin-list-info {
-            text-align: center;
-            margin-bottom: 1rem;
+            flex: 1 1 0% !important;
+            text-align: left !important;
+            margin-bottom: 0 !important;
           }
           .admin-list-info > div:first-child {
-            justify-content: center !important;
+            justify-content: flex-start !important;
+          }
+          .admin-list-price {
+            width: 100% !important;
+            text-align: left !important;
+            margin-right: 0 !important;
+            margin-top: 0.5rem !important;
+            margin-bottom: 0 !important;
+            padding-left: 36px !important; /* aligned with image */
           }
           .admin-list-actions {
-            justify-content: center !important;
-            width: 100%;
+            width: 100% !important;
+            margin-top: 1rem !important;
+            justify-content: space-between !important;
           }
           .admin-list-actions button {
             flex: 1;
-            padding: 0.8rem !important;
+            padding: 0.7rem !important;
             font-size: 1.1rem !important;
           }
         }
@@ -1023,8 +1022,11 @@ function Admin({ refreshGlobalProducts }) {
         {/* ========================================================================================= */}
         {activeTab === 'list' && (
           <div>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
-              <h2 style={{fontSize: '1.8rem', fontWeight: '800'}}>등록된 상품 목록 ({products.length}개)</h2>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem'}}>
+              <h2 style={{fontSize: '1.8rem', fontWeight: '800'}}>등록된 상품 목록 ({filteredProducts.length}개)</h2>
+              <div style={{display: 'flex', gap: '0.5rem', flex: 1, minWidth: '200px', maxWidth: '300px'}}>
+                 <input type="text" value={productSearchKeyword} onChange={(e) => {setProductSearchKeyword(e.target.value); setCurrentPage(1);}} placeholder="상품명 또는 카테고리 검색" style={{padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid #ddd', width: '100%'}} />
+              </div>
               <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
                 {selectedProductIds.length > 0 && (
                   <button onClick={handleBulkDelete} style={{padding: '0.6rem 1.2rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}>
