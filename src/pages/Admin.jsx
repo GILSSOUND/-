@@ -699,6 +699,7 @@ function Admin({ refreshGlobalProducts }) {
           }
           .admin-list-info {
             flex: 1 1 0% !important;
+            min-width: 0 !important; /* CRITICAL for text-overflow to work in flex */
             text-align: left !important;
             margin-bottom: 0 !important;
             overflow: hidden;
@@ -707,7 +708,7 @@ function Admin({ refreshGlobalProducts }) {
             display: none !important; /* Hide category/best labels to save space */
           }
           .admin-list-info h4 {
-            font-size: 0.75rem !important;
+            font-size: 0.7rem !important;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -715,7 +716,8 @@ function Admin({ refreshGlobalProducts }) {
           .admin-list-price {
             width: auto !important;
             flex: 0 0 auto !important;
-            font-size: 0.75rem !important; /* Make font size even smaller */
+            flex-shrink: 0 !important;
+            font-size: 0.7rem !important; /* Make font size even smaller */
             text-align: right !important;
             margin-right: 0 !important;
             margin-top: 0 !important;
@@ -724,6 +726,7 @@ function Admin({ refreshGlobalProducts }) {
           }
           .admin-list-actions {
             width: auto !important;
+            flex-shrink: 0 !important;
             margin-top: 0 !important;
             justify-content: flex-end !important;
             gap: 0.3rem !important;
