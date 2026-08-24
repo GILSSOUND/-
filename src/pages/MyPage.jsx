@@ -95,14 +95,8 @@ function MyPage() {
       let imageUrls = [];
       if (reviewForm.imageFiles.length > 0) {
         for (let file of reviewForm.imageFiles) {
-          const formData = new FormData();
-          formData.append('image', file);
-          const res = await fetch(import.meta.env.VITE_API_URL + '/upload', {
-            method: 'POST',
-            body: formData
-          });
-          const data = await res.json();
-          if (data.url) imageUrls.push(data.url);
+          const res = await uploadImage(file);
+          if (res.url) imageUrls.push(res.url);
         }
       }
 
@@ -216,6 +210,14 @@ function MyPage() {
                           {order.status === '환불됨' || (order.status === '환불완료' && !order.claim) ? '취소됨' : 
                            (order.status === '환불완료' && order.claim) ? '반품요청' : order.status}
                         </span>
+                        {order.status === '배송완료' && !order.hasReview && (
+                          <span 
+                            style={{ color: '#ff9800', fontSize: '1.1rem', cursor: 'pointer', fontWeight: 'bold', marginTop: '0.3rem', display: 'block' }}
+                            onClick={(e) => { e.stopPropagation(); setReviewOrder(order); }}
+                          >
+                            리뷰쓰고포인트받기
+                          </span>
+                        )}
                         {(order.status === '환불됨' || order.status === '환불완료') && (
                           <span style={{ color: '#ff4757', fontWeight: 'bold', fontSize: '0.9rem', marginTop: '0.2rem' }}>환불완료</span>
                         )}
@@ -261,14 +263,7 @@ function MyPage() {
                             </span>
                           )}
 
-                          {order.status === '배송완료' && !order.hasReview && (
-                            <span 
-                              style={{ color: '#ff9800', fontSize: '0.9rem', cursor: 'pointer', fontWeight: 'bold', marginTop: '0.5rem', display: 'block' }}
-                              onClick={(e) => { e.stopPropagation(); setReviewOrder(order); }}
-                            >
-                              ☆리뷰쓰고포인트받기
-                            </span>
-                          )}
+                          
 
                         </div>
                       </div>
@@ -305,6 +300,14 @@ function MyPage() {
                           {order.status === '환불됨' || (order.status === '환불완료' && !order.claim) ? '취소됨' : 
                            (order.status === '환불완료' && order.claim) ? '반품요청' : order.status}
                         </span>
+                        {order.status === '배송완료' && !order.hasReview && (
+                          <span 
+                            style={{ color: '#ff9800', fontSize: '1.1rem', cursor: 'pointer', fontWeight: 'bold', marginTop: '0.3rem', display: 'block' }}
+                            onClick={(e) => { e.stopPropagation(); setReviewOrder(order); }}
+                          >
+                            리뷰쓰고포인트받기
+                          </span>
+                        )}
                         {(order.status === '환불됨' || order.status === '환불완료') && (
                           <span style={{ color: '#ff4757', fontWeight: 'bold', fontSize: '0.9rem', marginTop: '0.2rem' }}>환불완료</span>
                         )}
@@ -476,6 +479,59 @@ function MyPage() {
         </main>
       </div>
       
+      
+      {/* 리뷰 모달 */}
+      {reviewOrder && (
+        <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100}} onClick={() => setReviewOrder(null)}>
+          <div style={{background: 'white', borderRadius: '16px', padding: '2.5rem', width: '90%', maxWidth: '500px', maxHeight: '85vh', overflowY: 'auto', fontFamily: '"Jua", "Pretendard", sans-serif'}} onClick={e => e.stopPropagation()}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
+              <h2 style={{fontSize: '1.6rem', fontWeight: 'bold'}}>리뷰 작성하기</h2>
+              <button onClick={() => setReviewOrder(null)} style={{background: 'none', border: 'none', cursor: 'pointer'}}><X size={28} /></button>
+            </div>
+            
+            <div style={{marginBottom: '1.5rem', textAlign: 'center'}}>
+              <strong style={{display: 'block', marginBottom: '0.5rem', fontSize: '1.1rem'}}>상품은 만족하셨나요?</strong>
+              <div style={{display: 'flex', justifyContent: 'center', gap: '0.5rem'}}>
+                {[1, 2, 3, 4, 5].map(star => (
+                  <Star 
+                    key={star} 
+                    size={36} 
+                    fill={reviewForm.rating >= star ? '#ffc107' : 'none'} 
+                    color={reviewForm.rating >= star ? '#ffc107' : '#ccc'} 
+                    cursor="pointer"
+                    onClick={() => setReviewForm(prev => ({...prev, rating: star}))}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div style={{marginBottom: '1.5rem'}}>
+              <strong style={{display: 'block', marginBottom: '0.5rem'}}>내용 작성</strong>
+              <textarea 
+                placeholder="상품에 대한 솔직한 리뷰를 남겨주세요." 
+                style={{width: '100%', minHeight: '120px', padding: '1rem', borderRadius: '6px', border: '1px solid #ccc', fontSize: '1rem', fontFamily: 'inherit', resize: 'vertical'}}
+                value={reviewForm.content} 
+                onChange={e => setReviewForm(prev => ({...prev, content: e.target.value}))}
+              ></textarea>
+            </div>
+
+            <div style={{marginBottom: '1.5rem'}}>
+              <strong style={{display: 'block', marginBottom: '0.5rem'}}>사진 첨부 (선택)</strong>
+              <input type="file" accept="image/*" multiple onChange={e => setReviewForm(prev => ({...prev, imageFiles: Array.from(e.target.files)}))} />
+              {reviewForm.imageFiles?.length > 0 && (
+                <div style={{fontSize: '0.9rem', color: 'var(--primary-color)', marginTop: '0.3rem'}}>
+                  {reviewForm.imageFiles.length}장의 사진이 선택되었습니다.
+                </div>
+              )}
+            </div>
+
+            <button onClick={submitReview} disabled={reviewLoading} style={{width: '100%', padding: '1rem', background: '#ffc107', color: '#212529', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'inherit'}}>
+              {reviewLoading ? '등록 중...' : '리뷰 등록하고 포인트 받기'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 클레임 팝업 */}
       {claimOrder && (
         <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100}} onClick={() => setClaimOrder(null)}>
