@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, useLocation } from 'react-router-dom';
-import { ShoppingBag, RefreshCcw, RotateCcw, User, ChevronRight, X, Star } from 'lucide-react';
+import { ShoppingBag, RefreshCcw, RotateCcw, User, ChevronRight, X, Star, Camera } from 'lucide-react';
 import { fetchMyOrders, updateMyInfo, updateOrderStatus, uploadImage, createReview } from '../api';
 
 function MyPage() {
@@ -488,49 +488,93 @@ function MyPage() {
       {/* 리뷰 모달 */}
       {reviewOrder && (
         <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100}} onClick={() => setReviewOrder(null)}>
-          <div style={{background: 'white', borderRadius: '16px', padding: '2.5rem', width: '90%', maxWidth: '500px', maxHeight: '85vh', overflowY: 'auto', fontFamily: '"Jua", "Pretendard", sans-serif'}} onClick={e => e.stopPropagation()}>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
-              <h2 style={{fontSize: '1.6rem', fontWeight: 'bold'}}>리뷰 작성하기</h2>
-              <button onClick={() => setReviewOrder(null)} style={{background: 'none', border: 'none', cursor: 'pointer'}}><X size={28} /></button>
+          <div style={{background: 'white', borderRadius: '16px', padding: '2.5rem', width: '90%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto', fontFamily: '"Jua", "Pretendard", sans-serif'}} onClick={e => e.stopPropagation()}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem'}}>
+              <div>
+                <h2 style={{fontSize: '1.6rem', fontWeight: 'bold', marginBottom: '0.3rem'}}>리뷰 작성하기</h2>
+                <p style={{fontSize: '0.95rem', color: '#666', margin: 0, lineHeight: '1.4'}}>
+                  일반 리뷰 작성 시 <strong style={{color: 'var(--primary-color)'}}>500P</strong> 지급<br/>
+                  포토 리뷰 (사진 3장 이상) 작성 시 <strong style={{color: 'var(--primary-color)'}}>1,000P</strong> 지급!
+                </p>
+              </div>
+              <button onClick={() => setReviewOrder(null)} style={{background: 'none', border: 'none', cursor: 'pointer', marginTop: '-0.2rem'}}><X size={28} /></button>
             </div>
             
-            <div style={{marginBottom: '1.5rem', textAlign: 'center'}}>
-              <strong style={{display: 'block', marginBottom: '0.5rem', fontSize: '1.1rem'}}>상품은 만족하셨나요?</strong>
+            <div style={{marginBottom: '1.5rem', textAlign: 'center', padding: '1rem', background: '#f8f9fa', borderRadius: '12px'}}>
+              <strong style={{display: 'block', marginBottom: '0.5rem', fontSize: '1.1rem', color: '#444'}}>상품은 만족하셨나요?</strong>
               <div style={{display: 'flex', justifyContent: 'center', gap: '0.5rem'}}>
                 {[1, 2, 3, 4, 5].map(star => (
                   <Star 
                     key={star} 
-                    size={36} 
+                    size={40} 
                     fill={reviewForm.rating >= star ? '#ffc107' : 'none'} 
                     color={reviewForm.rating >= star ? '#ffc107' : '#ccc'} 
                     cursor="pointer"
                     onClick={() => setReviewForm(prev => ({...prev, rating: star}))}
+                    style={{ transition: 'transform 0.1s' }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                   />
                 ))}
               </div>
             </div>
 
             <div style={{marginBottom: '1.5rem'}}>
-              <strong style={{display: 'block', marginBottom: '0.5rem'}}>내용 작성</strong>
+              <strong style={{display: 'block', marginBottom: '0.5rem', color: '#444'}}>사진 첨부 <span style={{fontWeight: 'normal', color: '#888'}}>(최대 5장)</span></strong>
+              <div style={{ display: 'flex', gap: '0.8rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                <label style={{ flexShrink: 0, width: '80px', height: '80px', border: '2px dashed #ddd', borderRadius: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', cursor: 'pointer', color: '#888', background: '#fafafa', transition: 'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.borderColor = '#aaa'; e.currentTarget.style.background = '#f1f1f1'; }} onMouseLeave={e => { e.currentTarget.style.borderColor = '#ddd'; e.currentTarget.style.background = '#fafafa'; }}>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    multiple 
+                    style={{ display: 'none' }} 
+                    onChange={e => {
+                      const files = Array.from(e.target.files);
+                      const totalFiles = (reviewForm.imageFiles?.length || 0) + files.length;
+                      if (totalFiles > 5) {
+                        alert('사진은 최대 5장까지만 첨부할 수 있습니다.');
+                        return;
+                      }
+                      setReviewForm(prev => ({...prev, imageFiles: [...(prev.imageFiles || []), ...files]}));
+                      e.target.value = ''; // reset input
+                    }} 
+                  />
+                  <Camera size={24} style={{ marginBottom: '0.2rem' }} />
+                  <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{reviewForm.imageFiles?.length || 0} / 5</span>
+                </label>
+
+                {reviewForm.imageFiles?.map((file, idx) => (
+                  <div key={idx} style={{ position: 'relative', flexShrink: 0 }}>
+                    <img 
+                      src={URL.createObjectURL(file)} 
+                      alt="preview" 
+                      style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #eee' }} 
+                      onLoad={(e) => URL.revokeObjectURL(e.target.src)}
+                    />
+                    <button 
+                      onClick={() => setReviewForm(prev => ({...prev, imageFiles: prev.imageFiles.filter((_, i) => i !== idx)}))}
+                      style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#333', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer', padding: 0 }}
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{marginBottom: '1.5rem'}}>
+              <strong style={{display: 'block', marginBottom: '0.5rem', color: '#444'}}>내용 작성</strong>
               <textarea 
-                placeholder="상품에 대한 솔직한 리뷰를 남겨주세요." 
-                style={{width: '100%', minHeight: '120px', padding: '1rem', borderRadius: '6px', border: '1px solid #ccc', fontSize: '1rem', fontFamily: 'inherit', resize: 'vertical'}}
+                placeholder="상품에 대한 솔직하고 생생한 리뷰를 남겨주세요." 
+                style={{width: '100%', minHeight: '120px', padding: '1rem', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', fontFamily: 'inherit', resize: 'vertical', background: '#fafafa', transition: 'border-color 0.2s' }}
+                onFocus={e => e.target.style.borderColor = 'var(--primary-color)'}
+                onBlur={e => e.target.style.borderColor = '#ddd'}
                 value={reviewForm.content} 
                 onChange={e => setReviewForm(prev => ({...prev, content: e.target.value}))}
               ></textarea>
             </div>
 
-            <div style={{marginBottom: '1.5rem'}}>
-              <strong style={{display: 'block', marginBottom: '0.5rem'}}>사진 첨부 (선택)</strong>
-              <input type="file" accept="image/*" multiple onChange={e => setReviewForm(prev => ({...prev, imageFiles: Array.from(e.target.files)}))} />
-              {reviewForm.imageFiles?.length > 0 && (
-                <div style={{fontSize: '0.9rem', color: 'var(--primary-color)', marginTop: '0.3rem'}}>
-                  {reviewForm.imageFiles.length}장의 사진이 선택되었습니다.
-                </div>
-              )}
-            </div>
-
-            <button onClick={submitReview} disabled={reviewLoading} style={{width: '100%', padding: '1rem', background: '#ffc107', color: '#212529', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'inherit'}}>
+            <button onClick={submitReview} disabled={reviewLoading} style={{width: '100%', padding: '1.2rem', background: '#ffc107', color: '#212529', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'inherit', transition: 'background 0.2s', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem'}} onMouseEnter={e => e.currentTarget.style.background = '#ffb300'} onMouseLeave={e => e.currentTarget.style.background = '#ffc107'}>
               {reviewLoading ? '등록 중...' : '리뷰 등록하고 포인트 받기'}
             </button>
           </div>

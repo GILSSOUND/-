@@ -116,7 +116,7 @@ app.post('/api/reviews', async (req, res) => {
       return res.status(400).json({ error: '이미 리뷰를 작성한 주문입니다.' });
     }
 
-    const pointsToAward = 500;
+    const pointsToAward = (images && images.length >= 3) ? 1000 : 500;
 
     const newReview = new Review({
       userId, userName, orderId, productIds, rating, content, images, pointsAwarded: pointsToAward
