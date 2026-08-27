@@ -488,11 +488,11 @@ function MyPage() {
       {/* 리뷰 모달 */}
       {reviewOrder && (
         <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100}} onClick={() => setReviewOrder(null)}>
-          <div style={{background: 'white', borderRadius: '16px', padding: '2.5rem', width: '90%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto', fontFamily: '"Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif', fontWeight: 300, letterSpacing: '-0.3px'}} onClick={e => e.stopPropagation()}>
+          <div style={{background: 'white', borderRadius: '16px', padding: '2.5rem', width: '90%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto', fontFamily: '"Jua", "Pretendard", sans-serif'}} onClick={e => e.stopPropagation()}>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem'}}>
               <div>
-                <h2 style={{fontSize: '1.6rem', fontWeight: '600', letterSpacing: '-0.5px', marginBottom: '0.3rem'}}>리뷰 작성하기</h2>
-                <p style={{fontSize: '0.95rem', color: '#777', margin: 0, lineHeight: '1.5', fontWeight: 300}}>
+                <h2 style={{fontSize: '1.6rem', fontWeight: 'bold', marginBottom: '0.3rem'}}>리뷰 작성하기</h2>
+                <p style={{fontSize: '0.95rem', color: '#666', margin: 0, lineHeight: '1.4'}}>
                   일반 리뷰 작성 시 <strong style={{color: 'var(--primary-color)'}}>500P</strong> 지급<br/>
                   포토 리뷰 (사진 3장 이상) 작성 시 <strong style={{color: 'var(--primary-color)'}}>1,000P</strong> 지급!
                 </p>
@@ -520,7 +520,7 @@ function MyPage() {
             </div>
 
             <div style={{marginBottom: '1.5rem'}}>
-              <span style={{display: 'block', marginBottom: '0.5rem', color: '#333', fontWeight: 500, letterSpacing: '-0.3px'}}>사진 첨부 <span style={{fontWeight: 'normal', color: '#888'}}>(최대 5장)</span></span>
+              <strong style={{display: 'block', marginBottom: '0.5rem', color: '#444'}}>사진 첨부 <span style={{fontWeight: 'normal', color: '#888'}}>(최대 5장)</span></strong>
               <div style={{ display: 'flex', gap: '0.8rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
                 <label style={{ flexShrink: 0, width: '80px', height: '80px', border: '2px dashed #ddd', borderRadius: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', cursor: 'pointer', color: '#888', background: '#fafafa', transition: 'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.borderColor = '#aaa'; e.currentTarget.style.background = '#f1f1f1'; }} onMouseLeave={e => { e.currentTarget.style.borderColor = '#ddd'; e.currentTarget.style.background = '#fafafa'; }}>
                   <input 
@@ -563,7 +563,7 @@ function MyPage() {
             </div>
 
             <div style={{marginBottom: '1.5rem'}}>
-              <span style={{display: 'block', marginBottom: '0.5rem', color: '#333', fontWeight: 500, letterSpacing: '-0.3px'}}>내용 작성</span>
+              <strong style={{display: 'block', marginBottom: '0.5rem', color: '#444'}}>내용 작성</strong>
               <textarea 
                 placeholder="상품에 대한 솔직하고 생생한 리뷰를 남겨주세요." 
                 style={{width: '100%', minHeight: '120px', padding: '1rem', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', fontFamily: 'inherit', resize: 'vertical', background: '#fafafa', transition: 'border-color 0.2s' }}
@@ -574,7 +574,7 @@ function MyPage() {
               ></textarea>
             </div>
 
-            <button onClick={submitReview} disabled={reviewLoading} style={{width: '100%', padding: '1.2rem', background: '#ffc107', color: '#212529', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: '600', fontFamily: 'inherit', transition: 'background 0.2s', letterSpacing: '-0.3px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem'}} onMouseEnter={e => e.currentTarget.style.background = '#ffb300'} onMouseLeave={e => e.currentTarget.style.background = '#ffc107'}>
+            <button onClick={submitReview} disabled={reviewLoading} style={{width: '100%', padding: '1.2rem', background: '#ffc107', color: '#212529', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'inherit', transition: 'background 0.2s', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem'}} onMouseEnter={e => e.currentTarget.style.background = '#ffb300'} onMouseLeave={e => e.currentTarget.style.background = '#ffc107'}>
               {reviewLoading ? '등록 중...' : '리뷰 등록하고 포인트 받기'}
             </button>
           </div>
@@ -584,9 +584,9 @@ function MyPage() {
       {/* 클레임 팝업 */}
       {claimOrder && (
         <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100}} onClick={() => setClaimOrder(null)}>
-          <div style={{background: 'white', borderRadius: '16px', padding: '2.5rem', width: '90%', maxWidth: '600px', maxHeight: '85vh', overflowY: 'auto', fontFamily: '"Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif', fontWeight: 300, letterSpacing: '-0.3px'}} onClick={e => e.stopPropagation()}>
+          <div style={{background: 'white', borderRadius: '16px', padding: '2.5rem', width: '90%', maxWidth: '600px', maxHeight: '85vh', overflowY: 'auto', fontFamily: '"Jua", "Pretendard", sans-serif'}} onClick={e => e.stopPropagation()}>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
-              <h2 style={{fontSize: '1.6rem', fontWeight: '600', letterSpacing: '-0.5px'}}>반품(환불) 신청</h2>
+              <h2 style={{fontSize: '1.6rem', fontWeight: 'bold'}}>반품(환불) 신청</h2>
               <button onClick={() => setClaimOrder(null)} style={{background: 'none', border: 'none', cursor: 'pointer'}}><X size={28} /></button>
             </div>
             
@@ -630,9 +630,9 @@ function MyPage() {
       {/* 주문 상세 팝업 */}
       {selectedOrder && (
         <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000}} onClick={() => setSelectedOrder(null)}>
-          <div style={{background: 'white', borderRadius: '16px', padding: '2.5rem', width: '90%', maxWidth: '600px', maxHeight: '85vh', overflowY: 'auto', fontFamily: '"Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif', fontWeight: 300, letterSpacing: '-0.3px'}} onClick={e => e.stopPropagation()}>
+          <div style={{background: 'white', borderRadius: '16px', padding: '2.5rem', width: '90%', maxWidth: '600px', maxHeight: '85vh', overflowY: 'auto', fontFamily: '"Jua", "Pretendard", sans-serif'}} onClick={e => e.stopPropagation()}>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
-              <h2 style={{fontSize: '1.6rem', fontWeight: '600', letterSpacing: '-0.5px'}}>주문 상세 정보</h2>
+              <h2 style={{fontSize: '1.6rem', fontWeight: 'bold'}}>주문 상세 정보</h2>
               <button onClick={() => setSelectedOrder(null)} style={{background: 'none', border: 'none', cursor: 'pointer'}}><X size={28} /></button>
             </div>
             
