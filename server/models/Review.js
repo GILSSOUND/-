@@ -5,6 +5,7 @@ const ReviewSchema = new mongoose.Schema({
   userName: { type: String, required: true },
   orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true },
   productIds: [{ type: String }],
+  purchasedItems: [{ name: String, option: String }],
   rating: { type: Number, required: true, min: 1, max: 5 },
   content: { type: String, required: true },
   images: [{ type: String }],

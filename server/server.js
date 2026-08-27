@@ -118,8 +118,10 @@ app.post('/api/reviews', async (req, res) => {
 
     const pointsToAward = (images && images.length >= 3) ? 1000 : 500;
 
+    
+    const purchasedItems = order.items.map(item => ({ name: item.name, option: item.selectedOptionName || '' }));
     const newReview = new Review({
-      userId, userName, orderId, productIds, rating, content, images, pointsAwarded: pointsToAward
+      userId, userName, orderId, productIds, purchasedItems, rating, content, images, pointsAwarded: pointsToAward
     });
     await newReview.save();
 

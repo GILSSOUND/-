@@ -101,7 +101,7 @@ function MyPage() {
       if (reviewForm.imageFiles.length > 0) {
         for (let file of reviewForm.imageFiles) {
           const res = await uploadImage(file);
-          if (res.url) imageUrls.push(res.url);
+          if (res.imageUrl) imageUrls.push(res.imageUrl);
         }
       }
 
@@ -572,9 +572,9 @@ function MyPage() {
             {/* 텍스트 영역 */}
             <div style={{marginBottom: '2rem'}}>
               <textarea 
-                className="cute-textarea"
+                
                 placeholder="상품의 솔직한 후기 작성 부탁드립니다" 
-                style={{width: '100%', height: '160px', padding: '3.5rem 1rem 1rem 1rem', border: '5px solid #000', borderRadius: '4px', fontSize: '1.4rem', fontFamily: '"Jua", sans-serif', resize: 'none', overflowY: 'auto', textAlign: 'center', color: '#000'}}
+                style={{width: '100%', height: '160px', padding: '1.5rem', border: '3px solid #000', borderRadius: '8px', fontSize: '1.1rem', fontFamily: '"Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif', resize: 'none', overflowY: 'auto', textAlign: 'left', color: '#222', lineHeight: '1.6'}}
                 value={reviewForm.content} 
                 onChange={e => setReviewForm(prev => ({...prev, content: e.target.value}))}
               ></textarea>

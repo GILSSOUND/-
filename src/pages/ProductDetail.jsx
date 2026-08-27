@@ -557,10 +557,17 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                                   <Star key={star} size={18} fill={review.rating >= star ? '#ffc107' : 'none'} color={review.rating >= star ? '#ffc107' : '#ddd'} />
                                 ))}
                               </div>
-                              <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+                              <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'baseline' }}>
                                 <strong style={{ fontSize: '1.1rem', color: '#333' }}>{review.userName.slice(0,1) + '*'.repeat(review.userName.length - 1)}</strong>
-                                <span style={{ color: '#999', fontSize: '0.9rem' }}>{new Date(review.createdAt).toLocaleDateString()}</span>
+                                <span style={{ color: '#999', fontSize: '0.85rem' }}>{new Date(review.createdAt).toLocaleDateString()}</span>
                               </div>
+                              {review.purchasedItems && review.purchasedItems.length > 0 && (
+                                <div style={{ fontSize: '0.9rem', color: '#888', marginTop: '0.2rem', padding: '0.4rem', background: '#f5f5f5', borderRadius: '4px', display: 'inline-block' }}>
+                                  {review.purchasedItems.map((item, i) => (
+                                    <div key={i}>{item.name} {item.option ? `(${item.option})` : ''}</div>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           </div>
 
@@ -574,7 +581,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                           )}
 
                           {/* 2. 텍스트 영역 (나중에 표시) */}
-                          <p style={{ lineHeight: '1.7', color: '#444', margin: 0, whiteSpace: 'pre-wrap', fontSize: '1.05rem', wordBreak: 'keep-all' }}>
+                          <p style={{ lineHeight: '1.7', color: '#222', margin: 0, whiteSpace: 'pre-wrap', fontSize: '1.1rem', fontWeight: 500, fontFamily: '"Pretendard", "Noto Sans KR", sans-serif', wordBreak: 'keep-all' }}>
                             {review.content}
                           </p>
                         </div>
