@@ -493,46 +493,101 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
 
           {/* 상품후기 섹션 */}
           <div ref={reviewRef} style={{ paddingTop: '2rem', paddingBottom: '5rem', borderTop: '1px solid #eee' }}>
-            <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.3rem' }}>상품 후기 ({reviews.length})</h3>
+            <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.4rem', fontWeight: 'bold' }}>상품 후기</h3>
             
-            {reviews.length === 0 ? (
-              <div style={{ padding: '3rem 2rem', textAlign: 'center', color: '#888', background: '#f9f9f9', borderRadius: '8px' }}>
-                아직 등록된 후기가 없습니다.<br/>첫 번째 후기를 남겨주세요!
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                {reviews.map(review => (
-                  <div key={review._id} style={{ padding: '1.5rem', background: '#f8f9fa', borderRadius: '12px', border: '1px solid #eee' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <strong style={{ fontSize: '1.1rem' }}>{review.userName}</strong>
-                        <span style={{ color: '#888', fontSize: '0.85rem' }}>{new Date(review.createdAt).toLocaleDateString()}</span>
+            {(() => {
+              const totalReviews = reviews.length;
+              const avgRating = totalReviews > 0 ? (reviews.reduce((acc, cur) => acc + cur.rating, 0) / totalReviews).toFixed(1) : "0.0";
+              const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+              reviews.forEach(r => { if (ratingCounts[r.rating] !== undefined) ratingCounts[r.rating]++; });
+
+              return (
+                <>
+                  {/* 리뷰 통계 박스 */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', background: '#f8f9fa', borderRadius: '12px', border: '1px solid #eee', marginBottom: '2rem', overflow: 'hidden' }}>
+                    
+                    {/* 왼쪽: 총평점 */}
+                    <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: '#fff' }}>
+                      <h4 style={{ fontSize: '1.2rem', margin: '0 0 1rem 0', color: '#333' }}>총 평점</h4>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Star size={40} fill="#ffc107" color="#ffc107" />
+                        <span style={{ fontSize: '3rem', fontWeight: 'bold', color: '#000', lineHeight: 1 }}>{avgRating}</span>
                       </div>
-                      <div style={{ display: 'flex', color: '#ffc107' }}>
-                        {[1, 2, 3, 4, 5].map(star => (
-                          <Star key={star} size={16} fill={review.rating >= star ? '#ffc107' : 'none'} color={review.rating >= star ? '#ffc107' : '#ccc'} />
-                        ))}
-                      </div>
+                      <p style={{ color: '#666', margin: '1rem 0 0 0', fontSize: '1rem' }}>구매후기 <strong style={{color: 'var(--primary-color)'}}>{totalReviews}</strong>건</p>
                     </div>
-                    <p style={{ lineHeight: '1.6', color: '#444', marginBottom: review.images?.length > 0 ? '1rem' : 0 }}>
-                      {review.content}
-                    </p>
-                    {review.images && review.images.length > 0 && (
-                      <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
-                        {review.images.map((img, idx) => (
-                          <img key={idx} src={img} alt="리뷰 이미지" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd' }} />
-                        ))}
-                      </div>
-                    )}
+
+                    {/* 구분선 (데스크탑은 세로, 모바일은 가로) */}
+                    <div style={{ width: '1px', background: '#eee' }} className="desktop-divider"></div>
+
+                    {/* 오른쪽: 별점 분포 */}
+                    <div style={{ flex: '2 1 300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '2rem', gap: '0.8rem', background: '#fafafa' }}>
+                      {[
+                        { stars: 5, label: '완전좋아요' },
+                        { stars: 4, label: '좋아요' },
+                        { stars: 3, label: '괜찮아요' },
+                        { stars: 2, label: '그저그래요' },
+                        { stars: 1, label: '별로에요' },
+                      ].map(item => (
+                        <div key={item.stars} style={{ display: 'flex', alignItems: 'center', fontSize: '1rem' }}>
+                          <span style={{ width: '90px', color: '#444', fontWeight: 'bold' }}>{item.label}</span>
+                          <div style={{ flex: 1, height: '10px', background: '#e9ecef', borderRadius: '5px', margin: '0 1rem', overflow: 'hidden' }}>
+                            <div style={{ width: `${totalReviews > 0 ? (ratingCounts[item.stars] / totalReviews) * 100 : 0}%`, height: '100%', background: '#ffc107', borderRadius: '5px' }}></div>
+                          </div>
+                          <span style={{ width: '30px', textAlign: 'right', color: '#666' }}>{ratingCounts[item.stars]}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
-              </div>
-            )}
+
+                  {/* 리뷰 리스트 */}
+                  {totalReviews === 0 ? (
+                    <div style={{ padding: '3rem 2rem', textAlign: 'center', color: '#888', background: '#f9f9f9', borderRadius: '8px', border: '1px dashed #ddd' }}>
+                      아직 등록된 후기가 없습니다.<br/>첫 번째 후기를 남겨주세요!
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                      {reviews.map(review => (
+                        <div key={review._id} style={{ padding: '2rem', background: '#fff', borderRadius: '12px', border: '1px solid #eaeaea', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                          
+                          {/* 작성자 및 별점 헤더 */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px dashed #eee', paddingBottom: '1rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                              <div style={{ display: 'flex', color: '#ffc107', gap: '0.1rem' }}>
+                                {[1, 2, 3, 4, 5].map(star => (
+                                  <Star key={star} size={18} fill={review.rating >= star ? '#ffc107' : 'none'} color={review.rating >= star ? '#ffc107' : '#ddd'} />
+                                ))}
+                              </div>
+                              <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+                                <strong style={{ fontSize: '1.1rem', color: '#333' }}>{review.userName.slice(0,1) + '*'.repeat(review.userName.length - 1)}</strong>
+                                <span style={{ color: '#999', fontSize: '0.9rem' }}>{new Date(review.createdAt).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* 1. 사진 영역 (먼저 표시) */}
+                          {review.images && review.images.length > 0 && (
+                            <div style={{ display: 'flex', gap: '0.8rem', overflowX: 'auto', marginBottom: '1.5rem', paddingBottom: '0.5rem' }}>
+                              {review.images.map((img, idx) => (
+                                <img key={idx} src={img} alt="리뷰 사진" style={{ width: '120px', height: '120px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd' }} />
+                              ))}
+                            </div>
+                          )}
+
+                          {/* 2. 텍스트 영역 (나중에 표시) */}
+                          <p style={{ lineHeight: '1.7', color: '#444', margin: 0, whiteSpace: 'pre-wrap', fontSize: '1.05rem', wordBreak: 'keep-all' }}>
+                            {review.content}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )
+            })()}
           </div>
         </div>
       </div>
-
-      {/* 하단 고정 바 (Sticky Bottom Bar) */}
+{/* 하단 고정 바 (Sticky Bottom Bar) */}
       <div className="sticky-bottom-bar">
         <button className="outline-btn wish" onClick={(e) => handleToggleWishlist(product, e)}>
           <Heart size={24} />

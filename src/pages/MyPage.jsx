@@ -444,8 +444,19 @@ function MyPage() {
 
   return (
     <>
-    <style>
-      {`
+    
+        <style>
+          {`
+            .cute-textarea::placeholder {
+              font-family: "Jua", sans-serif !important;
+              color: '#888';
+              font-size: 1.2rem;
+            }
+          `}
+        </style>
+  
+        <style>
+          {`
         .mypage-container * {
           font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif !important;
         }
@@ -561,8 +572,9 @@ function MyPage() {
             {/* 텍스트 영역 */}
             <div style={{marginBottom: '2rem'}}>
               <textarea 
+                className="cute-textarea"
                 placeholder="상품의 솔직한 후기 작성 부탁드립니다" 
-                style={{width: '100%', height: '160px', padding: '4rem 1rem 1rem 1rem', border: '5px solid #000', borderRadius: '4px', fontSize: '1rem', fontFamily: '"Jua", "Pretendard", sans-serif', resize: 'none', overflowY: 'auto', textAlign: 'center', color: '#000'}}
+                style={{width: '100%', height: '160px', padding: '3.5rem 1rem 1rem 1rem', border: '5px solid #000', borderRadius: '4px', fontSize: '1.4rem', fontFamily: '"Jua", sans-serif', resize: 'none', overflowY: 'auto', textAlign: 'center', color: '#000'}}
                 value={reviewForm.content} 
                 onChange={e => setReviewForm(prev => ({...prev, content: e.target.value}))}
               ></textarea>
