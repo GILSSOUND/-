@@ -341,8 +341,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           <div className="detail-benefits-box" style={{ background: '#f8f9fa', padding: '1rem', borderRadius: '8px', border: '1px solid #eee', marginBottom: '0' }}>
             <h4 style={{ color: 'var(--primary-color)', marginBottom: '0.3rem', fontSize: '0.95rem' }}>추가 혜택</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, color: '#555', lineHeight: '1.4', fontSize: '0.9rem' }}>
-              <li>• 일반 후기 작성 시 100포인트 지급</li>
-              <li>• 포토 후기 작성 시 150포인트 지급</li>
+              <li>• 일반 후기 작성 시 500포인트 지급</li>
+              <li>• 포토 후기(3장 이상) 작성 시 1000포인트 지급</li>
             </ul>
           </div>
 
