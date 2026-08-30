@@ -1,9 +1,63 @@
 import React, { useState, useEffect } from 'react';
-import { fetchProducts, createProduct, updateProduct, deleteProduct, uploadImage, fetchConfig, updateConfig, fetchUsers, fetchAllOrders, updateOrderStatus } from '../api';
+import { fetchProducts, createProduct, updateProduct, deleteProduct, uploadImage, fetchConfig, updateConfig, fetchUsers, fetchAllOrders, updateOrderStatus, getReviewsByProduct, deleteReview } from '../api';
 import { LayoutDashboard, PackagePlus, List, Image as ImageIcon, Bell, Edit, Trash2, ChevronLeft, ChevronRight, Plus, X, Image as ImgIcon, Type, ShoppingCart, Menu, RefreshCcw } from 'lucide-react';
 
 function Admin({ refreshGlobalProducts }) {
-  const [activeTab, setActiveTab] = useState('register'); // register, list, banner, rec_banner, notice, order, claims, member
+  const [activeTab, setActiveTab] = useState('register');
+  const [selectedProductForReviews, setSelectedProductForReviews] = useState(null);
+  const [productReviews, setProductReviews] = useState([]);
+
+  const openReviewManager = async (product) => {
+    setSelectedProductForReviews(product);
+    try {
+      const res = await getReviewsByProduct(product._id || product.id);
+      setProductReviews(res.data || []);
+    } catch (e) {
+      alert('리뷰 로드 실패');
+    }
+  };
+
+  const handleReviewDelete = async (reviewId) => {
+    if (window.confirm('정말 이 리뷰를 삭제하시겠습니까?')) {
+      try {
+        await deleteReview(reviewId);
+        setProductReviews(productReviews.filter(r => r._id !== reviewId));
+        alert('삭제되었습니다.');
+      } catch (e) {
+        alert('삭제 실패');
+      }
+    }
+  };
+
+  const handleFeaturePhoto = async (photoUrl) => {
+    if (!selectedProductForReviews) return;
+    try {
+      const currentFeatured = selectedProductForReviews.featuredPhotos || [];
+      if (currentFeatured.includes(photoUrl)) {
+        if (window.confirm('이미 선정된 사진입니다. 선정을 해제하시겠습니까?')) {
+          const updatedProductData = {
+            ...selectedProductForReviews,
+            featuredPhotos: currentFeatured.filter(url => url !== photoUrl)
+          };
+          await updateProduct(selectedProductForReviews._id || selectedProductForReviews.id, updatedProductData);
+          setSelectedProductForReviews(updatedProductData);
+          alert('포토리뷰 선정이 해제되었습니다.');
+          if (typeof refreshGlobalProducts === 'function') refreshGlobalProducts();
+        }
+        return;
+      }
+      const updatedProductData = {
+        ...selectedProductForReviews,
+        featuredPhotos: [...currentFeatured, photoUrl]
+      };
+      await updateProduct(selectedProductForReviews._id || selectedProductForReviews.id, updatedProductData);
+      setSelectedProductForReviews(updatedProductData);
+      alert('포토리뷰로 선정되었습니다!');
+      if (typeof refreshGlobalProducts === 'function') refreshGlobalProducts();
+    } catch (e) {
+      alert('포토리뷰 선정 실패');
+    }
+  }; // register, list, banner, rec_banner, notice, order, claims, member
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
@@ -2054,7 +2108,51 @@ function Admin({ refreshGlobalProducts }) {
     )}
 
     {/* 주문 상세(배송지 정보) 모달 */}
-    {selectedOrderDetails && (
+    
+      {/* 리뷰 관리 모달 */}
+      {selectedProductForReviews && (
+        <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1200}} onClick={() => setSelectedProductForReviews(null)}>
+          <div style={{background: 'white', borderRadius: '16px', padding: '2.5rem', width: '90%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto', fontFamily: '"Pretendard", "Noto Sans KR", sans-serif'}} onClick={e => e.stopPropagation()}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem'}}>
+              <h2 style={{fontSize: '1.6rem', fontWeight: 'bold'}}>{selectedProductForReviews.name} - 리뷰 관리</h2>
+              <button onClick={() => setSelectedProductForReviews(null)} style={{background: 'none', border: 'none', cursor: 'pointer'}}><X size={28} /></button>
+            </div>
+            
+            {productReviews.length === 0 ? (
+              <p style={{textAlign: 'center', color: '#888', padding: '3rem 0'}}>작성된 리뷰가 없습니다.</p>
+            ) : (
+              <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
+                {productReviews.map(review => (
+                  <div key={review._id} style={{padding: '1.5rem', background: '#f8f9fa', borderRadius: '12px', border: '1px solid #eee'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px dashed #ddd', paddingBottom: '0.5rem'}}>
+                      <strong style={{fontSize: '1.1rem'}}>{review.userName} <span style={{color: '#999', fontSize: '0.9rem'}}>({review.rating}점)</span></strong>
+                      <button onClick={() => handleReviewDelete(review._id)} style={{background: '#ff4757', color: 'white', border: 'none', borderRadius: '4px', padding: '0.4rem 0.8rem', cursor: 'pointer', fontSize: '0.9rem'}}>리뷰 삭제</button>
+                    </div>
+                    <p style={{margin: '0 0 1rem 0', whiteSpace: 'pre-wrap', color: '#444'}}>{review.content}</p>
+                    {review.images && review.images.length > 0 && (
+                      <div style={{display: 'flex', gap: '0.5rem', overflowX: 'auto'}}>
+                        {review.images.map((img, idx) => {
+                          const isFeatured = (selectedProductForReviews.featuredPhotos || []).includes(img);
+                          return (
+                            <div key={idx} style={{position: 'relative', flexShrink: 0}}>
+                              <img src={img} alt="review" style={{width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: isFeatured ? '3px solid #ffc107' : '1px solid #ddd'}} />
+                              <button onClick={() => handleFeaturePhoto(img)} style={{position: 'absolute', bottom: '5px', left: '50%', transform: 'translateX(-50%)', background: isFeatured ? '#ffc107' : 'rgba(0,0,0,0.6)', color: isFeatured ? '#000' : 'white', border: 'none', borderRadius: '20px', padding: '0.2rem 0.6rem', fontSize: '0.8rem', cursor: 'pointer', whiteSpace: 'nowrap'}}>
+                                {isFeatured ? '선정됨' : '포토픽'}
+                              </button>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {selectedOrderDetails && (
       <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000}} onClick={() => setSelectedOrderDetails(null)}>
         <div style={{background: 'white', borderRadius: '16px', padding: '2.5rem', width: '90%', maxWidth: '650px', maxHeight: '85vh', overflowY: 'auto', fontFamily: '"Jua", "Pretendard", sans-serif'}} onClick={e => e.stopPropagation()}>
           <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem'}}>

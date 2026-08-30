@@ -494,6 +494,22 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           {/* 상품후기 섹션 */}
           <div ref={reviewRef} style={{ paddingTop: '2rem', paddingBottom: '5rem', borderTop: '1px solid #eee' }}>
             <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.4rem', fontWeight: 'bold' }}>상품 후기</h3>
+
+            {/* 베스트 포토 리뷰 섹션 */}
+            {product?.featuredPhotos && product.featuredPhotos.length > 0 && (
+              <div style={{ marginBottom: '3rem', padding: '2rem', background: '#fff', borderRadius: '12px', border: '2px solid #ffc107', boxShadow: '0 4px 12px rgba(255, 193, 7, 0.15)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                  <Star size={24} fill="#ffc107" color="#ffc107" />
+                  <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0 }}>베스트 포토 리뷰</h4>
+                </div>
+                <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                  {product.featuredPhotos.map((photo, idx) => (
+                    <img key={idx} src={photo} alt="베스트 포토 리뷰" style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd' }} />
+                  ))}
+                </div>
+              </div>
+            )}
+  
             
             {(() => {
               const totalReviews = reviews.length;

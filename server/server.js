@@ -143,7 +143,19 @@ app.post('/api/reviews', async (req, res) => {
 app.get('/api/reviews/:productId', async (req, res) => {
   try {
     const reviews = await Review.find({ productIds: req.params.productId }).sort({ createdAt: -1 });
-    res.json(reviews);
+    
+app.delete('/api/reviews/:id', async (req, res) => {
+  try {
+    const deletedReview = await Review.findByIdAndDelete(req.params.id);
+    if (!deletedReview) return res.status(404).json({ error: '리뷰를 찾을 수 없습니다.' });
+    // Option: deduct points? We'll skip deduction for now to keep it simple, or deduct if needed.
+    // The prompt just says "delete review".
+    res.json({ success: true, deletedReview });
+  } catch (err) {
+    res.status(500).json({ error: '리뷰 삭제 실패' });
+  }
+});
+res.json(reviews);
   } catch (err) {
     res.status(500).json({ error: '리뷰 조회 실패' });
   }
