@@ -61,6 +61,8 @@ const productSchema = new mongoose.Schema({
     default: false,
   },
   featuredPhotos: [{ type: String }],
+  reviewCount: { type: Number, default: 0 },
+  averageRating: { type: Number, default: 0 },
   options: [{
     name: { type: String, required: true },
     additionalPrice: { type: Number, default: 0 }

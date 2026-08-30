@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchConfig } from '../api';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart, CreditCard, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShoppingCart, Heart, CreditCard, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay, Navigation } from 'swiper/modules';
 import 'swiper/css';
@@ -262,6 +262,13 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
               </div>
               <div className="product-info">
                 <h3 className="product-name">{product.name}</h3>
+                {(product.reviewCount > 0) && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px', fontSize: '0.9rem', color: '#666' }}>
+                    <Star size={14} fill="#ffc107" color="#ffc107" />
+                    <span style={{ fontWeight: 'bold', color: '#333' }}>{product.averageRating?.toFixed(1) || '0.0'}</span>
+                    <span>({product.reviewCount})</span>
+                  </div>
+                )}
                 <div className="price-container">
                   {product.originalPrice && (
                     <div className="price-top-row" style={{ justifyContent: 'flex-start' }}>

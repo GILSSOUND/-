@@ -124,6 +124,16 @@ app.post('/api/reviews', async (req, res) => {
       userId, userName, orderId, productIds, purchasedItems, rating, content, images, pointsAwarded: pointsToAward
     });
     await newReview.save();
+      // Update product review stats (POST)
+      for (const prodId of productIds) {
+        const p = await Product.findById(prodId);
+        if (p) {
+          const totalRating = (p.averageRating * p.reviewCount) + rating;
+          p.reviewCount += 1;
+          p.averageRating = totalRating / p.reviewCount;
+          await p.save();
+        }
+      }
 
     order.hasReview = true;
     await order.save();
@@ -148,6 +158,21 @@ app.delete('/api/reviews/:id', async (req, res) => {
   try {
     const deletedReview = await Review.findByIdAndDelete(req.params.id);
     if (!deletedReview) return res.status(404).json({ error: '리뷰를 찾을 수 없습니다.' });
+    // Update product review stats (DELETE)
+    for (const prodId of (deletedReview.productIds || [])) {
+      const p = await Product.findById(prodId);
+      if (p && p.reviewCount > 0) {
+        if (p.reviewCount === 1) {
+          p.reviewCount = 0;
+          p.averageRating = 0;
+        } else {
+          const totalRating = (p.averageRating * p.reviewCount) - deletedReview.rating;
+          p.reviewCount -= 1;
+          p.averageRating = totalRating / p.reviewCount;
+        }
+        await p.save();
+      }
+    }
     // Option: deduct points? We'll skip deduction for now to keep it simple, or deduct if needed.
     // The prompt just says "delete review".
     res.json({ success: true, deletedReview });
@@ -265,6 +290,28 @@ app.use(async (req, res, next) => {
 });
 
 // Start server
+
+app.get('/api/recalc-reviews', async (req, res) => {
+  try {
+    const products = await Product.find({});
+    for (const p of products) {
+      const reviews = await Review.find({ productIds: p._id.toString() });
+      p.reviewCount = reviews.length;
+      if (reviews.length > 0) {
+        const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+        p.averageRating = sum / reviews.length;
+      } else {
+        p.averageRating = 0;
+      }
+      await p.save();
+    }
+    cachedProducts = null;
+    res.json({ success: true, message: 'Recalculated all review stats' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
