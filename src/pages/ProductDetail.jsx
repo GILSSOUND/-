@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart, CreditCard, Star } from 'lucide-react';
+import { ShoppingCart, Heart, CreditCard, Star, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getReviewsByProduct } from '../api';
 
@@ -283,7 +283,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           <div className="photo-reviews-section" style={{ minWidth: 0, width: '100%', marginBottom: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem', borderBottom: '2px solid #333', paddingBottom: '0.5rem' }}>
               <h3 style={{ fontSize: '1.2rem', margin: 0, marginLeft: '1.5rem' }}>포토 리뷰 <span style={{ fontSize: '0.8rem', color: '#aaa', fontWeight: 'normal', marginLeft: '0.4rem', letterSpacing: '0.5px' }}>PHOTO REVIEW</span></h3>
-              <span style={{ fontSize: '0.9rem', color: '#666', cursor: 'pointer', marginRight: '1.5rem' }} onClick={() => setShowAllPhotos(true)}>전체보기</span>
+              <span style={{ fontSize: '0.9rem', color: '#666', cursor: 'pointer', marginRight: '1.5rem' }} onClick={() => { setActiveTab('review'); setTimeout(() => reviewRef.current?.scrollIntoView({ behavior: 'smooth' }), 100); }}>전체보기</span>
             </div>
             
             {product?.featuredPhotos && product.featuredPhotos.length > 0 ? (
