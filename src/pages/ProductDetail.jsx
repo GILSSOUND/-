@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart, CreditCard, Star, X } from 'lucide-react';
+import { ShoppingCart, Heart, CreditCard, Star, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getReviewsByProduct } from '../api';
 
@@ -52,7 +52,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
 
   const [reviews, setReviews] = useState([]);
   const [showAllPhotos, setShowAllPhotos] = useState(false);
-  const [selectedReviewImage, setSelectedReviewImage] = useState(null);
+  const [reviewImagePopup, setReviewImagePopup] = useState({ isOpen: false, images: [], currentIndex: 0 });
   
   useEffect(() => {
     if (id) {
@@ -289,7 +289,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             {product?.featuredPhotos && product.featuredPhotos.length > 0 ? (
               <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', width: '100%', paddingLeft: '1.5rem', paddingRight: '1.5rem', boxSizing: 'border-box' }}>
                 {product.featuredPhotos.map((photoUrl, idx) => (
-                  <div key={idx} style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }} onClick={() => setSelectedReviewImage(photoUrl)}>
+                  <div key={idx} style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }} onClick={() => setReviewImagePopup({ isOpen: true, images: product.featuredPhotos, currentIndex: idx })}>
                     <img src={photoUrl} alt="포토리뷰" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 ))}
@@ -311,7 +311,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                 {product?.featuredPhotos && product.featuredPhotos.length > 0 ? (
                   <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem'}}>
                     {product.featuredPhotos.map((photoUrl, idx) => (
-                      <div key={idx} style={{width: '100%', aspectRatio: '1/1', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', cursor: 'pointer'}} onClick={() => setSelectedReviewImage(photoUrl)}>
+                      <div key={idx} style={{width: '100%', aspectRatio: '1/1', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', cursor: 'pointer'}} onClick={() => setReviewImagePopup({ isOpen: true, images: product.featuredPhotos, currentIndex: idx })}>
                         <img src={photoUrl} alt="포토리뷰" style={{width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s'}} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'} />
                       </div>
                     ))}
@@ -584,7 +584,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                           {review.images && review.images.length > 0 && (
                             <div style={{ display: 'flex', gap: '0.8rem', overflowX: 'auto', marginBottom: '1.5rem', paddingBottom: '0.5rem' }}>
                               {review.images.map((img, idx) => (
-                                <img key={idx} src={img} alt="리뷰 사진" style={{ width: '120px', height: '120px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd', cursor: 'pointer' }} onClick={() => setSelectedReviewImage(img)} />
+                                <img key={idx} src={img} alt="리뷰 사진" style={{ width: '120px', height: '120px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd', cursor: 'pointer' }} onClick={() => setReviewImagePopup({ isOpen: true, images: review.images, currentIndex: idx })} />
                               ))}
                             </div>
                           )}
@@ -605,10 +605,40 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
       </div>
 
       {/* 리뷰 이미지 확대 모달 */}
-      {selectedReviewImage && (
-        <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1300}} onClick={() => setSelectedReviewImage(null)}>
-          <img src={selectedReviewImage} alt="확대된 리뷰 이미지" style={{maxWidth: '95%', maxHeight: '90vh', objectFit: 'contain', borderRadius: '8px'}} />
-          <button onClick={() => setSelectedReviewImage(null)} style={{position: 'absolute', top: '20px', right: '20px', background: 'rgba(0,0,0,0.5)', borderRadius: '50%', border: 'none', cursor: 'pointer', color: 'white', padding: '0.5rem', display: 'flex'}}><X size={32} /></button>
+      {reviewImagePopup.isOpen && reviewImagePopup.images.length > 0 && (
+        <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.95)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1300}} onClick={() => setReviewImagePopup({ ...reviewImagePopup, isOpen: false })}>
+          
+          {reviewImagePopup.images.length > 1 && (
+            <button 
+              onClick={(e) => { e.stopPropagation(); setReviewImagePopup(prev => ({ ...prev, currentIndex: prev.currentIndex === 0 ? prev.images.length - 1 : prev.currentIndex - 1 })); }} 
+              style={{position: 'absolute', left: '5%', background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', color: 'white', padding: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s'}}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+            >
+              <ChevronLeft size={40} />
+            </button>
+          )}
+
+          <img src={reviewImagePopup.images[reviewImagePopup.currentIndex]} alt="확대된 리뷰 이미지" style={{maxWidth: '80%', maxHeight: '90vh', objectFit: 'contain', borderRadius: '8px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)'}} onClick={e => e.stopPropagation()} />
+          
+          {reviewImagePopup.images.length > 1 && (
+            <button 
+              onClick={(e) => { e.stopPropagation(); setReviewImagePopup(prev => ({ ...prev, currentIndex: prev.currentIndex === prev.images.length - 1 ? 0 : prev.currentIndex + 1 })); }} 
+              style={{position: 'absolute', right: '5%', background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', color: 'white', padding: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s'}}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+            >
+              <ChevronRight size={40} />
+            </button>
+          )}
+
+          <button onClick={() => setReviewImagePopup({ ...reviewImagePopup, isOpen: false })} style={{position: 'absolute', top: '20px', right: '20px', background: 'rgba(0,0,0,0.5)', borderRadius: '50%', border: 'none', cursor: 'pointer', color: 'white', padding: '0.5rem', display: 'flex', transition: 'background 0.2s'}} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,0,0,0.8)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.5)'}><X size={32} /></button>
+          
+          {reviewImagePopup.images.length > 1 && (
+            <div style={{position: 'absolute', bottom: '30px', color: 'white', fontSize: '1.1rem', background: 'rgba(0,0,0,0.6)', padding: '0.6rem 1.2rem', borderRadius: '20px', letterSpacing: '2px', fontWeight: 'bold'}}>
+              {reviewImagePopup.currentIndex + 1} / {reviewImagePopup.images.length}
+            </div>
+          )}
         </div>
       )}
 
