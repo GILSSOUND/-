@@ -52,6 +52,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
 
   const [reviews, setReviews] = useState([]);
   const [showAllPhotos, setShowAllPhotos] = useState(false);
+  const [selectedReviewImage, setSelectedReviewImage] = useState(null);
   
   useEffect(() => {
     if (id) {
@@ -288,7 +289,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             {product?.featuredPhotos && product.featuredPhotos.length > 0 ? (
               <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', width: '100%', paddingLeft: '1.5rem', paddingRight: '1.5rem', boxSizing: 'border-box' }}>
                 {product.featuredPhotos.map((photoUrl, idx) => (
-                  <div key={idx} style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }} onClick={() => setDisplayImage(photoUrl)}>
+                  <div key={idx} style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }} onClick={() => setSelectedReviewImage(photoUrl)}>
                     <img src={photoUrl} alt="포토리뷰" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 ))}
@@ -310,7 +311,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                 {product?.featuredPhotos && product.featuredPhotos.length > 0 ? (
                   <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem'}}>
                     {product.featuredPhotos.map((photoUrl, idx) => (
-                      <div key={idx} style={{width: '100%', aspectRatio: '1/1', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', cursor: 'pointer'}} onClick={() => { setShowAllPhotos(false); setDisplayImage(photoUrl); }}>
+                      <div key={idx} style={{width: '100%', aspectRatio: '1/1', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', cursor: 'pointer'}} onClick={() => setSelectedReviewImage(photoUrl)}>
                         <img src={photoUrl} alt="포토리뷰" style={{width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s'}} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'} />
                       </div>
                     ))}
@@ -583,7 +584,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                           {review.images && review.images.length > 0 && (
                             <div style={{ display: 'flex', gap: '0.8rem', overflowX: 'auto', marginBottom: '1.5rem', paddingBottom: '0.5rem' }}>
                               {review.images.map((img, idx) => (
-                                <img key={idx} src={img} alt="리뷰 사진" style={{ width: '120px', height: '120px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd' }} />
+                                <img key={idx} src={img} alt="리뷰 사진" style={{ width: '120px', height: '120px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd', cursor: 'pointer' }} onClick={() => setSelectedReviewImage(img)} />
                               ))}
                             </div>
                           )}
@@ -602,7 +603,16 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           </div>
         </div>
       </div>
-{/* 하단 고정 바 (Sticky Bottom Bar) */}
+
+      {/* 리뷰 이미지 확대 모달 */}
+      {selectedReviewImage && (
+        <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1300}} onClick={() => setSelectedReviewImage(null)}>
+          <img src={selectedReviewImage} alt="확대된 리뷰 이미지" style={{maxWidth: '95%', maxHeight: '90vh', objectFit: 'contain', borderRadius: '8px'}} />
+          <button onClick={() => setSelectedReviewImage(null)} style={{position: 'absolute', top: '20px', right: '20px', background: 'rgba(0,0,0,0.5)', borderRadius: '50%', border: 'none', cursor: 'pointer', color: 'white', padding: '0.5rem', display: 'flex'}}><X size={32} /></button>
+        </div>
+      )}
+
+      {/* 하단 고정 바 (Sticky Bottom Bar) */}
       <div className="sticky-bottom-bar">
         <button className="outline-btn wish" onClick={(e) => handleToggleWishlist(product, e)}>
           <Heart size={24} />
