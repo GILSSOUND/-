@@ -1208,6 +1208,12 @@ function Admin({ refreshGlobalProducts }) {
                       >
                         <Trash2 size={16} /><span className="action-text">삭제</span>
                       </button>
+                      <button 
+                        onClick={() => openReviewManager(p)}
+                        style={{padding: '0.6rem 1rem', background: '#e3f2fd', color: '#1976d2', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: '600'}}
+                      >
+                        <List size={16} /><span className="action-text">리뷰관리</span>
+                      </button>
                     </div>
                   </div>
                 ))}

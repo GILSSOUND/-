@@ -51,6 +51,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   const product = products.find(p => p._id === id || p.id === parseInt(id));
 
   const [reviews, setReviews] = useState([]);
+  const [showAllPhotos, setShowAllPhotos] = useState(false);
   
   useEffect(() => {
     if (id) {
@@ -278,46 +279,50 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
         </div>
 
         {/* 포토 리뷰 영역 (왼쪽 하단) */}
-          <div className="photo-reviews-section" style={{ minWidth: 0, width: '100%' }}>
+          <div className="photo-reviews-section" style={{ minWidth: 0, width: '100%', marginBottom: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem', borderBottom: '2px solid #333', paddingBottom: '0.5rem' }}>
               <h3 style={{ fontSize: '1.2rem', margin: 0, marginLeft: '1.5rem' }}>포토 리뷰 <span style={{ fontSize: '0.8rem', color: '#aaa', fontWeight: 'normal', marginLeft: '0.4rem', letterSpacing: '0.5px' }}>PHOTO REVIEW</span></h3>
-              <span style={{ fontSize: '0.9rem', color: '#666', cursor: 'pointer', marginRight: '1.5rem' }}>전체보기</span>
+              <span style={{ fontSize: '0.9rem', color: '#666', cursor: 'pointer', marginRight: '1.5rem' }} onClick={() => setShowAllPhotos(true)}>전체보기</span>
             </div>
             
-            {product.reviews && product.reviews.filter(r => r.photoUrl).length > 0 ? (
+            {product?.featuredPhotos && product.featuredPhotos.length > 0 ? (
               <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', width: '100%', paddingLeft: '1.5rem', paddingRight: '1.5rem', boxSizing: 'border-box' }}>
-                {product.reviews.filter(r => r.photoUrl).map((review, idx) => (
-                  <div key={idx} style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }}>
-                    <img src={review.photoUrl} alt="포토리뷰" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                {product.featuredPhotos.map((photoUrl, idx) => (
+                  <div key={idx} style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }} onClick={() => setDisplayImage(photoUrl)}>
+                    <img src={photoUrl} alt="포토리뷰" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 ))}
               </div>
             ) : (
-              /* 더미 데이터(임시) 또는 빈 상태 */
-              <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', width: '100%', paddingLeft: '1.5rem', paddingRight: '1.5rem', boxSizing: 'border-box' }}>
-                {[
-                  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=80",
-                  "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&q=80",
-                  "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&q=80",
-                  "https://images.unsplash.com/photo-1544025162-d76694265947?w=200&q=80",
-                  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&q=80",
-                  "https://images.unsplash.com/photo-1432139555190-58524dae6a55?w=200&q=80",
-                  "https://images.unsplash.com/photo-1560684352-8497838a2229?w=200&q=80"
-                ].map((mockUrl, idx) => (
-                  <div key={idx} style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }}>
-                    <img src={mockUrl} alt="포토리뷰 임시" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </div>
-                ))}
-                <div style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', color: '#888', fontSize: '0.85rem', cursor: 'pointer', border: '1px solid #eee' }}>
-                  + 더보기
-                </div>
+              <div style={{ padding: '2rem', textAlign: 'center', color: '#888', background: '#fafafa', borderRadius: '8px', margin: '0 1.5rem', border: '1px dashed #ddd', fontSize: '0.9rem' }}>
+                관리자가 선정한 포토리뷰가 표시됩니다.
               </div>
             )}
           </div>
-        {/* </left-col 제거됨, grid-area로 대체> */}
 
-        {/* 오른쪽: 상품 정보 */}
-        <div className="product-detail-info" style={{ marginTop: 0, borderRadius: 0, boxShadow: 'none', borderTop: '1px solid #eee', display: 'flex', flexDirection: 'column' }}>
+          {/* 포토리뷰 전체보기 모달 */}
+          {showAllPhotos && (
+            <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1200}} onClick={() => setShowAllPhotos(false)}>
+              <div style={{background: '#fff', borderRadius: '16px', padding: '2rem', width: '90%', maxWidth: '900px', maxHeight: '90vh', overflowY: 'auto', position: 'relative'}} onClick={e => e.stopPropagation()}>
+                <button onClick={() => setShowAllPhotos(false)} style={{position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: '#333'}}><X size={32} /></button>
+                <h2 style={{fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '2rem', textAlign: 'center'}}>포토 리뷰 모아보기</h2>
+                
+                {product?.featuredPhotos && product.featuredPhotos.length > 0 ? (
+                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem'}}>
+                    {product.featuredPhotos.map((photoUrl, idx) => (
+                      <div key={idx} style={{width: '100%', aspectRatio: '1/1', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', cursor: 'pointer'}} onClick={() => { setShowAllPhotos(false); setDisplayImage(photoUrl); }}>
+                        <img src={photoUrl} alt="포토리뷰" style={{width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s'}} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'} />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{textAlign: 'center', color: '#888'}}>포토리뷰가 없습니다.</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="product-detail-info" style={{ marginTop: 0, borderRadius: 0, boxShadow: 'none', borderTop: '1px solid #eee', display: 'flex', flexDirection: 'column' }}>
           <h2 className="detail-title" style={{ marginBottom: '0.2rem' }}>{product.name}</h2>
           {product.subtitle && <p style={{fontSize: '1rem', color: '#888', marginBottom: '1rem', marginTop: 0}}>{product.subtitle}</p>}
           
@@ -495,20 +500,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           <div ref={reviewRef} style={{ paddingTop: '2rem', paddingBottom: '5rem', borderTop: '1px solid #eee' }}>
             <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.4rem', fontWeight: 'bold' }}>상품 후기</h3>
 
-            {/* 베스트 포토 리뷰 섹션 */}
-            {product?.featuredPhotos && product.featuredPhotos.length > 0 && (
-              <div style={{ marginBottom: '3rem', padding: '2rem', background: '#fff', borderRadius: '12px', border: '2px solid #ffc107', boxShadow: '0 4px 12px rgba(255, 193, 7, 0.15)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                  <Star size={24} fill="#ffc107" color="#ffc107" />
-                  <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0 }}>베스트 포토 리뷰</h4>
-                </div>
-                <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
-                  {product.featuredPhotos.map((photo, idx) => (
-                    <img key={idx} src={photo} alt="베스트 포토 리뷰" style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd' }} />
-                  ))}
-                </div>
-              </div>
-            )}
+            
   
             
             {(() => {
