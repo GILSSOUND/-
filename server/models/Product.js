@@ -60,6 +60,7 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  featuredPhotos: [{ type: String }],
   options: [{
     name: { type: String, required: true },
     additionalPrice: { type: Number, default: 0 }
