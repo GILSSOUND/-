@@ -58,6 +58,27 @@ if (!mongoUri) {
 } else {
   mongoose.connect(mongoUri)
   .then(() => console.log('MongoDB Connected'))
+  .then(async () => {
+    try {
+      console.log('Recalculating review stats for existing products...');
+      const products = await mongoose.model('Product').find({});
+      const ReviewModel = mongoose.model('Review');
+      for (const p of products) {
+        const reviews = await ReviewModel.find({ productIds: p._id.toString() });
+        p.reviewCount = reviews.length;
+        if (reviews.length > 0) {
+          const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+          p.averageRating = sum / reviews.length;
+        } else {
+          p.averageRating = 0;
+        }
+        await p.save();
+      }
+      console.log('Recalculated all review stats on boot');
+    } catch (e) {
+      console.error('Failed to recalc on boot', e);
+    }
+  })
   .catch(err => console.log('MongoDB Connection Error:', err));
 }
 
