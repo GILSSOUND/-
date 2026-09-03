@@ -127,11 +127,11 @@ function Layout({ cartCount, products, wishlistCount }) {
       </div>
 
       <footer>
-        <p className="footer-text">{storeConfig.storeName} | 대표: 홍길동 | 사업자등록번호: 123-45-67890</p>
-        <p className="footer-text">고객센터: 1588-0000 | 이메일: support@{storeConfig.storeName.toLowerCase()}.com</p>
+        <p className="footer-text">{storeConfig.storeName} | 대표: 손길동 | 사업자등록번호: 293-45-01112 | 주소: 공수리 1519 401호</p>
+        <p className="footer-text">고객센터: 1588-0000 | 이메일: sgd41990@gmail.com</p>
         <p className="footer-text" style={{marginTop: '1rem', opacity: 0.5}}>
           © 2026 {storeConfig.storeName}. All rights reserved. 
-          <Link to="/admin" style={{ marginLeft: '1rem', color: 'inherit', textDecoration: 'underline' }}>운영자 페이지</Link>
+          
         </p>
       </footer>
 

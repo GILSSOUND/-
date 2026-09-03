@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart, CreditCard, Utensils, Sparkles, MapPin, Truck, Percent, LayoutGrid, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShoppingCart, Heart, CreditCard, Utensils, Sparkles, MapPin, Truck, Percent, LayoutGrid, ChevronLeft, ChevronRight , Star } from 'lucide-react';
 
 function CategoryPage({ handleAddToCart, handleToggleWishlist, products }) {
   const { categoryId } = useParams();
