@@ -128,7 +128,7 @@ function Layout({ cartCount, products, wishlistCount }) {
 
       <footer>
         <p className="footer-text">{storeConfig.storeName} | 대표: 손길동 | 사업자등록번호: 293-45-01112 | 주소: 공수리 1519 401호</p>
-        <p className="footer-text">고객센터: 1588-0000 | 이메일: sgd41990@gmail.com</p>
+        <p className="footer-text">이메일: sgd41990@gmail.com</p>
         <p className="footer-text" style={{marginTop: '1rem', opacity: 0.5}}>
           © 2026 {storeConfig.storeName}. All rights reserved. 
           
