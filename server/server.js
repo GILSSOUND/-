@@ -86,66 +86,6 @@ if (!mongoUri) {
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-
-    }
-
-    const imgbbKey = process.env.IMGBB_API_KEY;
-    if (!imgbbKey) {
-       return res.status(500).json({ error: 'ImgBB API key is not configured' });
-    }
-
-    const imageBuffer = req.file.buffer;
-    const image = await Jimp.read(imageBuffer);
-    const width = image.bitmap.width;
-    const height = image.bitmap.height;
-    const SLICE_HEIGHT = 1500;
-    
-    let buffers = [];
-    
-    if (height > SLICE_HEIGHT) {
-      const numSlices = Math.ceil(height / SLICE_HEIGHT);
-      for (let i = 0; i < numSlices; i++) {
-        const top = i * SLICE_HEIGHT;
-        let sliceHeight = SLICE_HEIGHT;
-        if (top + sliceHeight > height) {
-          sliceHeight = height - top;
-        }
-        
-        const cloned = image.clone();
-        cloned.crop(0, top, width, sliceHeight);
-        const sliceBuffer = await cloned.getBufferAsync(Jimp.MIME_JPEG);
-          
-        buffers.push(sliceBuffer);
-      }
-    } else {
-      buffers.push(imageBuffer);
-    }
-
-    const uploadedUrls = [];
-    
-    for (const buf of buffers) {
-      const base64Image = buf.toString('base64');
-      const params = new URLSearchParams();
-      params.append('image', base64Image);
-      
-      const response = await axios.post(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, params, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        }
-      });
-      uploadedUrls.push(response.data.data.url);
-    }
-
-    res.json({
-      success: true,
-      imageUrls: uploadedUrls
-    });
-  } catch (error) {
-    console.error('Image Slice Upload Error:', error);
-    res.status(500).json({ error: 'Failed to upload and slice image' });
-  }
-});
-
 // --- Image Upload Route (ImgBB) ---
 app.post('/api/upload', upload.single('image'), async (req, res) => {
   try {
