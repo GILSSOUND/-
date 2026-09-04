@@ -6,7 +6,6 @@ const multer = require('multer');
 const axios = require('axios');
 const Jimp = require('jimp');
 const FormData = require('form-data');
-const FormData = require('form-data');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
