@@ -104,7 +104,7 @@ router.put('/:id/status', async (req, res) => {
     if (trackingNumber !== undefined) updateData.trackingNumber = trackingNumber;
     if (claim !== undefined) updateData.claim = claim;
 
-    const order = await Order.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    const order = await Order.findByIdAndUpdate(req.params.id, updateData, { returnDocument: 'after' });
     res.json(order);
   } catch (error) {
     res.status(500).json({ error: 'Failed to update order status' });

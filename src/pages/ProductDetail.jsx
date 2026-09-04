@@ -330,8 +330,6 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
               </div>
             )}
           </div>
-          )}
-
           <div className="product-detail-info" style={{ marginTop: 0, borderRadius: 0, boxShadow: 'none', borderTop: '1px solid #eee', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.2rem' }}>
               <h2 className="detail-title" style={{ marginBottom: 0, marginTop: 0, textAlign: 'left', flex: 1, paddingRight: '10px' }}>{product.name}</h2>
