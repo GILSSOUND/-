@@ -87,17 +87,17 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   
   
   const handleShare = async () => {
-    if (navigator.share) {
-      try {
+    try {
+      if (navigator.share) {
         await navigator.share({
           title: product.name,
           text: `길스몰에서 ${product.name}을(를) 만나보세요!`,
           url: window.location.href,
         });
-      } catch (error) {
-        console.log('공유 취소됨');
+      } else {
+        throw new Error('Not supported');
       }
-    } else {
+    } catch (error) {
       navigator.clipboard.writeText(window.location.href);
       alert('상품 링크가 복사되었습니다! 원하는 곳에 붙여넣기 하세요.');
     }
@@ -311,24 +311,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
               )}
             </div>
             
-            {/* 썸네일 리스트 */}
-            {allImages.length > 1 && (
-              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', padding: '15px 5px', justifyContent: 'flex-start' }}>
-                {allImages.map((url, idx) => (
-                  <div 
-                    key={idx}
-                    onClick={() => setCurrentImageIndex(idx)}
-                    style={{ 
-                      flex: '0 0 auto', width: '70px', height: '70px', borderRadius: '8px', overflow: 'hidden', 
-                      border: currentImageIndex === idx ? '3px solid var(--primary-color)' : '1px solid transparent', 
-                      cursor: 'pointer', transition: 'all 0.2s ease', opacity: currentImageIndex === idx ? 1 : 0.6
-                    }}
-                  >
-                    <img src={url} alt={`thumbnail ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '6px' }} />
-                  </div>
-                ))}
-              </div>
-            )}
+            
           </div>
           <div className="product-detail-info" style={{ marginTop: 0, borderRadius: 0, boxShadow: 'none', borderTop: '1px solid #eee', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.2rem' }}>
@@ -368,8 +351,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
               <div style={{ display: 'flex', gap: '0.6rem', margin: '0.5rem 0', overflowX: 'auto', paddingBottom: '0', justifyContent: 'center' }}>
                 {/* 메인 이미지 (썸네일) */}
                 <div 
-                  onClick={() => setDisplayImage(product.imageUrl)}
-                  style={{ flex: '0 0 auto', width: '90px', height: '90px', borderRadius: '8px', overflow: 'hidden', border: (displayImage || product.imageUrl) === product.imageUrl ? '3px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                  onClick={() => setCurrentImageIndex(0)}
+                  style={{ flex: '0 0 auto', width: '90px', height: '90px', borderRadius: '8px', overflow: 'hidden', border: currentImageIndex === 0 ? '3px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
                 >
                   <img src={product.imageUrl} alt="main thumbnail" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
@@ -378,8 +361,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                 {product.subImageUrls.map((url, idx) => (
                   <div 
                     key={idx} 
-                    onClick={() => setDisplayImage(url)}
-                    style={{ flex: '0 0 auto', width: '90px', height: '90px', borderRadius: '8px', overflow: 'hidden', border: displayImage === url ? '3px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                    onClick={() => setCurrentImageIndex(idx + 1)}
+                    style={{ flex: '0 0 auto', width: '90px', height: '90px', borderRadius: '8px', overflow: 'hidden', border: currentImageIndex === idx + 1 ? '3px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
                   >
                     <img src={url} alt={`sub ${idx}`} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
@@ -457,6 +440,12 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
         <div className="desc-content">
           {/* 상품상세정보 섹션 */}
           <div ref={detailRef} style={{width: '100%', paddingTop: '1rem', paddingBottom: '3rem'}}>
+            <div style={{
+              position: 'relative',
+              maxHeight: isDetailExpanded ? 'none' : '1500px',
+              overflow: 'hidden',
+              transition: 'max-height 0.3s ease-out'
+            }}>
             {/* 구버전 단일 이미지 지원 */}
             {product.detailImageUrl && (
               <div style={{textAlign: 'center', marginBottom: '2rem'}}>
