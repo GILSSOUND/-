@@ -93,15 +93,49 @@ export const getReviewsByProduct = (productId) => axios.get(`${API_URL}/reviews/
 export const deleteReview = (reviewId) => axios.delete(`${API_URL}/reviews/${reviewId}`);
 
 export const uploadSlicedImage = async (file) => {
-  const formData = new FormData();
-  formData.append('image', file);
-  try {
-    const res = await axios.post(`${API_URL}/upload-slice`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    return res.data.imageUrls;
-  } catch (err) {
-    console.error('Image Slice Upload Error:', err);
-    throw err;
-  }
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = async () => {
+      const sliceHeight = 1500;
+      const numSlices = Math.ceil(img.height / sliceHeight);
+      const urls = [];
+      
+      try {
+        for (let i = 0; i < numSlices; i++) {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          
+          let currentSliceHeight = sliceHeight;
+          if (i * sliceHeight + sliceHeight > img.height) {
+            currentSliceHeight = img.height - (i * sliceHeight);
+          }
+          
+          canvas.height = currentSliceHeight;
+          const ctx = canvas.getContext('2d');
+          
+          // Draw the slice
+          ctx.drawImage(img, 0, i * sliceHeight, img.width, currentSliceHeight, 0, 0, img.width, currentSliceHeight);
+          
+          // Convert canvas to blob
+          const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.95));
+          const sliceFile = new File([blob], `slice_${i}.jpg`, { type: 'image/jpeg' });
+          
+          // Upload slice directly to original backend upload route
+          const formData = new FormData();
+          formData.append('image', sliceFile);
+          const response = await axios.post(`${API_URL}/upload`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+          
+          urls.push(response.data.imageUrl);
+        }
+        resolve(urls);
+      } catch (err) {
+        console.error('Canvas slice upload error:', err);
+        reject(err);
+      }
+    };
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
 };
