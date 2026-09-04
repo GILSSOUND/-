@@ -480,6 +480,48 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                 </>
               )
             )}
+          
+              {!isDetailExpanded && (
+                <div style={{
+                  position: 'absolute', bottom: 0, left: 0, right: 0, height: '250px',
+                  background: 'linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1) 80%)',
+                  display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '30px'
+                }}>
+                  <button 
+                    onClick={() => setIsDetailExpanded(true)}
+                    style={{
+                      backgroundColor: '#fff', border: '1px solid #ddd', padding: '15px 50px',
+                      borderRadius: '40px', fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--primary-color)',
+                      boxShadow: '0 5px 15px rgba(0,0,0,0.1)', cursor: 'pointer'
+                    }}
+                  >
+                    상품정보 더보기 🔽
+                  </button>
+                </div>
+              )}
+            </div>
+            
+            {isDetailExpanded && (
+              <div style={{textAlign: 'center', marginTop: '30px', paddingBottom: '20px'}}>
+                <button 
+                  onClick={() => {
+                    setIsDetailExpanded(false);
+                    // scrollToSection assumes setActiveTab is handled, but we can just do window.scrollTo
+                    // We can just scroll to the detailRef
+                    if (detailRef.current) {
+                      window.scrollTo({ top: detailRef.current.getBoundingClientRect().top + window.pageYOffset - 50, behavior: 'smooth' });
+                    }
+                  }}
+                  style={{
+                    backgroundColor: '#f5f5f5', border: '1px solid #ddd', padding: '12px 40px',
+                    borderRadius: '30px', fontSize: '1rem', color: '#666', cursor: 'pointer'
+                  }}
+                >
+                  상세정보 접기 🔼
+                </button>
+              </div>
+            )}
+
           </div>
 
           {/* 구매안내 섹션 */}
