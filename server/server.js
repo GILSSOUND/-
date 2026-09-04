@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const multer = require('multer');
 const axios = require('axios');
-const Jimp = require('jimp');
 const FormData = require('form-data');
 const path = require('path');
 const cookieParser = require('cookie-parser');
@@ -87,11 +86,7 @@ if (!mongoUri) {
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// --- Image Upload & Auto-Slicing Route (ImgBB) ---
-app.post('/api/upload-slice', upload.single('image'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No image provided' });
+
     }
 
     const imgbbKey = process.env.IMGBB_API_KEY;
