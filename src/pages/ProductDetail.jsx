@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart, CreditCard, Star, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShoppingCart, Heart, CreditCard, Star, X, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getReviewsByProduct } from '../api';
 
@@ -12,6 +12,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   const [activeTab, setActiveTab] = useState('detail');
   const [selectedOption, setSelectedOption] = useState('');
   const [displayImage, setDisplayImage] = useState('');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isDetailExpanded, setIsDetailExpanded] = useState(false);
 
   const detailRef = useRef(null);
   const infoRef = useRef(null);
@@ -80,7 +82,35 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   }
 
   // 선택된 옵션 객체 찾기
-  const currentOption = product.options?.find(opt => opt.name === selectedOption) || null;
+
+  const allImages = [product.imageUrl, ...(product.subImageUrls || [])].filter(Boolean);
+  
+  
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product.name,
+          text: `길스몰에서 ${product.name}을(를) 만나보세요!`,
+          url: window.location.href,
+        });
+      } catch (error) {
+        console.log('공유 취소됨');
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('상품 링크가 복사되었습니다! 원하는 곳에 붙여넣기 하세요.');
+    }
+  };
+
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
+  };
+    const currentOption = product.options?.find(opt => opt.name === selectedOption) || null;
   // 옵션 추가금액 계산
   const additionalPrice = currentOption ? currentOption.additionalPrice : 0;
   // 최종 단가 (기본가 + 옵션가)
@@ -248,83 +278,71 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
       <div className="product-detail-layout" style={{ width: '100%' }}>
         
         {/* 메인 이미지 영역 (왼쪽 상단) */}
-        <div className="product-detail-img-wrapper" style={{ minWidth: 0, maxWidth: '100%' }}>
-          <img src={displayImage || product.imageUrl} alt={product.name} className="product-detail-img" fetchPriority="high" />
-          <div className="detail-image-badges">
-            {product.isBest && <span className="badge badge-best">BEST</span>}
-            {product.isNewProduct && <span className="badge badge-new">NEW</span>}
-          </div>
-        </div>
-
-        {/* 모바일 서브 이미지 (메인 이미지 바로 아래) */}
-        <div className="mobile-sub-images">
-          {product.subImageUrls && product.subImageUrls.length > 0 && (
-            <div style={{ display: 'flex', gap: '0.6rem', overflowX: 'auto', paddingBottom: '0.5rem', paddingLeft: '0.5rem', paddingRight: '0.5rem', justifyContent: 'flex-start' }}>
-              <div 
-                onClick={() => setDisplayImage(product.imageUrl)}
-                style={{ flex: '0 0 auto', width: '80px', height: '80px', borderRadius: '8px', overflow: 'hidden', border: (displayImage || product.imageUrl) === product.imageUrl ? '3px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
-              >
-                <img src={product.imageUrl} alt="main thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div className="product-detail-img-wrapper" style={{ minWidth: 0, maxWidth: '100%', position: 'relative', paddingBottom: '20px' }}>
+            <div style={{position: 'relative', width: '100%', aspectRatio: '1/1', overflow: 'hidden', borderRadius: '12px'}}>
+              <img src={allImages[currentImageIndex]} alt={product.name} style={{width: '100%', height: '100%', objectFit: 'cover'}} fetchPriority="high" />
+              <div className="detail-image-badges" style={{position: 'absolute', top: '15px', left: '15px'}}>
+                {product.isBest && <span className="badge badge-best" style={{background: 'var(--primary-color)', color: 'white', padding: '5px 12px', borderRadius: '20px', fontWeight: 'bold'}}>BEST</span>}
               </div>
-              {product.subImageUrls.map((url, idx) => (
-                <div 
-                  key={idx} 
-                  onClick={() => setDisplayImage(url)}
-                  style={{ flex: '0 0 auto', width: '80px', height: '80px', borderRadius: '8px', overflow: 'hidden', border: displayImage === url ? '3px solid var(--primary-color)' : '1px solid #eee', cursor: 'pointer', transition: 'all 0.2s ease' }}
-                >
-                  <img src={url} alt={`sub ${idx}`} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* 포토 리뷰 영역 (왼쪽 하단) */}
-          <div className="photo-reviews-section" style={{ minWidth: 0, width: '100%', marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem', borderBottom: '2px solid #333', paddingBottom: '0.5rem' }}>
-              <h3 style={{ fontSize: '1.2rem', margin: 0, marginLeft: '1.5rem' }}>포토 리뷰 <span style={{ fontSize: '0.8rem', color: '#aaa', fontWeight: 'normal', marginLeft: '0.4rem', letterSpacing: '0.5px' }}>PHOTO REVIEW</span></h3>
-              <span style={{ fontSize: '0.9rem', color: '#666', cursor: 'pointer', marginRight: '1.5rem' }} onClick={() => { setActiveTab('review'); setTimeout(() => reviewRef.current?.scrollIntoView({ behavior: 'smooth' }), 100); }}>전체보기</span>
+              
+              {allImages.length > 1 && (
+                <>
+                  <button 
+                    onClick={handlePrevImage}
+                    style={{
+                      position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)',
+                      backgroundColor: 'rgba(255,255,255,0.85)', color: '#333', border: '1px solid #ddd', 
+                      borderRadius: '50%', width: '45px', height: '45px', display: 'flex', 
+                      alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10,
+                      boxShadow: '0 4px 10px rgba(0,0,0,0.15)'
+                    }}
+                  ><ChevronLeft size={28} /></button>
+                  <button 
+                    onClick={handleNextImage}
+                    style={{
+                      position: 'absolute', right: '15px', top: '50%', transform: 'translateY(-50%)',
+                      backgroundColor: 'rgba(255,255,255,0.85)', color: '#333', border: '1px solid #ddd', 
+                      borderRadius: '50%', width: '45px', height: '45px', display: 'flex', 
+                      alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10,
+                      boxShadow: '0 4px 10px rgba(0,0,0,0.15)'
+                    }}
+                  ><ChevronRight size={28} /></button>
+                </>
+              )}
             </div>
             
-            {product?.featuredPhotos && product.featuredPhotos.length > 0 ? (
-              <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', width: '100%', paddingLeft: '1.5rem', paddingRight: '1.5rem', boxSizing: 'border-box' }}>
-                {product.featuredPhotos.map((photoUrl, idx) => (
-                  <div key={idx} style={{ flex: '0 0 auto', width: '72px', height: '72px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #eee' }} onClick={() => setReviewImagePopup({ isOpen: true, images: product.featuredPhotos, currentIndex: idx })}>
-                    <img src={photoUrl} alt="포토리뷰" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            {/* 썸네일 리스트 */}
+            {allImages.length > 1 && (
+              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', padding: '15px 5px', justifyContent: 'flex-start' }}>
+                {allImages.map((url, idx) => (
+                  <div 
+                    key={idx}
+                    onClick={() => setCurrentImageIndex(idx)}
+                    style={{ 
+                      flex: '0 0 auto', width: '70px', height: '70px', borderRadius: '8px', overflow: 'hidden', 
+                      border: currentImageIndex === idx ? '3px solid var(--primary-color)' : '1px solid transparent', 
+                      cursor: 'pointer', transition: 'all 0.2s ease', opacity: currentImageIndex === idx ? 1 : 0.6
+                    }}
+                  >
+                    <img src={url} alt={`thumbnail ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '6px' }} />
                   </div>
                 ))}
               </div>
-            ) : (
-              <div style={{ padding: '2rem', textAlign: 'center', color: '#888', background: '#fafafa', borderRadius: '8px', margin: '0 1.5rem', border: '1px dashed #ddd', fontSize: '0.9rem' }}>
-                관리자가 선정한 포토리뷰가 표시됩니다.
-              </div>
             )}
           </div>
-
-          {/* 포토리뷰 전체보기 모달 */}
-          {showAllPhotos && (
-            <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1200}} onClick={() => setShowAllPhotos(false)}>
-              <div style={{background: '#fff', borderRadius: '16px', padding: '2rem', width: '90%', maxWidth: '900px', maxHeight: '90vh', overflowY: 'auto', position: 'relative'}} onClick={e => e.stopPropagation()}>
-                <button onClick={() => setShowAllPhotos(false)} style={{position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: '#333'}}><X size={32} /></button>
-                <h2 style={{fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '2rem', textAlign: 'center'}}>포토 리뷰 모아보기</h2>
-                
-                {product?.featuredPhotos && product.featuredPhotos.length > 0 ? (
-                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem'}}>
-                    {product.featuredPhotos.map((photoUrl, idx) => (
-                      <div key={idx} style={{width: '100%', aspectRatio: '1/1', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', cursor: 'pointer'}} onClick={() => setReviewImagePopup({ isOpen: true, images: product.featuredPhotos, currentIndex: idx })}>
-                        <img src={photoUrl} alt="포토리뷰" style={{width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s'}} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'} />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p style={{textAlign: 'center', color: '#888'}}>포토리뷰가 없습니다.</p>
-                )}
-              </div>
-            </div>
           )}
 
           <div className="product-detail-info" style={{ marginTop: 0, borderRadius: 0, boxShadow: 'none', borderTop: '1px solid #eee', display: 'flex', flexDirection: 'column' }}>
-          <h2 className="detail-title" style={{ marginBottom: '0.2rem' }}>{product.name}</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.2rem' }}>
+              <h2 className="detail-title" style={{ marginBottom: 0, marginTop: 0, textAlign: 'left', flex: 1, paddingRight: '10px' }}>{product.name}</h2>
+              <button 
+                onClick={handleShare} 
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', color: '#555', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} 
+                title="공유하기"
+              >
+                <Share2 size={24} />
+              </button>
+            </div>
           {product.subtitle && <p style={{fontSize: '1rem', color: '#888', marginBottom: '1rem', marginTop: 0}}>{product.subtitle}</p>}
           
           <div className="detail-price-box" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'center' }}>
