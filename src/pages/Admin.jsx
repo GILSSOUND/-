@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchProducts, createProduct, updateProduct, deleteProduct, uploadImage, fetchConfig, updateConfig, fetchUsers, fetchAllOrders, updateOrderStatus, getReviewsByProduct, deleteReview } from '../api';
+import { fetchProducts, createProduct, updateProduct, deleteProduct, uploadImage, uploadSlicedImage, fetchConfig, updateConfig, fetchUsers, fetchAllOrders, updateOrderStatus, getReviewsByProduct, deleteReview } from '../api';
 import { LayoutDashboard, PackagePlus, List, Image as ImageIcon, Bell, Edit, Trash2, ChevronLeft, ChevronRight, Plus, X, Image as ImgIcon, Type, ShoppingCart, Menu, RefreshCcw } from 'lucide-react';
 
 function Admin({ refreshGlobalProducts }) {
@@ -576,7 +576,18 @@ function Admin({ refreshGlobalProducts }) {
       // 하위 호환 단일 디테일 이미지 처리
       let oldDetailImageUrl = detailImagePreview;
       if (detailImageFile) {
-         oldDetailImageUrl = await handleImageUpload(detailImageFile);
+         try {
+           const slicedUrls = await uploadSlicedImage(detailImageFile);
+           slicedUrls.forEach(url => {
+             processedBlocks.push({ type: 'image', content: url });
+           });
+           oldDetailImageUrl = ''; // Clear it out so it doesn't render as a single compressed image
+           setDetailImagePreview(null);
+           setDetailImageFile(null);
+         } catch (e) {
+           console.error("Auto slice failed, falling back to normal upload", e);
+           oldDetailImageUrl = await handleImageUpload(detailImageFile);
+         }
       }
 
       // 구매 안내 이미지 처리
