@@ -313,42 +313,19 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             
           </div>
 
-          {/* 포토 리뷰 모아보기 영역 */}
-          <div className="photo-reviews-section" style={{ width: '100%', boxSizing: 'border-box' }}>
-            <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', fontWeight: 'bold' }}>포토 리뷰 모아보기</h3>
-            {(() => {
-              const photos = [];
-              reviews.forEach(r => {
-                if (r.images) r.images.forEach(img => photos.push(img));
-              });
-              
-              if (photos.length === 0) {
-                return <div style={{ padding: '2rem', background: '#f9f9f9', borderRadius: '8px', textAlign: 'center', color: '#888' }}>등록된 포토 리뷰가 없습니다.</div>;
-              }
-              const displayPhotos = showAllPhotos ? photos : photos.slice(0, 6);
-              return (
-                <div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-                    {displayPhotos.map((img, idx) => (
-                      <div key={idx} onClick={() => setReviewImagePopup({ isOpen: true, images: photos, currentIndex: idx })} style={{ width: '100%', aspectRatio: '1/1', overflow: 'hidden', borderRadius: '8px', cursor: 'pointer', border: '1px solid #eee', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
-                        <img src={img} alt={`포토리뷰 ${idx}`} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
-                    ))}
+          {/* 포토 리뷰 모아보기 영역 (관리자 지정) */}
+          {product.featuredPhotos && product.featuredPhotos.length > 0 && (
+            <div className="photo-reviews-section" style={{ width: '100%', boxSizing: 'border-box' }}>
+              <h3 style={{ fontSize: '1.1rem', marginBottom: '0.8rem', fontWeight: 'bold', letterSpacing: '1px' }}>PHOTO REVIEW</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '6px', width: '100%' }}>
+                {product.featuredPhotos.slice(0, 6).map((img, idx) => (
+                  <div key={idx} onClick={() => setReviewImagePopup({ isOpen: true, images: product.featuredPhotos, currentIndex: idx })} style={{ width: '100%', aspectRatio: '1/1', overflow: 'hidden', borderRadius: '8px', cursor: 'pointer', border: '1px solid #eee', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                    <img src={img} alt={`베스트 포토리뷰 ${idx}`} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
-                  {photos.length > 6 && (
-                    <button 
-                      onClick={() => setShowAllPhotos(!showAllPhotos)} 
-                      style={{ width: '100%', marginTop: '1rem', padding: '0.8rem', background: '#fff', border: '1px solid #ddd', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', color: '#555', transition: 'background 0.2s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#f5f5f5'}
-                      onMouseLeave={e => e.currentTarget.style.background = '#fff'}
-                    >
-                      {showAllPhotos ? '포토리뷰 접기 🔼' : `포토리뷰 더보기 (${photos.length}장) 🔽`}
-                    </button>
-                  )}
-                </div>
-              );
-            })()}
-          </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="product-detail-info" style={{ marginTop: 0, borderRadius: 0, boxShadow: 'none', borderTop: '1px solid #eee', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.2rem' }}>
@@ -528,11 +505,11 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                     onClick={() => setIsDetailExpanded(true)}
                     style={{
                       backgroundColor: '#fff', border: '1px solid #ddd', padding: '15px 50px',
-                      borderRadius: '40px', fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--primary-color)',
+                      borderRadius: '40px', fontSize: '1.2rem', fontWeight: 'bold', color: '#000',
                       boxShadow: '0 5px 15px rgba(0,0,0,0.1)', cursor: 'pointer'
                     }}
                   >
-                    상품정보 더보기 🔽
+                    상품정보 더보기 ∨
                   </button>
                 </div>
               )}
@@ -551,10 +528,10 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                   }}
                   style={{
                     backgroundColor: '#f5f5f5', border: '1px solid #ddd', padding: '12px 40px',
-                    borderRadius: '30px', fontSize: '1rem', color: '#666', cursor: 'pointer'
+                    borderRadius: '30px', fontSize: '1rem', color: '#000', cursor: 'pointer'
                   }}
                 >
-                  상세정보 접기 🔼
+                  상세정보 접기 ∧
                 </button>
               </div>
             )}
