@@ -124,8 +124,9 @@ app.post('/api/reviews', async (req, res) => {
       userId, userName, orderId, productIds, purchasedItems, rating, content, images, pointsAwarded: pointsToAward
     });
     await newReview.save();
-      // Update product review stats (POST)
-      for (const prodId of productIds) {
+      // Update product review stats (POST) - 중복 상품 ID 제거
+      const uniqueProductIds = [...new Set(productIds)];
+      for (const prodId of uniqueProductIds) {
         const p = await Product.findById(prodId);
         if (p) {
           const totalRating = (p.averageRating * p.reviewCount) + rating;
@@ -163,8 +164,9 @@ app.delete('/api/reviews/:id', async (req, res) => {
   try {
     const deletedReview = await Review.findByIdAndDelete(req.params.id);
     if (!deletedReview) return res.status(404).json({ error: '리뷰를 찾을 수 없습니다.' });
-    // Update product review stats (DELETE)
-    for (const prodId of (deletedReview.productIds || [])) {
+    // Update product review stats (DELETE) - 중복 상품 ID 제거
+    const uniqueProductIdsDelete = [...new Set(deletedReview.productIds || [])];
+    for (const prodId of uniqueProductIdsDelete) {
       const p = await Product.findById(prodId);
       if (p && p.reviewCount > 0) {
         if (p.reviewCount === 1) {

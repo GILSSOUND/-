@@ -42,6 +42,7 @@ function Admin({ refreshGlobalProducts }) {
           await updateProduct(selectedProductForReviews._id || selectedProductForReviews.id, updatedProductData);
           setSelectedProductForReviews(updatedProductData);
           alert('포토리뷰 선정이 해제되었습니다.');
+          loadProducts();
           if (typeof refreshGlobalProducts === 'function') refreshGlobalProducts();
         }
         return;
@@ -53,6 +54,7 @@ function Admin({ refreshGlobalProducts }) {
       await updateProduct(selectedProductForReviews._id || selectedProductForReviews.id, updatedProductData);
       setSelectedProductForReviews(updatedProductData);
       alert('포토리뷰로 선정되었습니다!');
+      loadProducts();
       if (typeof refreshGlobalProducts === 'function') refreshGlobalProducts();
     } catch (e) {
       alert('포토리뷰 선정 실패');
