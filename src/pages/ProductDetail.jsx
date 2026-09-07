@@ -57,12 +57,13 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   const [reviewImagePopup, setReviewImagePopup] = useState({ isOpen: false, images: [], currentIndex: 0 });
   
   useEffect(() => {
-    if (id) {
-      getReviewsByProduct(id).then(res => {
+    if (product && (product._id || product.id)) {
+      const targetId = product._id || product.id;
+      getReviewsByProduct(targetId).then(res => {
         if (res.data) setReviews(res.data);
       }).catch(err => console.error(err));
     }
-  }, [id]);
+  }, [product]);
 
 
   // 상품 변경 시 메인 이미지로 초기화
@@ -86,20 +87,32 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   const allImages = [product.imageUrl, ...(product.subImageUrls || [])].filter(Boolean);
   
   
-  const handleShare = async () => {
+  const handleShare = async (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const shareUrl = window.location.href;
     try {
       if (navigator.share) {
         await navigator.share({
           title: product.name,
           text: `길스몰에서 ${product.name}을(를) 만나보세요!`,
-          url: window.location.href,
+          url: shareUrl,
         });
       } else {
         throw new Error('Not supported');
       }
     } catch (error) {
-      navigator.clipboard.writeText(window.location.href);
-      alert('상품 링크가 복사되었습니다! 원하는 곳에 붙여넣기 하세요.');
+      // 사용자가 공유 창을 의도적으로 닫은 경우(AbortError)에는 아무 작업도 하지 않음
+      if (error.name !== 'AbortError' && !error.message.includes('canceled')) {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          alert('상품 링크가 복사되었습니다! 카카오톡이나 SNS에 붙여넣기 하세요.');
+        } catch (err) {
+          alert('현재 환경에서는 공유 기능을 지원하지 않습니다.');
+        }
+      }
     }
   };
 
@@ -542,8 +555,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           <div ref={infoRef} style={{ paddingTop: '2rem', paddingBottom: '3rem', borderTop: '1px solid #eee' }}>
             <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.3rem' }}>구매 안내</h3>
             {product.purchaseInfoImageUrl ? (
-              <div style={{textAlign: 'center'}}>
-                <img src={product.purchaseInfoImageUrl} alt="구매 안내" loading="lazy" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}} />
+              <div style={{textAlign: 'center', maxWidth: '800px', margin: '0 auto'}}>
+                <img src={product.purchaseInfoImageUrl} alt="구매 안내" loading="lazy" style={{width: '100%', height: 'auto', display: 'block', borderRadius: '8px'}} />
               </div>
             ) : (
               <div style={{ padding: '2rem', background: '#f9f9f9', borderRadius: '8px' }}>
@@ -567,9 +580,12 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             
             {(() => {
               const totalReviews = reviews.length;
-              const avgRating = totalReviews > 0 ? (reviews.reduce((acc, cur) => acc + cur.rating, 0) / totalReviews).toFixed(1) : "0.0";
+              const avgRating = totalReviews > 0 ? (reviews.reduce((acc, cur) => acc + Number(cur.rating || 0), 0) / totalReviews).toFixed(1) : "0.0";
               const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-              reviews.forEach(r => { if (ratingCounts[r.rating] !== undefined) ratingCounts[r.rating]++; });
+              reviews.forEach(r => { 
+                const ratingNum = Number(r.rating);
+                if (ratingCounts[ratingNum] !== undefined) ratingCounts[ratingNum]++; 
+              });
 
               return (
                 <>
