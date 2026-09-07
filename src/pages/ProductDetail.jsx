@@ -659,7 +659,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                           {review.images && review.images.length > 0 && (
                             <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', marginBottom: '0.8rem', paddingBottom: '0.5rem' }}>
                               {review.images.map((img, idx) => (
-                                <img key={idx} src={img} alt="리뷰 사진" style={{ width: '70px', height: '70px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #ddd', cursor: 'pointer' }} onClick={() => setReviewImagePopup({ isOpen: true, images: review.images, currentIndex: idx })} />
+                                <img key={idx} src={img} alt="리뷰 사진" fetchPriority="high" decoding="async" style={{ width: '70px', height: '70px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #ddd', cursor: 'pointer' }} onClick={() => setReviewImagePopup({ isOpen: true, images: review.images, currentIndex: idx })} />
                               ))}
                             </div>
                           )}

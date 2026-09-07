@@ -23,11 +23,58 @@ export const deleteProduct = async (id) => {
   return res.data;
 };
 
+// 프론트엔드 이미지 자동 압축 엔진 (WebP 변환, 최대 1200px)
+const compressImage = (file) => {
+  return new Promise((resolve) => {
+    if (!file.type.startsWith('image/')) return resolve(file);
+    if (file.type === 'image/gif') return resolve(file); // GIF는 압축 제외
+    
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const max = 1200;
+        
+        if (width > max || height > max) {
+          if (width > height) {
+            height = Math.round((height *= max / width));
+            width = max;
+          } else {
+            width = Math.round((width *= max / height));
+            height = max;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob((blob) => {
+          if (!blob) return resolve(file);
+          resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".webp", {
+            type: 'image/webp',
+            lastModified: Date.now()
+          }));
+        }, 'image/webp', 0.8);
+      };
+      img.onerror = () => resolve(file);
+    };
+    reader.onerror = () => resolve(file);
+  });
+};
+
 export const uploadImage = async (file) => {
-  const formData = new FormData();
-  formData.append('image', file);
-  
   try {
+    const compressedFile = await compressImage(file);
+    const formData = new FormData();
+    formData.append('image', compressedFile);
+    
     const res = await axios.post(`${API_URL}/upload`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
