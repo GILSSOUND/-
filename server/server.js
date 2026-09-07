@@ -281,9 +281,35 @@ app.use(async (req, res, next) => {
   try {
     let html = fs.readFileSync(path.join(__dirname, '../dist/index.html'), 'utf8');
     const products = await getProductsCached();
+    let ogTitle = '길스몰 (GILSMALL)';
+    let ogDesc = '맛과 가성비를 동시에! 길스몰 밀키트';
+    let ogImage = `${req.protocol}://${req.get('host')}/gilsmall_logo.png`;
+
+    const productMatch = req.path.match(/\/product\/(.+)/);
+    if (productMatch) {
+      const productId = productMatch[1];
+      const product = products.find(p => p._id.toString() === productId || p.id === parseInt(productId));
+      if (product) {
+        ogTitle = `${product.name} - 길스몰`;
+        ogDesc = product.subtitle || `${product.price.toLocaleString('ko-KR')}원 - 길스몰에서 만나보세요!`;
+        ogImage = product.imageUrl;
+      }
+    }
+
+    const ogTags = `
+      <title>${ogTitle}</title>
+      <meta property="og:title" content="${ogTitle}" />
+      <meta property="og:description" content="${ogDesc}" />
+      <meta property="og:image" content="${ogImage}" />
+      <meta property="og:type" content="website" />
+    `;
+
+    // 기존 title을 삭제하고 새 OG 태그를 주입 (안전하게 첫 번째 <title>...</title> 패턴 매칭 제거)
+    html = html.replace(/<title>.*?<\/title>/, '');
+    
     // 안전하게 스크립트 태그로 데이터 주입
     const scriptTag = `<script>window.__INITIAL_PRODUCTS__ = ${JSON.stringify(products).replace(/</g, '\\u003c')};</script>`;
-    html = html.replace('</head>', `${scriptTag}</head>`);
+    html = html.replace('</head>', `${ogTags}\n${scriptTag}</head>`);
     res.send(html);
   } catch (err) {
     console.error("HTML Injection failed, serving raw file", err);
