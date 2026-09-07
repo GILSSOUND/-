@@ -169,13 +169,97 @@ function Admin({ refreshGlobalProducts }) {
       setUsers(data);
     } catch (e) {
       console.error('Failed to load users');
+    }
+  };
+
+  const handleUserClick = async (user) => {
+    try {
+      import('../api').then(async (api) => {
+        const orders = await api.fetchMyOrders(user._id || user.id);
+        setSelectedUserOrders(orders);
+        setSelectedUserForOrders(user);
+      });
+    } catch (e) {
+      alert('주문 내역을 불러오는데 실패했습니다.');
+    }
+  };
+
+  const loadBanners = async () => {
+    try {
+      const hero = await fetchConfig('hero_banners');
+      if (hero) setHeroBanners(hero);
+      const rec = await fetchConfig('recommended_banners');
+      if (rec) setRecBanners(rec);
+    } catch (e) {
+      console.error('Failed to load banners');
+    }
+  };
+
+  const handleOpenBannerEditor = (type, existingBanner = null) => {
+    setEditorType(type);
+    if (existingBanner) {
+      setEditingBanner({...existingBanner});
+    } else {
+      setEditingBanner({
+        id: Date.now(),
+        imageUrl: '',
+        title: '',
+        subtitle: '',
+        titleSize: type === 'hero' ? 40 : 32,
+        titleColor: '#ffffff',
+        titleFontFamily: "'Noto Sans KR', sans-serif",
+        subtitleSize: 20,
+        subtitleColor: '#dddddd',
+        subtitleFontFamily: "'Noto Sans KR', sans-serif",
+      });
+    }
+  };
+
+  const handleCloseBannerEditor = () => {
+    setEditingBanner(null);
+    setEditorType(null);
+  };
+
+  // -------------------------------------------------------------
+  // 프론트엔드 이미지 압축 엔진 (WebP 변환, 최대 1200px)
+  // -------------------------------------------------------------
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      if (!file.type.startsWith('image/')) return resolve(file);
+      
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const max = 1200;
+          
+          if (width > max || height > max) {
+            if (width > height) {
+              height = Math.round((height *= max / width));
+              width = max;
+            } else {
+              width = Math.round((width *= max / height));
+              height = max;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
           canvas.toBlob((blob) => {
             if (!blob) return resolve(file);
             resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpeg", {
-              type: image/jpeg,
+              type: 'image/jpeg',
               lastModified: Date.now()
             }));
-          }, image/jpeg, 0.8);
+          }, 'image/jpeg', 0.8);
         };
         img.onerror = () => resolve(file);
       };
