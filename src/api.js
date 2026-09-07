@@ -57,11 +57,11 @@ const compressImage = (file) => {
         
         canvas.toBlob((blob) => {
           if (!blob) return resolve(file);
-          resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".webp", {
-            type: 'image/webp',
+          resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpeg", {
+            type: 'image/jpeg',
             lastModified: Date.now()
           }));
-        }, 'image/webp', 0.8);
+        }, 'image/jpeg', 0.85);
       };
       img.onerror = () => resolve(file);
     };
