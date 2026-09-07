@@ -288,7 +288,7 @@ app.use(async (req, res, next) => {
     const productMatch = req.path.match(/\/product\/(.+)/);
     if (productMatch) {
       const productId = productMatch[1];
-      const product = products.find(p => p._id.toString() === productId || p.id === parseInt(productId));
+      const product = products.find(p => (p._id && p._id.toString() === productId) || p.id == productId);
       if (product) {
         ogTitle = `${product.name} - 길스몰`;
         ogDesc = product.subtitle || `${product.price.toLocaleString('ko-KR')}원`;
