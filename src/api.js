@@ -75,16 +75,19 @@ export const uploadImage = async (file) => {
     const formData = new FormData();
     formData.append('image', compressedFile);
     
-    const res = await axios.post(`${API_URL}/upload`, formData, {
+    // 백엔드(Render) 서버의 IP가 ImgBB로부터 차단(403)당하는 문제를 해결하기 위해
+    // 프론트엔드(클라이언트)에서 ImgBB API로 직접 이미지를 업로드하도록 수정합니다.
+    const IMGBB_KEY = 'aaa7883871d2df3a5f6e47a2ed97e0f8';
+    const res = await axios.post(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     
     return {
       success: true,
-      imageUrl: res.data.imageUrl
+      imageUrl: res.data.data.url
     };
   } catch (error) {
-    const message = error.response?.data?.error || error.message;
+    const message = error.response?.data?.error?.message || error.message;
     throw new Error(message);
   }
 };
