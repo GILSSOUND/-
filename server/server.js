@@ -291,7 +291,7 @@ app.use(async (req, res, next) => {
       const product = products.find(p => p._id.toString() === productId || p.id === parseInt(productId));
       if (product) {
         ogTitle = `${product.name} - 길스몰`;
-        ogDesc = product.subtitle || `${product.price.toLocaleString('ko-KR')}원 - 길스몰에서 만나보세요!`;
+        ogDesc = product.subtitle || `${product.price.toLocaleString('ko-KR')}원`;
         ogImage = product.imageUrl;
       }
     }

@@ -97,7 +97,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
       if (navigator.share) {
         await navigator.share({
           title: product.name,
-          text: `길스몰에서 ${product.name}을(를) 만나보세요!`,
+          text: product.name,
           url: shareUrl,
         });
       } else {
