@@ -57,12 +57,13 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   const [reviewImagePopup, setReviewImagePopup] = useState({ isOpen: false, images: [], currentIndex: 0 });
   
   useEffect(() => {
-    if (id) {
-      getReviewsByProduct(id).then(res => {
+    if (product) {
+      const targetId = product._id || product.id;
+      getReviewsByProduct(targetId).then(res => {
         if (res.data) setReviews(res.data);
       }).catch(err => console.error(err));
     }
-  }, [id]);
+  }, [product]);
 
 
   // 상품 변경 시 메인 이미지로 초기화
@@ -554,8 +555,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           <div ref={infoRef} style={{ paddingTop: '2rem', paddingBottom: '3rem', borderTop: '1px solid #eee' }}>
             <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.3rem' }}>구매 안내</h3>
             {product.purchaseInfoImageUrl ? (
-              <div style={{textAlign: 'center'}}>
-                <img src={product.purchaseInfoImageUrl} alt="구매 안내" loading="lazy" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}} />
+              <div style={{width: '100%', maxWidth: '800px', margin: '0 auto'}}>
+                <img src={product.purchaseInfoImageUrl} alt="구매 안내" loading="lazy" style={{width: '100%', height: 'auto', display: 'block'}} />
               </div>
             ) : (
               <div style={{ padding: '2rem', background: '#f9f9f9', borderRadius: '8px' }}>
