@@ -648,7 +648,11 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                                     return name.slice(0,1) + '*'.repeat(Math.max(0, name.length - 1));
                                   })()}
                                 </strong>
-                                <span style={{ color: '#999', fontSize: '0.85rem' }}>{new Date(review.createdAt).toLocaleDateString()}</span>
+                                <span style={{ color: '#999', fontSize: '0.85rem' }}>
+                                  {review.createdAt && !isNaN(new Date(review.createdAt).getTime()) 
+                                    ? new Date(review.createdAt).toLocaleDateString() 
+                                    : ''}
+                                </span>
                               </div>
                               {review.purchasedItems && review.purchasedItems.length > 0 && (
                                 <div style={{ fontSize: '0.9rem', color: '#888', marginTop: '0.2rem', padding: '0.4rem', background: '#f5f5f5', borderRadius: '4px', display: 'inline-block' }}>
