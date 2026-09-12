@@ -182,6 +182,72 @@ function Admin({ refreshGlobalProducts }) {
     } catch (e) {
       alert('주문 내역을 불러오는데 실패했습니다.');
     }
+  };
+
+  const loadBanners = async () => {
+    try {
+      const hero = await fetchConfig('hero_banners');
+      if (hero) setHeroBanners(hero);
+      const rec = await fetchConfig('recommended_banners');
+      if (rec) setRecBanners(rec);
+    } catch (e) {
+      console.error('Failed to load banners');
+    }
+  };
+
+  const handleOpenBannerEditor = (type, existingBanner = null) => {
+    setEditorType(type);
+    if (existingBanner) {
+      setEditingBanner({...existingBanner});
+    } else {
+      setEditingBanner({
+        id: Date.now(),
+        imageUrl: '',
+        title: '',
+        subtitle: '',
+        titleSize: type === 'hero' ? 40 : 32,
+        titleColor: '#ffffff',
+        titleFontFamily: "'Noto Sans KR', sans-serif",
+        subtitleSize: 20,
+        subtitleColor: '#dddddd',
+        subtitleFontFamily: "'Noto Sans KR', sans-serif",
+      });
+    }
+  };
+
+  const handleCloseBannerEditor = () => {
+    setEditingBanner(null);
+    setEditorType(null);
+  };
+
+  const handleImageUpload = async (file) => {
+    try {
+      setUploading(true);
+      const res = await uploadImage(file);
+      return res.imageUrl;
+    } catch (error) {
+      console.error(error);
+      alert("업로드 에러:\n" + error.message);
+      throw error;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDragStart = (e) => {
+    e.preventDefault();
+    const container = e.currentTarget.parentElement;
+    const rect = container.getBoundingClientRect();
+    
+    const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+    
+    const startX = clientX;
+    const startY = clientY;
+    const initialPosX = editingBanner.textPosX !== undefined ? editingBanner.textPosX : 50;
+    const initialPosY = editingBanner.textPosY !== undefined ? editingBanner.textPosY : 50;
+
+    const handleDragMove = (moveEvent) => {
       const currentX = moveEvent.type.includes('touch') ? moveEvent.touches[0].clientX : moveEvent.clientX;
       const currentY = moveEvent.type.includes('touch') ? moveEvent.touches[0].clientY : moveEvent.clientY;
       
@@ -223,7 +289,7 @@ function Admin({ refreshGlobalProducts }) {
     }
   };
 
-  const handleSaveBannerEditor = async () => {
+const handleSaveBannerEditor = async () => {
     if (!editingBanner.imageUrl) {
       alert("배너 이미지를 업로드해주세요.");
       return;
