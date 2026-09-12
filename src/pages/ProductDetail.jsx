@@ -138,7 +138,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   const totalPrice = finalUnitPrice * quantity;
 
   const formatPrice = (price) => {
-    return price.toLocaleString('ko-KR');
+    if (price === undefined || price === null || isNaN(price)) return '0';
+    return Number(price).toLocaleString('ko-KR');
   };
 
   const handleDecrease = () => {
@@ -586,9 +587,12 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             
             {(() => {
               const totalReviews = reviews.length;
-              const avgRating = totalReviews > 0 ? (reviews.reduce((acc, cur) => acc + cur.rating, 0) / totalReviews).toFixed(1) : "0.0";
+              const avgRating = totalReviews > 0 ? (reviews.reduce((acc, cur) => acc + Number(cur.rating || 5), 0) / totalReviews).toFixed(1) : "0.0";
               const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-              reviews.forEach(r => { if (ratingCounts[r.rating] !== undefined) ratingCounts[r.rating]++; });
+              reviews.forEach(r => { 
+                const rNum = Number(r.rating || 5);
+                if (ratingCounts[rNum] !== undefined) ratingCounts[rNum]++; 
+              });
 
               return (
                 <>
@@ -647,8 +651,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                                 ))}
                               </div>
                               <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'baseline' }}>
-                                <strong style={{ fontSize: '0.95rem', color: '#333' }}>{review.userName.slice(0,1) + '*'.repeat(review.userName.length - 1)}</strong>
-                                <span style={{ color: '#999', fontSize: '0.8rem' }}>{new Date(review.createdAt).toLocaleDateString()}</span>
+                                <strong style={{ fontSize: '0.95rem', color: '#333' }}>{review.userName ? review.userName.slice(0,1) + '*'.repeat(Math.max(0, review.userName.length - 1)) : '익명'}</strong>
+                                <span style={{ color: '#999', fontSize: '0.8rem' }}>{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}</span>
                               </div>
                               {review.purchasedItems && review.purchasedItems.length > 0 && (
                                 <div style={{ fontSize: '0.8rem', color: '#777', marginTop: '0.2rem' }}>
