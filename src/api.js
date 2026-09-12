@@ -23,58 +23,11 @@ export const deleteProduct = async (id) => {
   return res.data;
 };
 
-// 프론트엔드 이미지 자동 압축 엔진 (WebP 변환, 최대 1200px)
-const compressImage = (file) => {
-  return new Promise((resolve) => {
-    if (!file.type.startsWith('image/')) return resolve(file);
-    if (file.type === 'image/gif') return resolve(file); // GIF는 압축 제외
-    
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target.result;
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-        const max = 1200;
-        
-        if (width > max || height > max) {
-          if (width > height) {
-            height = Math.round((height *= max / width));
-            width = max;
-          } else {
-            width = Math.round((width *= max / height));
-            height = max;
-          }
-        }
-        
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        
-        canvas.toBlob((blob) => {
-          if (!blob) return resolve(file);
-          resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpeg", {
-            type: 'image/jpeg',
-            lastModified: Date.now()
-          }));
-        }, 'image/jpeg', 0.85);
-      };
-      img.onerror = () => resolve(file);
-    };
-    reader.onerror = () => resolve(file);
-  });
-};
-
 export const uploadImage = async (file) => {
+  const formData = new FormData();
+  formData.append('image', file);
+  
   try {
-    const compressedFile = await compressImage(file);
-    const formData = new FormData();
-    formData.append('image', compressedFile);
-    
     // 백엔드(Render) 서버의 IP가 ImgBB로부터 차단(403)당하는 문제를 해결하기 위해
     // 프론트엔드(클라이언트)에서 ImgBB API로 직접 이미지를 업로드하도록 수정합니다.
     const IMGBB_KEY = 'aaa7883871d2df3a5f6e47a2ed97e0f8';
@@ -171,9 +124,11 @@ export const uploadSlicedImage = async (file) => {
           // Upload slice directly to original backend upload route
           const formData = new FormData();
           formData.append('image', sliceFile);
-          const response = await axios.post(`${API_URL}/upload`, formData);
           
-          urls.push(response.data.imageUrl);
+          const IMGBB_KEY = 'aaa7883871d2df3a5f6e47a2ed97e0f8';
+          const response = await axios.post(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, formData);
+          
+          urls.push(response.data.data.url);
         }
         resolve(urls);
       } catch (err) {
