@@ -58,12 +58,12 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   
   useEffect(() => {
     if (product) {
-      const targetId = product._id || product.id;
-      getReviewsByProduct(targetId).then(res => {
+      const fetchId = product._id || product.id || id;
+      getReviewsByProduct(fetchId).then(res => {
         if (res.data) setReviews(res.data);
       }).catch(err => console.error(err));
     }
-  }, [product]);
+  }, [product, id]);
 
 
   // 상품 변경 시 메인 이미지로 초기화
@@ -132,8 +132,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   const totalPrice = finalUnitPrice * quantity;
 
   const formatPrice = (price) => {
-    if (price === undefined || price === null || isNaN(Number(price))) return '0';
-    return Number(price).toLocaleString('ko-KR');
+    return price.toLocaleString('ko-KR');
   };
 
   const handleDecrease = () => {
@@ -556,8 +555,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           <div ref={infoRef} style={{ paddingTop: '2rem', paddingBottom: '3rem', borderTop: '1px solid #eee' }}>
             <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.3rem' }}>구매 안내</h3>
             {product.purchaseInfoImageUrl ? (
-              <div style={{width: '100%', maxWidth: '800px', margin: '0 auto'}}>
-                <img src={product.purchaseInfoImageUrl} alt="구매 안내" loading="lazy" style={{width: '100%', height: 'auto', display: 'block'}} />
+              <div style={{textAlign: 'center'}}>
+                <img src={product.purchaseInfoImageUrl} alt="구매 안내" loading="lazy" style={{width: '100%', height: 'auto', borderRadius: '8px'}} />
               </div>
             ) : (
               <div style={{ padding: '2rem', background: '#f9f9f9', borderRadius: '8px' }}>
@@ -642,17 +641,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                                 ))}
                               </div>
                               <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'baseline' }}>
-                                <strong style={{ fontSize: '1.1rem', color: '#333' }}>
-                                  {(() => {
-                                    const name = review.userName || '익명';
-                                    return name.slice(0,1) + '*'.repeat(Math.max(0, name.length - 1));
-                                  })()}
-                                </strong>
-                                <span style={{ color: '#999', fontSize: '0.85rem' }}>
-                                  {review.createdAt && !isNaN(new Date(review.createdAt).getTime()) 
-                                    ? new Date(review.createdAt).toLocaleDateString() 
-                                    : ''}
-                                </span>
+                                <strong style={{ fontSize: '1.1rem', color: '#333' }}>{review.userName.slice(0,1) + '*'.repeat(review.userName.length - 1)}</strong>
+                                <span style={{ color: '#999', fontSize: '0.85rem' }}>{new Date(review.createdAt).toLocaleDateString()}</span>
                               </div>
                               {review.purchasedItems && review.purchasedItems.length > 0 && (
                                 <div style={{ fontSize: '0.9rem', color: '#888', marginTop: '0.2rem', padding: '0.4rem', background: '#f5f5f5', borderRadius: '4px', display: 'inline-block' }}>
