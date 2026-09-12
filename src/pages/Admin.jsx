@@ -636,10 +636,10 @@ function Admin({ refreshGlobalProducts }) {
 
       if (editingProductId) {
         await updateProduct(editingProductId, productPayload);
-        alert("��ǰ�� ���������� �����Ǿ����ϴ�.");
+        alert("상품이 성공적으로 수정되었습니다.");
       } else {
         await createProduct(productPayload);
-        alert("��ǰ�� ���������� ��ϵǾ����ϴ�.");
+        alert("상품이 성공적으로 등록되었습니다.");
       }
       
       if (refreshGlobalProducts) refreshGlobalProducts();
@@ -648,24 +648,19 @@ function Admin({ refreshGlobalProducts }) {
       setActiveTab('list');
       
     } catch (error) {
-      console.error('Submit Error Detailed:', error);
-      let detailMsg = error.message;
-      if (error.response) {
-        detailMsg += '\\nStatus: ' + error.response.status;
-        detailMsg += '\\nData: ' + JSON.stringify(error.response.data);
-      }
-      alert('[�� ���� ����]\\n�޽���: ' + error.message + '\\n��: ' + detailMsg);
+      console.error(error);
+      alert("처리 실패: " + (error.response?.data?.error || error.message));
     } finally {
       setUploading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("���� �� ��ǰ�� �����Ͻðڽ��ϱ�?")) {
+    if (window.confirm("정말 이 상품을 삭제하시겠습니까?")) {
       try {
         setProducts(prev => prev.filter(p => (p._id || p.id) !== id));
         await deleteProduct(id);
-        alert("�����Ǿ����ϴ�.");
+        alert("삭제되었습니다.");
         loadProducts();
         if (refreshGlobalProducts) refreshGlobalProducts();
       } catch (error) {
