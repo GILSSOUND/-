@@ -475,8 +475,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
             }}>
             {/* 구버전 단일 이미지 지원 */}
             {product.detailImageUrl && (
-              <div style={{textAlign: 'center', marginBottom: '2rem'}}>
-                <img src={product.detailImageUrl} alt="상품 상세 설명" loading="lazy" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}} />
+              <div style={{width: '100%', maxWidth: '800px', margin: '0 auto', textAlign: 'center', marginBottom: '2rem'}}>
+                <img src={product.detailImageUrl} alt="상품 상세 설명" loading="lazy" style={{width: '100%', height: 'auto', borderRadius: '8px', display: 'block'}} />
               </div>
             )}
             
@@ -555,8 +555,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           <div ref={infoRef} style={{ paddingTop: '2rem', paddingBottom: '3rem', borderTop: '1px solid #eee' }}>
             <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.3rem' }}>구매 안내</h3>
             {product.purchaseInfoImageUrl ? (
-              <div style={{textAlign: 'center'}}>
-                <img src={product.purchaseInfoImageUrl} alt="구매 안내" loading="lazy" style={{width: '100%', height: 'auto', borderRadius: '8px'}} />
+              <div style={{width: '100%', maxWidth: '800px', margin: '0 auto', textAlign: 'center'}}>
+                <img src={product.purchaseInfoImageUrl} alt="구매 안내" loading="lazy" style={{width: '100%', height: 'auto', borderRadius: '8px', display: 'block'}} />
               </div>
             ) : (
               <div style={{ padding: '2rem', background: '#f9f9f9', borderRadius: '8px' }}>
