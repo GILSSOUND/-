@@ -281,9 +281,36 @@ app.use(async (req, res, next) => {
   try {
     let html = fs.readFileSync(path.join(__dirname, '../dist/index.html'), 'utf8');
     const products = await getProductsCached();
+    
+    // OG(Open Graph) 태그 동적 생성 (카카오톡, 인스타 등 공유 썸네일용)
+    let ogTitle = '길스몰';
+    let ogDesc = '길스몰을 추천합니다';
+    let ogImage = 'https://i.ibb.co/L5kL2P1/Kakao-Talk-20250106-193616688.jpg'; // 길스몰 기본 로고 또는 대표 이미지
+
+    // 상품 페이지인 경우 상품 정보로 덮어쓰기
+    if (req.path.startsWith('/product/')) {
+      const parts = req.path.split('/');
+      const id = parts[parts.length - 1];
+      const product = products.find(p => p._id.toString() === id || p.id === parseInt(id));
+      if (product) {
+        ogTitle = '길스몰을 추천합니다';
+        ogDesc = product.name;
+        if (product.imageUrl) {
+          ogImage = product.imageUrl;
+        }
+      }
+    }
+
+    const ogTags = `
+      <meta property="og:title" content="${ogTitle}" />
+      <meta property="og:description" content="${ogDesc}" />
+      <meta property="og:image" content="${ogImage}" />
+      <meta property="og:type" content="website" />
+    `;
+
     // 안전하게 스크립트 태그로 데이터 주입
     const scriptTag = `<script>window.__INITIAL_PRODUCTS__ = ${JSON.stringify(products).replace(/</g, '\\u003c')};</script>`;
-    html = html.replace('</head>', `${scriptTag}</head>`);
+    html = html.replace('</head>', `${ogTags}\n${scriptTag}\n</head>`);
     res.send(html);
   } catch (err) {
     console.error("HTML Injection failed, serving raw file", err);

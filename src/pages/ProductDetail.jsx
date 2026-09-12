@@ -103,7 +103,7 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: product.name,
+          title: '길스몰을 추천합니다',
           url: shareUrl,
         });
       } else {

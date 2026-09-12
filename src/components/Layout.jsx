@@ -139,11 +139,10 @@ function Layout({ cartCount, products, wishlistCount }) {
       <div 
         onClick={async () => {
           const shareUrl = window.location.href;
-          const shareTitle = document.title || '길스몰';
           try {
             if (navigator.share) {
               await navigator.share({
-                title: shareTitle,
+                title: '길스몰을 추천합니다',
                 url: shareUrl,
               });
             } else {
