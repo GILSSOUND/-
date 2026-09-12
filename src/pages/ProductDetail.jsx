@@ -132,7 +132,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   const totalPrice = finalUnitPrice * quantity;
 
   const formatPrice = (price) => {
-    return price.toLocaleString('ko-KR');
+    if (price === undefined || price === null || isNaN(Number(price))) return '0';
+    return Number(price).toLocaleString('ko-KR');
   };
 
   const handleDecrease = () => {
@@ -641,7 +642,12 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                                 ))}
                               </div>
                               <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'baseline' }}>
-                                <strong style={{ fontSize: '1.1rem', color: '#333' }}>{review.userName.slice(0,1) + '*'.repeat(review.userName.length - 1)}</strong>
+                                <strong style={{ fontSize: '1.1rem', color: '#333' }}>
+                                  {(() => {
+                                    const name = review.userName || '익명';
+                                    return name.slice(0,1) + '*'.repeat(Math.max(0, name.length - 1));
+                                  })()}
+                                </strong>
                                 <span style={{ color: '#999', fontSize: '0.85rem' }}>{new Date(review.createdAt).toLocaleDateString()}</span>
                               </div>
                               {review.purchasedItems && review.purchasedItems.length > 0 && (
