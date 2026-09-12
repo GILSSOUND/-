@@ -594,23 +594,23 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
               return (
                 <>
                   {/* 리뷰 통계 박스 */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', background: '#f8f9fa', borderRadius: '12px', border: '1px solid #eee', marginBottom: '2rem', overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', background: '#f8f9fa', borderRadius: '12px', border: '1px solid #eee', marginBottom: '1rem', overflow: 'hidden' }}>
                     
                     {/* 왼쪽: 총평점 */}
-                    <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: '#fff' }}>
-                      <h4 style={{ fontSize: '1.2rem', margin: '0 0 1rem 0', color: '#333' }}>총 평점</h4>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Star size={40} fill="#ffc107" color="#ffc107" />
-                        <span style={{ fontSize: '3rem', fontWeight: 'bold', color: '#000', lineHeight: 1 }}>{avgRating}</span>
+                    <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1rem', background: '#fff' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <h4 style={{ fontSize: '1.1rem', margin: 0, color: '#333' }}>총 평점</h4>
+                        <Star size={22} fill="#ffc107" color="#ffc107" />
+                        <span style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#000', lineHeight: 1 }}>{avgRating}</span>
                       </div>
-                      <p style={{ color: '#666', margin: '1rem 0 0 0', fontSize: '1rem' }}>구매후기 <strong style={{color: 'var(--primary-color)'}}>{totalReviews}</strong>건</p>
+                      <p style={{ color: '#666', margin: '0.4rem 0 0 0', fontSize: '0.9rem' }}>구매후기 <strong style={{color: 'var(--primary-color)'}}>{totalReviews}</strong>건</p>
                     </div>
 
                     {/* 구분선 (데스크탑은 세로, 모바일은 가로) */}
                     <div style={{ width: '1px', background: '#eee' }} className="desktop-divider"></div>
 
                     {/* 오른쪽: 별점 분포 */}
-                    <div style={{ flex: '2 1 300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '2rem', gap: '0.8rem', background: '#fafafa' }}>
+                    <div style={{ flex: '2 1 300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '1rem', gap: '0.4rem', background: '#fafafa' }}>
                       {[
                         { stars: 5, label: '완전좋아요' },
                         { stars: 4, label: '좋아요' },
@@ -618,10 +618,10 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                         { stars: 2, label: '그저그래요' },
                         { stars: 1, label: '별로에요' },
                       ].map(item => (
-                        <div key={item.stars} style={{ display: 'flex', alignItems: 'center', fontSize: '1rem' }}>
-                          <span style={{ width: '90px', color: '#444', fontWeight: 'bold' }}>{item.label}</span>
-                          <div style={{ flex: 1, height: '10px', background: '#e9ecef', borderRadius: '5px', margin: '0 1rem', overflow: 'hidden' }}>
-                            <div style={{ width: `${totalReviews > 0 ? (ratingCounts[item.stars] / totalReviews) * 100 : 0}%`, height: '100%', background: '#ffc107', borderRadius: '5px' }}></div>
+                        <div key={item.stars} style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem' }}>
+                          <span style={{ width: '80px', color: '#444', fontWeight: 'bold' }}>{item.label}</span>
+                          <div style={{ flex: 1, height: '8px', background: '#e9ecef', borderRadius: '4px', margin: '0 0.8rem', overflow: 'hidden' }}>
+                            <div style={{ width: `${totalReviews > 0 ? (ratingCounts[item.stars] / totalReviews) * 100 : 0}%`, height: '100%', background: '#ffc107', borderRadius: '4px' }}></div>
                           </div>
                           <span style={{ width: '30px', textAlign: 'right', color: '#666' }}>{ratingCounts[item.stars]}</span>
                         </div>
@@ -635,26 +635,26 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                       아직 등록된 후기가 없습니다.<br/>첫 번째 후기를 남겨주세요!
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                       {reviews.map(review => (
-                        <div key={review._id} style={{ padding: '2rem', background: '#fff', borderRadius: '12px', border: '1px solid #eaeaea', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                        <div key={review._id} style={{ padding: '1rem', background: '#fff', borderRadius: '8px', border: '1px solid #eaeaea', boxShadow: '0 1px 4px rgba(0,0,0,0.02)' }}>
                           
                           {/* 작성자 및 별점 헤더 */}
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px dashed #eee', paddingBottom: '1rem' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', borderBottom: '1px dashed #eee', paddingBottom: '0.6rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                               <div style={{ display: 'flex', color: '#ffc107', gap: '0.1rem' }}>
                                 {[1, 2, 3, 4, 5].map(star => (
-                                  <Star key={star} size={18} fill={review.rating >= star ? '#ffc107' : 'none'} color={review.rating >= star ? '#ffc107' : '#ddd'} />
+                                  <Star key={star} size={14} fill={review.rating >= star ? '#ffc107' : 'none'} color={review.rating >= star ? '#ffc107' : '#ddd'} />
                                 ))}
                               </div>
-                              <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'baseline' }}>
-                                <strong style={{ fontSize: '1.1rem', color: '#333' }}>{review.userName.slice(0,1) + '*'.repeat(review.userName.length - 1)}</strong>
-                                <span style={{ color: '#999', fontSize: '0.85rem' }}>{new Date(review.createdAt).toLocaleDateString()}</span>
+                              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'baseline' }}>
+                                <strong style={{ fontSize: '0.95rem', color: '#333' }}>{review.userName.slice(0,1) + '*'.repeat(review.userName.length - 1)}</strong>
+                                <span style={{ color: '#999', fontSize: '0.8rem' }}>{new Date(review.createdAt).toLocaleDateString()}</span>
                               </div>
                               {review.purchasedItems && review.purchasedItems.length > 0 && (
-                                <div style={{ fontSize: '0.9rem', color: '#888', marginTop: '0.2rem', padding: '0.4rem', background: '#f5f5f5', borderRadius: '4px', display: 'inline-block' }}>
+                                <div style={{ fontSize: '0.8rem', color: '#777', marginTop: '0.2rem' }}>
                                   {review.purchasedItems.map((item, i) => (
-                                    <div key={i}>{item.name} {item.option ? `(${item.option})` : ''}</div>
+                                    <span key={i}>{item.name} {item.option ? `(${item.option})` : ''}{i < review.purchasedItems.length - 1 ? ', ' : ''}</span>
                                   ))}
                                 </div>
                               )}
@@ -663,15 +663,15 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
 
                           {/* 1. 사진 영역 (먼저 표시) */}
                           {review.images && review.images.length > 0 && (
-                            <div style={{ display: 'flex', gap: '0.8rem', overflowX: 'auto', marginBottom: '1.5rem', paddingBottom: '0.5rem' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', marginBottom: '0.8rem', paddingBottom: '0.3rem' }}>
                               {review.images.map((img, idx) => (
-                                <img key={idx} src={img} alt="리뷰 사진" style={{ width: '120px', height: '120px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd', cursor: 'pointer' }} onClick={() => setReviewImagePopup({ isOpen: true, images: review.images, currentIndex: idx })} />
+                                <img key={idx} src={img} alt="리뷰 사진" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #ddd', cursor: 'pointer' }} onClick={() => setReviewImagePopup({ isOpen: true, images: review.images, currentIndex: idx })} />
                               ))}
                             </div>
                           )}
 
                           {/* 2. 텍스트 영역 (나중에 표시) */}
-                          <p style={{ lineHeight: '1.7', color: '#222', margin: 0, whiteSpace: 'pre-wrap', fontSize: '1.1rem', fontWeight: 500, fontFamily: '"Pretendard", "Noto Sans KR", sans-serif', wordBreak: 'keep-all' }}>
+                          <p style={{ lineHeight: '1.5', color: '#333', margin: 0, whiteSpace: 'pre-wrap', fontSize: '0.95rem', fontWeight: 400, fontFamily: '"Pretendard", "Noto Sans KR", sans-serif', wordBreak: 'keep-all' }}>
                             {review.content}
                           </p>
                         </div>
