@@ -104,7 +104,6 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
       if (navigator.share) {
         await navigator.share({
           title: product.name,
-          text: `길스몰에서 ${product.name}을(를) 만나보세요!`,
           url: shareUrl,
         });
       } else {
@@ -663,9 +662,9 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
 
                           {/* 1. 사진 영역 (먼저 표시) */}
                           {review.images && review.images.length > 0 && (
-                            <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', marginBottom: '0.8rem', paddingBottom: '0.3rem' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.8rem', paddingBottom: '0.3rem' }}>
                               {review.images.map((img, idx) => (
-                                <img key={idx} src={img} alt="리뷰 사진" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #ddd', cursor: 'pointer' }} onClick={() => setReviewImagePopup({ isOpen: true, images: review.images, currentIndex: idx })} />
+                                <img key={idx} src={img} alt="리뷰 사진" style={{ width: '65px', height: '65px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #ddd', cursor: 'pointer' }} onClick={() => setReviewImagePopup({ isOpen: true, images: review.images, currentIndex: idx })} />
                               ))}
                             </div>
                           )}

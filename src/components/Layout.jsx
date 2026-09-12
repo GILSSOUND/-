@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Heart, ShoppingCart, User, X, Utensils, Sparkles, MapPin, Truck, Percent, LogOut, LogIn } from 'lucide-react';
+import { Search, Heart, ShoppingCart, User, X, Utensils, Sparkles, MapPin, Truck, Percent, LogOut, LogIn, Share2 } from 'lucide-react';
 import { storeConfig } from '../data/products';
 import { useAuth } from '../context/AuthContext';
 
@@ -135,15 +135,29 @@ function Layout({ cartCount, products, wishlistCount }) {
         </p>
       </footer>
 
-      {/* Floating Login/Logout Button */}
+      {/* Floating Share Button */}
       <div 
-        onClick={() => {
-          if (user) {
-            if (window.confirm("로그아웃하시겠습니까?")) {
-              logout();
+        onClick={async () => {
+          const shareUrl = window.location.href;
+          const shareTitle = document.title || '길스몰';
+          try {
+            if (navigator.share) {
+              await navigator.share({
+                title: shareTitle,
+                url: shareUrl,
+              });
+            } else {
+              throw new Error('Not supported');
             }
-          } else {
-            requireAuth(() => {});
+          } catch (error) {
+            if (error.name !== 'AbortError' && !error.message.includes('canceled')) {
+              try {
+                await navigator.clipboard.writeText(shareUrl);
+                alert('링크가 복사되었습니다! 카카오톡이나 SNS에 붙여넣기 하세요.');
+              } catch (err) {
+                alert('현재 환경에서는 공유 기능을 지원하지 않습니다.');
+              }
+            }
           }
         }}
         style={{
@@ -163,11 +177,11 @@ function Layout({ cartCount, products, wishlistCount }) {
           zIndex: 1000,
           transition: 'transform 0.2s',
         }}
-        title={user ? "로그아웃" : "로그인"}
+        title="공유하기"
         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
       >
-        {user ? <LogOut size={26} /> : <LogIn size={26} />}
+        <Share2 size={26} />
       </div>
     </div>
   );
