@@ -60,8 +60,15 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
     if (product) {
       const fetchId = product._id || product.id || id;
       getReviewsByProduct(fetchId).then(res => {
-        if (res.data) setReviews(res.data);
-      }).catch(err => console.error(err));
+        if (res.data && Array.isArray(res.data)) {
+          setReviews(res.data);
+        } else {
+          setReviews([]);
+        }
+      }).catch(err => {
+        console.error(err);
+        setReviews([]);
+      });
     }
   }, [product, id]);
 
