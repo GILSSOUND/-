@@ -65,8 +65,13 @@ const productSchema = new mongoose.Schema({
   averageRating: { type: Number, default: 0 },
   options: [{
     name: { type: String, required: true },
-    additionalPrice: { type: Number, default: 0 }
-  }]
+    additionalPrice: { type: Number, default: 0 },
+    isSoldOut: { type: Boolean, default: false }
+  }],
+  isSoldOut: {
+    type: Boolean,
+    default: false
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);

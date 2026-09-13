@@ -132,8 +132,10 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
     const currentOption = product.options?.find(opt => opt.name === selectedOption) || null;
   // 옵션 추가금액 계산
   const additionalPrice = currentOption ? currentOption.additionalPrice : 0;
-  // 최종 단가 (기본가 + 옵션가)
   const finalUnitPrice = product.price + additionalPrice;
+  const finalOriginalPrice = product.originalPrice && product.price > 0 
+    ? Math.round(finalUnitPrice * (product.originalPrice / product.price)) 
+    : product.originalPrice;
   // 총 결제 금액
   const totalPrice = finalUnitPrice * quantity;
 
@@ -362,8 +364,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
           
           <div className="detail-price-box" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: '0.6rem' }}>
-              {product.originalPrice && (
-                <span className="detail-original-price" style={{ textDecoration: 'line-through', color: '#bbb', fontSize: '1.1rem', lineHeight: '1.2' }}>{formatPrice(product.originalPrice)}원</span>
+              {finalOriginalPrice && (
+                <span className="detail-original-price" style={{ textDecoration: 'line-through', color: '#bbb', fontSize: '1.1rem', lineHeight: '1.2' }}>{formatPrice(finalOriginalPrice)}원</span>
               )}
               <span className="detail-price" style={{ fontSize: '1.6rem', fontWeight: 'bold', color: '#000', lineHeight: '1' }}>{formatPrice(finalUnitPrice)}원</span>
               {product.discount && <span className="detail-discount" style={{ color: '#ff6b00', fontWeight: 'bold', fontSize: '1.2rem', lineHeight: '1.1' }}>{product.discount}</span>}
@@ -419,8 +421,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
                 >
                   <option value="">옵션을 선택하세요</option>
                   {product.options.map((opt, idx) => (
-                    <option key={idx} value={opt.name}>
-                      {opt.name} {opt.additionalPrice > 0 ? `(+${formatPrice(opt.additionalPrice)}원)` : ''}
+                    <option key={idx} value={opt.name} disabled={opt.isSoldOut}>
+                      {opt.name} {opt.additionalPrice > 0 ? `(+${formatPrice(opt.additionalPrice)}원)` : ''} {opt.isSoldOut ? '[품절]' : ''}
                     </option>
                   ))}
                 </select>
@@ -452,12 +454,20 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
               <button className="outline-btn wish" onClick={(e) => handleToggleWishlist(product, e)} style={{ flex: '0 0 auto', padding: '0 1.5rem', height: '54px', borderRadius: '8px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff6b00' }}>
                 <Heart size={24} />
               </button>
-              <button className="outline-btn cart" onClick={onAddToCartClick} style={{ flex: 1, height: '54px', borderRadius: '8px', border: '1px solid var(--primary-color)', color: 'var(--primary-color)', background: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
-                장바구니 담기
-              </button>
-              <button className="primary-btn buy" onClick={(e) => { requireAuth(() => { const success = onAddToCartClick(e); if(success) navigate('/cart'); }); }} style={{ flex: 1, height: '54px', borderRadius: '8px', border: 'none', background: 'var(--primary-color)', color: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
-                구매하기
-              </button>
+              {product.isSoldOut ? (
+                <button disabled style={{ flex: 2, height: '54px', borderRadius: '8px', border: 'none', background: '#ccc', color: '#fff', fontWeight: 'bold', fontSize: '1.2rem', cursor: 'not-allowed' }}>
+                  일시품절
+                </button>
+              ) : (
+                <>
+                  <button className="outline-btn cart" onClick={onAddToCartClick} style={{ flex: 1, height: '54px', borderRadius: '8px', border: '1px solid var(--primary-color)', color: 'var(--primary-color)', background: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
+                    장바구니 담기
+                  </button>
+                  <button className="primary-btn buy" onClick={(e) => { requireAuth(() => { const success = onAddToCartClick(e); if(success) navigate('/cart'); }); }} style={{ flex: 1, height: '54px', borderRadius: '8px', border: 'none', background: 'var(--primary-color)', color: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
+                    구매하기
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

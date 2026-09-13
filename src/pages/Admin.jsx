@@ -17,6 +17,41 @@ function Admin({ refreshGlobalProducts }) {
     }
   };
 
+  const openStockManager = (product) => {
+    setStockModalProduct(product);
+    setStockOptions(product.options || []);
+    setIsAllSoldOut(product.isSoldOut || false);
+  };
+
+  const handleStockOptionChange = (idx, checked) => {
+    const newOptions = [...stockOptions];
+    newOptions[idx].isSoldOut = checked;
+    setStockOptions(newOptions);
+    setIsAllSoldOut(newOptions.every(opt => opt.isSoldOut));
+  };
+
+  const handleAllSoldOutChange = (checked) => {
+    setIsAllSoldOut(checked);
+    setStockOptions(stockOptions.map(opt => ({...opt, isSoldOut: checked})));
+  };
+
+  const handleSaveStock = async () => {
+    try {
+      const updatedProduct = {
+        ...stockModalProduct,
+        options: stockOptions,
+        isSoldOut: isAllSoldOut || (stockOptions.length > 0 && stockOptions.every(opt => opt.isSoldOut))
+      };
+      await updateProduct(stockModalProduct._id || stockModalProduct.id, updatedProduct);
+      alert('품절 상태가 저장되었습니다.');
+      setStockModalProduct(null);
+      loadProducts();
+      if (typeof refreshGlobalProducts === 'function') refreshGlobalProducts();
+    } catch (error) {
+      alert('품절 상태 저장 실패');
+    }
+  };
+
   const handleReviewDelete = async (reviewId) => {
     if (window.confirm('정말 이 리뷰를 삭제하시겠습니까?')) {
       try {
@@ -101,6 +136,11 @@ function Admin({ refreshGlobalProducts }) {
   const [orderStartDate, setOrderStartDate] = useState(defaultStartDate);
   const [orderEndDate, setOrderEndDate] = useState(defaultEndDate);
 
+  // 품절 관리 모달 상태
+  const [stockModalProduct, setStockModalProduct] = useState(null);
+  const [stockOptions, setStockOptions] = useState([]);
+  const [isAllSoldOut, setIsAllSoldOut] = useState(false);
+
   // 기본 폼
   const initialFormData = {
     name: '',
@@ -115,7 +155,7 @@ function Admin({ refreshGlobalProducts }) {
 
   // 폼 상태
   const [formData, setFormData] = useState(initialFormData);
-  
+
   // 메인 썸네일 상태
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -1178,6 +1218,12 @@ const handleSaveBannerEditor = async () => {
                         style={{padding: '0.6rem 1rem', background: '#e3f2fd', color: '#1976d2', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: '600'}}
                       >
                         <List size={16} /><span className="action-text">리뷰관리</span>
+                      </button>
+                      <button 
+                        onClick={() => openStockManager(p)}
+                        style={{padding: '0.6rem 1rem', background: '#fff3cd', color: '#856404', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: '600'}}
+                      >
+                        <PackagePlus size={16} /><span className="action-text">품절관리</span>
                       </button>
                     </div>
                   </div>
