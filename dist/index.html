@@ -9,7 +9,40 @@
     <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
     <!-- 다음 우편번호 서비스 -->
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-    <script type="module" crossorigin src="/assets/index-DYHsVZvt.js"></script>
+    <script>
+      (function() {
+        var ua = navigator.userAgent.toLowerCase();
+        var targetUrl = window.location.href;
+        
+        var isKakao = ua.indexOf('kakaotalk') > -1;
+        var isInstagram = ua.indexOf('instagram') > -1;
+        var isFacebook = ua.indexOf('fbav') > -1 || ua.indexOf('facebook') > -1;
+        var isLine = ua.indexOf('line') > -1;
+        var isInApp = isKakao || isInstagram || isFacebook || isLine;
+        
+        var isAndroid = ua.indexOf('android') > -1;
+        var isIOS = !!ua.match(/iphone|ipad|ipod/i);
+
+        if (isInApp) {
+          if (isAndroid) {
+            location.href = 'intent://' + targetUrl.replace(/https?:\/\//i, '') + '#Intent;scheme=https;package=com.android.chrome;end';
+          } else if (isIOS) {
+            if (isKakao) {
+              location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(targetUrl);
+            } else {
+              // iOS 인스타/페이스북 등의 경우 자동 전환이 막혀있어 안내 문구 표시
+              window.onload = function() {
+                var overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:99999;display:flex;flex-direction:column;justify-content:center;align-items:center;color:white;padding:20px;text-align:center;line-height:1.6;font-size:1.2rem;';
+                overlay.innerHTML = '<b style="font-size:1.5rem;color:#ffc107;margin-bottom:1rem;">⚠️ 원활한 쇼핑을 위해<br/>사파리 브라우저로 이동해주세요.</b><p>오른쪽 아래 <b>(···)</b> 아이콘이나 <b>공유</b> 버튼을 누른 후<br/><br/><span style="background:#fff;color:#000;padding:8px 16px;border-radius:20px;font-weight:bold;">Safari에서 열기</span><br/><br/>를 선택해주세요.</p>';
+                document.body.appendChild(overlay);
+              };
+            }
+          }
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-Bbv7xGo-.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index--3Y52wLE.css">
   </head>
   <body>

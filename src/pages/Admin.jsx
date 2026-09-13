@@ -1897,8 +1897,8 @@ const handleSaveBannerEditor = async () => {
               </div>
             ) : (
               <div className="prep-banner" style={{
-                width: '100%',
-                aspectRatio: '4 / 1',
+                width: "100%",
+                aspectRatio: "4 / 1",
                 position: 'relative',
                 display: 'flex',
                 alignItems: 'center',

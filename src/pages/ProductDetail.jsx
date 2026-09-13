@@ -131,8 +131,8 @@ function ProductDetail({ handleAddToCart, handleToggleWishlist, products }) {
   };
     const currentOption = product.options?.find(opt => opt.name === selectedOption) || null;
   // 옵션 추가금액 계산
-  const additionalPrice = currentOption ? currentOption.additionalPrice : 0;
-  const finalUnitPrice = product.price + additionalPrice;
+  const additionalPrice = currentOption ? Number(currentOption.additionalPrice) : 0;
+  const finalUnitPrice = Number(product.price) + additionalPrice;
   const finalOriginalPrice = product.originalPrice && product.price > 0 
     ? Math.round(finalUnitPrice * (product.originalPrice / product.price)) 
     : product.originalPrice;
