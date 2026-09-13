@@ -247,7 +247,7 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
         <h2 className="section-title">전체상품</h2>
         <div className="product-grid">
           {currentProducts.map(product => (
-            <div key={product._id || product.id} className="product-card" onClick={() => navigate(`/product/${product._id || product.id}`)}>
+            <div key={product._id || product.id} className="product-card" onClick={() => navigate(`/product/${product._id || product.id}`)} style={product.isSoldOut ? { filter: 'grayscale(100%)', opacity: 0.7 } : {}}>
               <div className="card-img-container">
                 <img 
                   src={product.imageUrl} 
@@ -255,13 +255,12 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
                   loading="lazy" 
                   decoding="async" 
                   className="card-img" 
-                  style={product.isSoldOut ? { filter: 'grayscale(85%) opacity(0.8)' } : {}}
                 />
                 {product.isSoldOut && (
                   <div style={{
                     position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'white', fontSize: '1.8rem', fontWeight: '900', zIndex: 10, letterSpacing: '4px', textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
+                    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#fff', fontSize: '2rem', fontWeight: '900', zIndex: 10, letterSpacing: '4px', textShadow: '2px 2px 6px #000'
                   }}>
                     일시품절
                   </div>
