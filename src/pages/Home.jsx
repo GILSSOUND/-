@@ -249,12 +249,19 @@ function Home({ handleAddToCart, handleToggleWishlist, products, refreshGlobalPr
           {currentProducts.map(product => (
             <div key={product._id || product.id} className="product-card" onClick={() => navigate(`/product/${product._id || product.id}`)}>
               <div className="card-img-container">
-                <img src={product.imageUrl} alt={product.name} loading="lazy" decoding="async" className="card-img" />
+                <img 
+                  src={product.imageUrl} 
+                  alt={product.name} 
+                  loading="lazy" 
+                  decoding="async" 
+                  className="card-img" 
+                  style={product.isSoldOut ? { filter: 'grayscale(85%) opacity(0.8)' } : {}}
+                />
                 {product.isSoldOut && (
                   <div style={{
                     position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'white', fontSize: '1.5rem', fontWeight: 'bold', zIndex: 10, letterSpacing: '2px'
+                    backgroundColor: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'white', fontSize: '1.8rem', fontWeight: '900', zIndex: 10, letterSpacing: '4px', textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
                   }}>
                     일시품절
                   </div>
