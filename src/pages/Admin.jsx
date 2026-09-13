@@ -2276,6 +2276,42 @@ const handleSaveBannerEditor = async () => {
         </div>
       </div>
     )}
+    {stockModalProduct && (
+      <div style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000}}>
+        <div style={{background: 'white', padding: '2rem', borderRadius: '12px', width: '90%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto'}}>
+          <h2 style={{fontSize: '1.5rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#333'}}>
+            품절 관리
+            <button onClick={() => setStockModalProduct(null)} style={{background: 'none', border: 'none', cursor: 'pointer', color: '#333'}}><X size={24} /></button>
+          </h2>
+          <div style={{marginBottom: '1.5rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px'}}>
+            <h3 style={{fontWeight: 'bold', marginBottom: '1rem', fontSize: '1.1rem', color: '#333'}}>{stockModalProduct.name}</h3>
+            <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 'bold', color: '#ff4757', fontSize: '1.1rem'}}>
+              <input type="checkbox" checked={isAllSoldOut} onChange={(e) => handleAllSoldOutChange(e.target.checked)} style={{width: '20px', height: '20px', accentColor: '#ff4757'}}/>
+              상품 전체 품절 처리
+            </label>
+          </div>
+          {stockOptions && stockOptions.length > 0 && (
+            <div style={{marginBottom: '1.5rem'}}>
+              <h4 style={{marginBottom: '0.8rem', fontWeight: 'bold', color: '#555', fontSize: '1rem'}}>옵션별 품절 관리</h4>
+              <ul style={{listStyle: 'none', padding: 0, margin: 0, border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden'}}>
+                {stockOptions.map((opt, idx) => (
+                  <li key={idx} style={{padding: '1rem', borderBottom: idx < stockOptions.length - 1 ? '1px solid #ddd' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: opt.isSoldOut ? '#fff0f0' : 'white'}}>
+                    <span style={{color: opt.isSoldOut ? '#ff4757' : '#333', fontWeight: opt.isSoldOut ? 'bold' : 'normal'}}>{opt.name}</span>
+                    <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: opt.isSoldOut ? '#ff4757' : '#555'}}>
+                      <input type="checkbox" checked={opt.isSoldOut || false} onChange={(e) => handleStockOptionChange(idx, e.target.checked)} style={{width: '18px', height: '18px', accentColor: '#ff4757'}} />
+                      품절
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <button onClick={handleSaveStock} style={{width: '100%', padding: '1rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold', transition: 'background 0.2s'}} onMouseOver={(e)=>e.currentTarget.style.background='#ff6b81'} onMouseOut={(e)=>e.currentTarget.style.background='#ff4757'}>
+            저장하기
+          </button>
+        </div>
+      </div>
+    )}
   </>
   );
 }
